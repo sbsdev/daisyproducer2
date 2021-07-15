@@ -95,11 +95,6 @@ ORDER BY words.untranslated
 --~ (when (:limit params) "LIMIT :limit")
 --~ (when (:offset params) "OFFSET :offset")
 
--- :name get-local-word-count :? :1
--- :doc retrieve the number of local words for a given document `id` and `untranslated`
-SELECT COUNT(*) FROM dictionary_localword
-WHERE document_id = :id
-AND untranslated = :untranslated
 
 -- :name insert-local-word :! :n
 -- :doc Insert or update a word in the local dictionary. Optionally specify `isconfirmed`.
