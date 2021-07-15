@@ -95,6 +95,14 @@ ORDER BY words.untranslated
 --~ (when (:limit params) "LIMIT :limit")
 --~ (when (:offset params) "OFFSET :offset")
 
+-- :name get-local-word :? :1
+-- :doc retrieve a local word record given `document_id`, `untranslated`, `type` and `homograph_disambiguation`.
+SELECT *
+FROM dictionary_localword
+WHERE untranslated = :untranslated
+AND type = :type
+AND homograph_disambiguation = :homograph_disambiguation
+AND document_id = :document_id
 
 -- :name insert-local-word :! :n
 -- :doc Insert or update a word in the local dictionary. Optionally specify `isconfirmed`.
@@ -109,6 +117,19 @@ contracted = VALUES(contracted),
 uncontracted = VALUES(uncontracted),
 --~ (when (:isconfirmed params) "isConfirmed = VALUES(isConfirmed),")
 isLocal = VALUES(isLocal)
+
+-- :name delete-local-word-partial :! :n
+-- :doc Set either contracted or uncontracted to NULL for given `document_id`, `untranslated`, `type` and `homograph_disambiguation`.
+UPDATE dictionary_localword
+/*~ (if (:contracted params) */
+SET contracted = NULL
+/*~*/
+SET uncontracted = NULL
+/*~ ) ~*/
+WHERE untranslated = :untranslated
+AND type = :type
+AND homograph_disambiguation = :homograph_disambiguation
+AND document_id = :document_id
 
 -- :name delete-local-word :! :n
 -- :doc Delete a word in the local dictionary.

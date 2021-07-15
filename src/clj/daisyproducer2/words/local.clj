@@ -37,23 +37,43 @@
     (whitelists/export-local-tables (:document-id word))
     insertions))
 
-(defn delete-word
-  "Remove a `word` from the db. If the word contains `:uncontracted`
-  remove the db record for `:grade` 1 and likewise if the word
-  contains `:contracted`. If there are no more braille translations
-  for this word then it is also removed from the hyphenations db.
-  Returns the number of deletions."
-  [word]
-  (log/debug "Delete local word" word)
+(defn- delete-word-and-hyphenation
+  "Uncoditionally delete `word` and its associated hyphenation. Returns
+  the number of deleted words, i.e. 0 or 1."
+  [{:keys [hyphenated document-id] :as word}]
   (let [deletions
         (db/delete-local-word
          (words/to-db word words/dictionary-keys words/dictionary-mapping))]
-    (when (:hyphenated word)
+    (when (and hyphenated (> deletions 0))
       (db/delete-hyphenation
        (words/to-db word words/hyphenation-keys words/hyphenation-mapping))
       (hyphenations/export))
-    (whitelists/export-local-tables (:document-id word))
+    (whitelists/export-local-tables document-id)
     deletions))
+
+(defn delete-word
+  "Remove a `word` from the db. If the word contains both
+  `:uncontracted` and `:contracted` then delete the db record. If the
+  word only contains either `:uncontracted` or `:contracted` then
+  update the db record and set the column to NULL. In the case the
+  other column was already NULL delete the whole db record. On
+  deletion also remove it from the hyphenations table. Returns the
+  number of deletions."
+  [{:keys [contracted uncontracted hyphenated document-id] :as word}]
+  (log/debug "Delete local word" word)
+  (if (and contracted uncontracted)
+    ;; delete the word and the associated hyphenation
+    (delete-word-and-hyphenation word)
+    ;; update the word or maybe delete it if the update would result
+    ;; in both contracted and uncontracted becoming NULL
+    (let [{old-contracted :contracted old-uncontracted :uncontracted}
+          (db/get-local-word
+           (words/to-db word words/dictionary-keys words/dictionary-mapping))]
+      (if (or (and contracted (nil? old-uncontracted))
+              (and uncontracted (nil? old-contracted)))
+        (delete-word-and-hyphenation word)
+        (db/delete-local-word-partial
+         (words/to-db word words/dictionary-keys words/dictionary-mapping))))))
 
 (prometheus/instrument! metrics/registry #'get-words)
 (prometheus/instrument! metrics/registry #'put-word)
