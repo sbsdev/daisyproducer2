@@ -60,7 +60,7 @@
   "Add braille to a `word` if it is missing. If any of `:uncontracted`
   or `:contracted` is nil then the correct braille is translated with
   louis and added to the word."
-  [{:keys [untranslated uncontracted contracted homograph-disambiguation] :as word}]
+  [{:keys [untranslated homograph-disambiguation] :as word}]
   (let [params {:name (is-name? word) :place (is-place? word)}
         ;; for homographs we have to use the homograph-disambiguation
         ;; to get the braille
@@ -68,9 +68,9 @@
                        (string/replace homograph-disambiguation "|" braille-dummy-text)
                        untranslated)]
     (cond-> word
-      (nil? uncontracted)
+      (and (contains? word :uncontracted) (nil? (:uncontracted word)))
       (assoc :uncontracted (louis/translate untranslated (louis/get-tables 1 params)))
-      (nil? contracted)
+      (and (contains? word :contracted) (nil? (:contracted word)))
       (assoc :contracted (louis/translate untranslated (louis/get-tables 2 params))))))
 
 (defn grades [grade]
