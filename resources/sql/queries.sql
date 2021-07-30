@@ -80,8 +80,14 @@ AND homograph_disambiguation = :homograph_disambiguation
 -----------------
 
 -- :name get-local-words :? :*
--- :doc retrieve all local words for a given document `id`. Optionally you can only get local words that match a `search` term. The words contain braille for both grades and the hyphenation if they exist. Optionally the results can be limited by `limit` and `offset`.
-SELECT words.*,
+-- :doc retrieve all local words for a given document `id` and `grade`. Optionally you can only get local words that match a `search` term. The words contain braille for both grades and the hyphenation if they exist. Optionally the results can be limited by `limit` and `offset`.
+SELECT words.untranslated,
+--~ (when (#{0 1} (:grade params)) "words.uncontracted,")
+--~ (when (#{0 2} (:grade params)) "words.contracted,")
+       words.type,
+       words.homograph_disambiguation,
+       words.document_id,
+       words.isLocal,
        (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END FROM documents_document WHERE id = :id) AS spelling,
        hyphenation.hyphenation AS hyphenated
 FROM dictionary_localword as words
@@ -91,6 +97,10 @@ AND hyphenation.spelling =
   (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END
   FROM  documents_document
   WHERE id = :id)
+-- either uncontracted or contracted should always be non-null so the following should be implicitely the case and hence not needed
+-- (when (= (:grade params) 0) "WHERE words.uncontracted IS NOT NULL OR words.contracted IS NOT NULL")
+--~ (when (= (:grade params) 1) "WHERE words.uncontracted IS NOT NULL")
+--~ (when (= (:grade params) 2) "WHERE words.contracted IS NOT NULL")
 ORDER BY words.untranslated
 --~ (when (:limit params) "LIMIT :limit")
 --~ (when (:offset params) "OFFSET :offset")

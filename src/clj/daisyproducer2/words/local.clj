@@ -15,7 +15,7 @@
   [id grade search limit offset]
   (let [document (db/get-document {:id id})
         spelling (:spelling document)
-        params (cond-> {:id id :limit limit :offset offset}
+        params (cond-> {:id id :limit limit :offset offset :grade grade}
                  (not (string/blank? search)) (assoc :search (db/search-to-sql search)))
         words (db/get-local-words params)]
     (->> words
