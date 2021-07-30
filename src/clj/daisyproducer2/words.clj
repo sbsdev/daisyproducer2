@@ -54,7 +54,9 @@
                      (complement-string braille-dummy-text "")
                      ends-with-dummy?
                      (complement-string "" braille-dummy-text))]
-    (assoc word :uncontracted uncontracted :contracted contracted)))
+    (cond-> word
+      uncontracted (assoc :uncontracted uncontracted)
+      contracted (assoc :contracted contracted))))
 
 (defn complement-braille
   "Add braille to a `word` if it is missing. If any of `:uncontracted`
