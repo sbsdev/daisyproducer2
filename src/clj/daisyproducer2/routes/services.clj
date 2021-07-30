@@ -216,7 +216,7 @@
                               (not-found))))}}] ; couldn't find and delete the requested resource
 
     ["/unknown-words"
-     {:swagger {:tags ["Local Words"]}
+     {:swagger {:tags ["Unknown Words"]}
       :get {:summary "Get all unknown words for a given document"
             :parameters {:path {:id int?}
                          :query {:grade ::grade
