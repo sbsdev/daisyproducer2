@@ -9,7 +9,6 @@ CREATE TABLE dictionary_localword (
   document_id              int(11)                       NOT NULL,
   isLocal                  tinyint(1)                    NOT NULL DEFAULT '0',
   isConfirmed              tinyint(1)                    NOT NULL DEFAULT '0',
-  isDeferred               tinyint(1)                    NOT NULL DEFAULT '0',
   UNIQUE KEY dictionary_localword_uniq (untranslated, type, homograph_disambiguation, document_id),
   INDEX (untranslated),
   FOREIGN KEY (document_id) REFERENCES documents_document (id) ON DELETE CASCADE
