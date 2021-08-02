@@ -8,6 +8,12 @@
             [daisyproducer2.words :as words]
             [iapetos.collector.fn :as prometheus]))
 
+(defn- remove-empty-vals
+  [{:keys [contracted uncontracted] :as word}]
+  (cond-> word
+    (nil? contracted) (dissoc :contracted)
+    (nil? uncontracted) (dissoc :uncontracted)))
+
 (defn get-words
   "Retrieve all local words for given document-id `id`, `grade` and
   a (possibly nil) `search` term. Limit the result set by `limit` and
@@ -20,6 +26,10 @@
         words (db/get-local-words params)]
     (->> words
          (map words/islocal-to-boolean)
+         ;; there are local words where we have only either contracted
+         ;; or uncontracted. Despite all my efforts the db will return
+         ;; a NULL value for those fields in that case.
+         (map remove-empty-vals)
          (map words/complement-hyphenation))))
 
 (defn put-word
