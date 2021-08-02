@@ -116,15 +116,28 @@ AND document_id = :document_id
 
 -- :name insert-local-word :! :n
 -- :doc Insert or update a word in the local dictionary. Optionally specify `isconfirmed`.
-INSERT INTO dictionary_localword (untranslated, contracted, uncontracted, type, homograph_disambiguation, document_id, isLocal, isConfirmed)
-/*~ (if (:isconfirmed params) */
-VALUES (:untranslated, :contracted, :uncontracted, :type, :homograph_disambiguation, :document_id, :islocal, :isconfirmed)
-/*~*/
-VALUES (:untranslated, :contracted, :uncontracted, :type, :homograph_disambiguation, :document_id, :islocal, DEFAULT)
-/*~ ) ~*/
+INSERT INTO dictionary_localword (
+       untranslated,
+--~ (when (:contracted params) "contracted,")
+--~ (when (:uncontracted params) "uncontracted,")
+       type,
+       homograph_disambiguation,
+       document_id,
+       isLocal,
+       isConfirmed)
+VALUES (
+       :untranslated,
+--~ (when (:contracted params) ":contracted,")
+--~ (when (:uncontracted params) ":uncontracted,")
+       :type,
+       :homograph_disambiguation,
+       :document_id,
+       :islocal,
+--~ (if (:isconfirmed params) ":isconfirmed" "DEFAULT")
+       )
 ON DUPLICATE KEY UPDATE
-contracted = VALUES(contracted),
-uncontracted = VALUES(uncontracted),
+--~ (when (:contracted params) "contracted = VALUES(contracted),")
+--~ (when (:uncontracted params) "uncontracted = VALUES(uncontracted),")
 --~ (when (:isconfirmed params) "isConfirmed = VALUES(isConfirmed),")
 isLocal = VALUES(isLocal)
 
