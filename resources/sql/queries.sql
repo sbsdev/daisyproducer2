@@ -175,15 +175,13 @@ AND l.document_id = :document-id
 -- :doc given a `document-id` and a `:grade` retrieve all unknown words for it. If `:grade` is 0 then return words for both grade 1 and 2. Otherwise just return the unknown words for the given grade.This assumes that the new words contained in this document have been inserted into the `dictionary_unknownword` table.
 -- NOTE: This query assumes that there are only records for the current document-id in the dictionary_unknownword table.
 (SELECT unknown.*,
-       COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,
-       COALESCE(l.contracted, g.contracted) AS contracted,
+--~ (when (#{0 1} (:grade params)) "COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,")
+--~ (when (#{0 2} (:grade params)) "COALESCE(l.contracted, g.contracted) AS contracted,")
        hyphenation.hyphenation AS hyphenated,
        (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END FROM documents_document WHERE id = :document-id) AS spelling
 FROM dictionary_unknownword unknown
 LEFT JOIN dictionary_localword l ON l.untranslated = unknown.untranslated AND l.type IN (0,1,3) AND l.document_id = :document-id
-     AND ((:grade = 0) OR (:grade = 1 AND l.uncontracted IS NOT NULL) OR (:grade = 2 AND l.contracted IS NOT NULL))
 LEFT JOIN dictionary_globalword g ON g.untranslated = unknown.untranslated AND g.type IN (0,1,3)
-     AND ((:grade = 0) OR (:grade = 1 AND g.uncontracted IS NOT NULL) OR (:grade = 2 AND g.contracted IS NOT NULL))
 LEFT JOIN hyphenation_words AS hyphenation
      ON unknown.untranslated = hyphenation.word
      AND hyphenation.spelling =
@@ -191,18 +189,18 @@ LEFT JOIN hyphenation_words AS hyphenation
 	  FROM  documents_document
 	  WHERE id = :document-id)
 WHERE unknown.type = 0
-AND (g.untranslated IS NULL AND l.untranslated IS NULL))
+AND g.untranslated IS NULL
+AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.uncontracted IS NULL))
+)
 UNION
 (SELECT unknown.*,
-       COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,
-       COALESCE(l.contracted, g.contracted) AS contracted,
+--~ (when (#{0 1} (:grade params)) "COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,")
+--~ (when (#{0 2} (:grade params)) "COALESCE(l.contracted, g.contracted) AS contracted,")
        hyphenation.hyphenation AS hyphenated,
        (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END FROM documents_document WHERE id = :document-id) AS spelling
 FROM dictionary_unknownword unknown
 LEFT JOIN dictionary_localword l ON l.untranslated = unknown.untranslated AND l.type IN (1,2) AND l.document_id = :document-id
-     AND ((:grade = 0) OR (:grade = 1 AND l.uncontracted IS NOT NULL) OR (:grade = 2 AND l.contracted IS NOT NULL))
 LEFT JOIN dictionary_globalword g ON g.untranslated = unknown.untranslated AND g.type IN (1,2)
-     AND ((:grade = 0) OR (:grade = 1 AND g.uncontracted IS NOT NULL) OR (:grade = 2 AND g.contracted IS NOT NULL))
 LEFT JOIN hyphenation_words AS hyphenation
      ON unknown.untranslated = hyphenation.word
      AND hyphenation.spelling =
@@ -210,18 +208,18 @@ LEFT JOIN hyphenation_words AS hyphenation
 	  FROM  documents_document
 	  WHERE id = :document-id)
 WHERE unknown.type = 2
-AND (g.untranslated IS NULL AND l.untranslated IS NULL))
+AND g.untranslated IS NULL
+AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.uncontracted IS NULL))
+)
 UNION
 (SELECT unknown.*,
-       COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,
-       COALESCE(l.contracted, g.contracted) AS contracted,
+--~ (when (#{0 1} (:grade params)) "COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,")
+--~ (when (#{0 2} (:grade params)) "COALESCE(l.contracted, g.contracted) AS contracted,")
        hyphenation.hyphenation AS hyphenated,
        (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END FROM documents_document WHERE id = :document-id) AS spelling
 FROM dictionary_unknownword unknown
 LEFT JOIN dictionary_localword l ON l.untranslated = unknown.untranslated AND l.type IN (3,4) AND l.document_id = :document-id
-     AND ((:grade = 0) OR (:grade = 1 AND l.uncontracted IS NOT NULL) OR (:grade = 2 AND l.contracted IS NOT NULL))
 LEFT JOIN dictionary_globalword g ON g.untranslated = unknown.untranslated AND g.type IN (3,4)
-     AND ((:grade = 0) OR (:grade = 1 AND g.uncontracted IS NOT NULL) OR (:grade = 2 AND g.contracted IS NOT NULL))
 LEFT JOIN hyphenation_words AS hyphenation
      ON unknown.untranslated = hyphenation.word
      AND hyphenation.spelling =
@@ -229,18 +227,18 @@ LEFT JOIN hyphenation_words AS hyphenation
 	  FROM  documents_document
 	  WHERE id = :document-id)
 WHERE unknown.type = 4
-AND (g.untranslated IS NULL AND l.untranslated IS NULL))
+AND g.untranslated IS NULL
+AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.uncontracted IS NULL))
+)
 UNION
 (SELECT unknown.*,
-       COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,
-       COALESCE(l.contracted, g.contracted) AS contracted,
+--~ (when (#{0 1} (:grade params)) "COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,")
+--~ (when (#{0 2} (:grade params)) "COALESCE(l.contracted, g.contracted) AS contracted,")
        hyphenation.hyphenation AS hyphenated,
        (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END FROM documents_document WHERE id = :document-id) AS spelling
 FROM dictionary_unknownword unknown
 LEFT JOIN dictionary_localword l ON l.untranslated = unknown.untranslated AND l.type IN (5) AND l.document_id = :document-id
-     AND ((:grade = 0) OR (:grade = 1 AND l.uncontracted IS NOT NULL) OR (:grade = 2 AND l.contracted IS NOT NULL))
 LEFT JOIN dictionary_globalword g ON g.untranslated = unknown.untranslated AND g.type IN (5)
-     AND ((:grade = 0) OR (:grade = 1 AND g.uncontracted IS NOT NULL) OR (:grade = 2 AND g.contracted IS NOT NULL))
 LEFT JOIN hyphenation_words AS hyphenation
      ON unknown.untranslated = hyphenation.word
      AND hyphenation.spelling =
@@ -248,7 +246,9 @@ LEFT JOIN hyphenation_words AS hyphenation
 	  FROM  documents_document
 	  WHERE id = :document-id)
 WHERE unknown.type = 5
-AND (g.untranslated IS NULL AND l.untranslated IS NULL))
+AND g.untranslated IS NULL
+AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.uncontracted IS NULL))
+)
 ORDER BY untranslated
 LIMIT :limit OFFSET :offset
 
