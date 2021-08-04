@@ -8,12 +8,6 @@
             [daisyproducer2.words :as words]
             [iapetos.collector.fn :as prometheus]))
 
-(defn- remove-empty-vals
-  [{:keys [contracted uncontracted] :as word}]
-  (cond-> word
-    (nil? contracted) (dissoc :contracted)
-    (nil? uncontracted) (dissoc :uncontracted)))
-
 (defn get-words
   "Retrieve all local words for given document-id `id`, `grade` and
   a (possibly nil) `search` term. Limit the result set by `limit` and
@@ -26,10 +20,6 @@
         words (db/get-local-words params)]
     (->> words
          (map words/islocal-to-boolean)
-         ;; there are local words where we have only either contracted
-         ;; or uncontracted. Despite all my efforts the db will return
-         ;; a NULL value for those fields in that case.
-         (map remove-empty-vals)
          (map words/complement-hyphenation))))
 
 (defn put-word
@@ -62,13 +52,12 @@
     deletions))
 
 (defn delete-word
-  "Remove a `word` from the db. If the word contains both
-  `:uncontracted` and `:contracted` then delete the db record. If the
-  word only contains either `:uncontracted` or `:contracted` then
-  update the db record and set the column to NULL. In the case the
-  other column was already NULL delete the whole db record. On
-  deletion also remove it from the hyphenations table. Returns the
-  number of deletions."
+  "Remove a `word` from the db. If both `:uncontracted` and
+  `:contracted` are non-nil then delete the db record. If either
+  `:uncontracted` or `:contracted` are non-nil then update the db
+  record and set the column to NULL. In the case the other column was
+  already NULL delete the whole db record. On deletion also remove it
+  from the hyphenations table. Returns the number of deletions."
   [{:keys [contracted uncontracted hyphenated document-id] :as word}]
   (log/debug "Delete local word" word)
   (if (and contracted uncontracted)

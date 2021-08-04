@@ -11,7 +11,7 @@
 (defn get-words [limit offset]
   (->> (db/get-confirmable-words {:limit limit :offset offset})
        (map words/islocal-to-boolean)
-       (map words/complement-braille)
+       (map #(words/complement-braille % 0))
        (map words/complement-ellipsis-braille)
        (map words/complement-hyphenation)))
 

@@ -189,8 +189,8 @@
             :middleware [wrap-restricted]
             :swagger {:security [{:apiAuth []}]}
             :parameters {:body {:untranslated string? :type int?
-                                (spec/opt :uncontracted) ::braille
-                                (spec/opt :contracted) ::braille
+                                :uncontracted (spec/maybe ::braille)
+                                :contracted (spec/maybe ::braille)
                                 :homograph-disambiguation string?
                                 :document-id int? :islocal boolean?
                                 :hyphenated (spec/maybe ::hyphenation)
@@ -203,8 +203,8 @@
                :middleware [wrap-restricted]
                :swagger {:security [{:apiAuth []}]}
                :parameters {:body {:untranslated string? :type int?
-                                   (spec/opt :uncontracted) ::braille
-                                   (spec/opt :contracted) ::braille
+                                   :uncontracted (spec/maybe ::braille)
+                                   :contracted (spec/maybe ::braille)
                                    :homograph-disambiguation string?
                                    :document-id int?
                                    :hyphenated (spec/maybe ::hyphenation)

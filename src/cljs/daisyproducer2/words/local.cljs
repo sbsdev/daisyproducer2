@@ -69,18 +69,24 @@
 
 (rf/reg-event-fx
   ::delete-word
-  (fn [{:keys [db]} [_ id]]
+  (fn [{:keys [db]} [_ id grade]]
     (let [word (get-in db [:words :local id])
           cleaned (-> word
                       (select-keys [:untranslated :uncontracted :contracted :type :homograph-disambiguation
                                     :document-id :hyphenated :spelling]))
+          ;; if grade is not 0 (both) then we only want to delete part of the
+          ;; word. So we leave the part we want to delete and set the other part
+          ;; to nil.
+          cleaned-for-grade (cond-> cleaned
+                              (= grade 1) (assoc :contracted nil)
+                              (= grade 2) (assoc :uncontracted nil))
           document-id (:document-id word)]
       {:db (notifications/set-button-state db id :delete)
        :http-xhrio {:method          :delete
                     :format          (ajax/json-request-format)
                     :headers 	     (auth/auth-header db)
                     :uri             (str "/api/documents/" document-id "/words")
-                    :params          cleaned
+                    :params          cleaned-for-grade
                     :response-format (ajax/json-response-format {:keywords? true})
                     :on-success      [::ack-delete id document-id]
                     :on-failure      [::ack-failure id :delete]
@@ -159,7 +165,7 @@
  (fn [db [_ id]]
    (validation/word-valid? (get-in db [:words :local id]))))
 
-(defn buttons [id]
+(defn buttons [id grade]
   (let [valid? @(rf/subscribe [::valid? id])
         authenticated? @(rf/subscribe [::auth/authenticated?])]
     [:div.buttons.has-addons
@@ -177,7 +183,7 @@
         {:disabled (not authenticated?)
          :data-tooltip (tr [:delete])
          :aria-label (tr [:delete])
-         :on-click (fn [e] (rf/dispatch [::delete-word id]))}
+         :on-click (fn [e] (rf/dispatch [::delete-word id grade]))}
         [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]])]))
 
 (defn word [id]
@@ -200,7 +206,7 @@
      [:td {:width "8%"} (get words/type-mapping type (tr [:unknown]))]
      [:td {:width "8%"} homograph-disambiguation]
      [:td [fields/local-field :local uuid]]
-     [:td {:width "8%"} [buttons uuid]]]))
+     [:td {:width "8%"} [buttons uuid grade]]]))
 
 (defn local-words []
   (let [words @(rf/subscribe [::words])

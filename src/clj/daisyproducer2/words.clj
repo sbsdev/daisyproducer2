@@ -61,8 +61,10 @@
 (defn complement-braille
   "Add braille to a `word` if it is missing. If any of `:uncontracted`
   or `:contracted` is nil then the correct braille is translated with
-  louis and added to the word."
-  [{:keys [untranslated homograph-disambiguation] :as word}]
+  louis and added to the word. If `grade` is 0 then this is done for
+  both `:uncontracted` and `:contracted`, otherwise just the
+  respective one is complemented."
+  [{:keys [untranslated uncontracted contracted homograph-disambiguation] :as word} grade]
   (let [params {:name (is-name? word) :place (is-place? word)}
         ;; for homographs we have to use the homograph-disambiguation
         ;; to get the braille
@@ -70,9 +72,9 @@
                        (string/replace homograph-disambiguation "|" braille-dummy-text)
                        untranslated)]
     (cond-> word
-      (and (contains? word :uncontracted) (nil? (:uncontracted word)))
+      (and (#{0 1} grade) (nil? uncontracted))
       (assoc :uncontracted (louis/translate untranslated (louis/get-tables 1 params)))
-      (and (contains? word :contracted) (nil? (:contracted word)))
+      (and (#{0 2} grade) (nil? contracted))
       (assoc :contracted (louis/translate untranslated (louis/get-tables 2 params))))))
 
 (defn grades [grade]

@@ -81,13 +81,7 @@ AND homograph_disambiguation = :homograph_disambiguation
 
 -- :name get-local-words :? :*
 -- :doc retrieve all local words for a given document `id` and `grade`. Optionally you can only get local words that match a `search` term. The words contain braille for both grades and the hyphenation if they exist. Optionally the results can be limited by `limit` and `offset`.
-SELECT words.untranslated,
---~ (when (#{0 1} (:grade params)) "words.uncontracted,")
---~ (when (#{0 2} (:grade params)) "words.contracted,")
-       words.type,
-       words.homograph_disambiguation,
-       words.document_id,
-       words.isLocal,
+SELECT words.*,
        (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END FROM documents_document WHERE id = :id) AS spelling,
        hyphenation.hyphenation AS hyphenated
 FROM dictionary_localword as words
@@ -98,9 +92,7 @@ AND hyphenation.spelling =
   FROM  documents_document
   WHERE id = :id)
 -- either uncontracted or contracted should always be non-null so the following should be implicitely the case and hence not needed
--- (when (= (:grade params) 0) "WHERE words.uncontracted IS NOT NULL OR words.contracted IS NOT NULL")
---~ (when (= (:grade params) 1) "WHERE words.uncontracted IS NOT NULL")
---~ (when (= (:grade params) 2) "WHERE words.contracted IS NOT NULL")
+WHERE (((:grade IN (0,2)) AND words.contracted IS NOT NULL) OR ((:grade IN (0,1)) AND words.uncontracted IS NOT NULL))
 ORDER BY words.untranslated
 --~ (when (:limit params) "LIMIT :limit")
 --~ (when (:offset params) "OFFSET :offset")
@@ -118,8 +110,8 @@ AND document_id = :document_id
 -- :doc Insert or update a word in the local dictionary. Optionally specify `isconfirmed`.
 INSERT INTO dictionary_localword (
        untranslated,
---~ (when (:contracted params) "contracted,")
---~ (when (:uncontracted params) "uncontracted,")
+       contracted,
+       uncontracted,
        type,
        homograph_disambiguation,
        document_id,
@@ -127,8 +119,8 @@ INSERT INTO dictionary_localword (
        isConfirmed)
 VALUES (
        :untranslated,
---~ (when (:contracted params) ":contracted,")
---~ (when (:uncontracted params) ":uncontracted,")
+       :contracted,
+       :uncontracted,
        :type,
        :homograph_disambiguation,
        :document_id,
@@ -136,8 +128,8 @@ VALUES (
 --~ (if (:isconfirmed params) ":isconfirmed" "DEFAULT")
        )
 ON DUPLICATE KEY UPDATE
---~ (when (:contracted params) "contracted = VALUES(contracted),")
---~ (when (:uncontracted params) "uncontracted = VALUES(uncontracted),")
+contracted = VALUES(contracted),
+uncontracted = VALUES(uncontracted),
 --~ (when (:isconfirmed params) "isConfirmed = VALUES(isConfirmed),")
 isLocal = VALUES(isLocal)
 
@@ -188,8 +180,8 @@ AND l.document_id = :document-id
 -- :doc given a `document-id` and a `:grade` retrieve all unknown words for it. If `:grade` is 0 then return words for both grade 1 and 2. Otherwise just return the unknown words for the given grade.This assumes that the new words contained in this document have been inserted into the `dictionary_unknownword` table.
 -- NOTE: This query assumes that there are only records for the current document-id in the dictionary_unknownword table.
 (SELECT unknown.*,
---~ (when (#{0 1} (:grade params)) "COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,")
---~ (when (#{0 2} (:grade params)) "COALESCE(l.contracted, g.contracted) AS contracted,")
+	COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,
+	COALESCE(l.contracted, g.contracted) AS contracted,
        hyphenation.hyphenation AS hyphenated,
        (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END FROM documents_document WHERE id = :document-id) AS spelling
 FROM dictionary_unknownword unknown
@@ -207,8 +199,8 @@ AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.un
 )
 UNION
 (SELECT unknown.*,
---~ (when (#{0 1} (:grade params)) "COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,")
---~ (when (#{0 2} (:grade params)) "COALESCE(l.contracted, g.contracted) AS contracted,")
+	COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,
+	COALESCE(l.contracted, g.contracted) AS contracted,
        hyphenation.hyphenation AS hyphenated,
        (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END FROM documents_document WHERE id = :document-id) AS spelling
 FROM dictionary_unknownword unknown
@@ -226,8 +218,8 @@ AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.un
 )
 UNION
 (SELECT unknown.*,
---~ (when (#{0 1} (:grade params)) "COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,")
---~ (when (#{0 2} (:grade params)) "COALESCE(l.contracted, g.contracted) AS contracted,")
+	COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,
+	COALESCE(l.contracted, g.contracted) AS contracted,
        hyphenation.hyphenation AS hyphenated,
        (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END FROM documents_document WHERE id = :document-id) AS spelling
 FROM dictionary_unknownword unknown
@@ -245,8 +237,8 @@ AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.un
 )
 UNION
 (SELECT unknown.*,
---~ (when (#{0 1} (:grade params)) "COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,")
---~ (when (#{0 2} (:grade params)) "COALESCE(l.contracted, g.contracted) AS contracted,")
+	COALESCE(l.uncontracted, g.uncontracted) AS uncontracted,
+	COALESCE(l.contracted, g.contracted) AS contracted,
        hyphenation.hyphenation AS hyphenated,
        (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END FROM documents_document WHERE id = :document-id) AS spelling
 FROM dictionary_unknownword unknown
