@@ -53,7 +53,8 @@
   (fn [{:keys [db]} [_ id]]
     (let [word (get-in db [:words :local id])
           cleaned (-> word
-                      (select-keys [:untranslated :uncontracted :contracted :type :homograph-disambiguation
+                      (select-keys [:untranslated :uncontracted :contracted :type
+                                    :homograph-disambiguation
                                     :document-id :islocal :hyphenated :spelling]))
           document-id (:document-id word)]
       {:db (notifications/set-button-state db id :save)
@@ -72,7 +73,8 @@
   (fn [{:keys [db]} [_ id grade]]
     (let [word (get-in db [:words :local id])
           cleaned (-> word
-                      (select-keys [:untranslated :uncontracted :contracted :type :homograph-disambiguation
+                      (select-keys [:untranslated :uncontracted :contracted :type
+                                    :homograph-disambiguation
                                     :document-id :hyphenated :spelling]))
           ;; if grade is not 0 (both) then we only want to delete part of the
           ;; word. So we leave the part we want to delete and set the other part
