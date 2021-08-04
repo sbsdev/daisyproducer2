@@ -265,6 +265,19 @@ AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.un
 ORDER BY untranslated
 LIMIT :limit OFFSET :offset
 
+-----------------------------
+-- Unknown word statistics --
+-----------------------------
+
+-- :name insert-unknown-words-stats :! :n
+-- :doc insert statistical data about the number of words and unknown words for a given `document-id`. The `total` must be given. The number of unknown words are calculated based on the local words for the document. This assumes that all unknown words have been inserted in the local word table and they have not yet been confirmed, i.e. moved to the global words table.
+INSERT INTO statistics_documentstatistic (date, document_id, total, unknown)
+VALUES (NOW(), :document-id, :total, (SELECT count(*) FROM dictionary_localword where document_id = :document_id))
+ON DUPLICATE KEY UPDATE
+total = VALUES(total),
+unknown = VALUES(unknown),
+date = VALUES(date)
+
 -----------------------
 -- Confirmable words --
 -----------------------

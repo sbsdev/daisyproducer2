@@ -125,13 +125,18 @@
         tuples (map (fn [w] [w 0 "" document-id]) all-words)]
     tuples))
 
+(defn get-new-words
+  "Extract all words from a given `xml` for given `document-id`"
+  [xml document-id]
+  (concat
+   (get-names xml document-id)
+   (get-places xml document-id)
+   (get-homographs xml document-id)
+   (get-plain xml document-id)))
+
 (defn get-words
   [xml document-id grade limit offset]
-  (let [new-words (concat
-                   (get-names xml document-id)
-                   (get-places xml document-id)
-                   (get-homographs xml document-id)
-                   (get-plain xml document-id))]
+  (let [new-words (get-new-words xml document-id)]
     (if (empty? new-words)
       [] ; if there are no new words there are no unknown words
       (conman/with-transaction [db/*db*]
