@@ -262,7 +262,7 @@ WHERE unknown.type = 5
 AND g.untranslated IS NULL
 AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.uncontracted IS NULL))
 )
-ORDER BY untranslated
+ORDER BY isIgnored, untranslated
 LIMIT :limit OFFSET :offset
 
 -----------------------
