@@ -188,11 +188,13 @@
       :put {:summary "Update or create a local word for a given document"
             :middleware [wrap-restricted]
             :swagger {:security [{:apiAuth []}]}
-            :parameters {:body {:untranslated string? :type int?
+            :parameters {:body {:untranslated string?
+                                :type int?
                                 (spec/opt :uncontracted) ::braille
                                 (spec/opt :contracted) ::braille
                                 :homograph-disambiguation string?
-                                :document-id int? :islocal boolean?
+                                :document-id int?
+                                :islocal boolean?
                                 :hyphenated (spec/maybe ::hyphenation)
                                 :spelling ::spelling}}
             :handler (fn [{{word :body} :parameters}]
@@ -202,7 +204,8 @@
       :delete {:summary "Delete a local word for a given document"
                :middleware [wrap-restricted]
                :swagger {:security [{:apiAuth []}]}
-               :parameters {:body {:untranslated string? :type int?
+               :parameters {:body {:untranslated string?
+                                   :type int?
                                    (spec/opt :uncontracted) ::braille
                                    (spec/opt :contracted) ::braille
                                    :homograph-disambiguation string?
