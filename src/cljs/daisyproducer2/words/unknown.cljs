@@ -82,6 +82,36 @@
         {:db db :dispatch [::fetch-words document-id]}
         {:db db}))))
 
+(rf/reg-event-fx
+  ::ignore-word
+  (fn [{:keys [db]} [_ id]]
+    (let [word (get-in db [:words :unknown id])
+          cleaned (-> word
+                      (select-keys [:untranslated :uncontracted :contracted :type :homograph-disambiguation
+                                    :document-id :hyphenated :spelling]))
+          document-id (:document-id word)]
+      {:db (notifications/set-button-state db id :ignore)
+       :http-xhrio {:method          :put
+                    :format          (ajax/json-request-format)
+                    :headers 	     (auth/auth-header db)
+                    :uri             (str "/api/documents/" document-id "/unknown-words")
+                    :params          cleaned
+                    :response-format (ajax/json-response-format {:keywords? true})
+                    :on-success      [::ack-ignore id document-id]
+                    :on-failure      [::ack-failure id :ignore]
+                    }})))
+
+(rf/reg-event-fx
+  ::ack-ignore
+  (fn [{:keys [db]} [_ id document-id]]
+    (let [db (-> db
+                 (update-in [:words :unknown] dissoc id)
+                 (notifications/clear-button-state id :ignore))
+          empty? (-> db (get-in [:words :unknown]) count (< 1))]
+      (if empty?
+        {:db db :dispatch [::fetch-words document-id]}
+        {:db db}))))
+
 (rf/reg-event-db
  ::ack-failure
  (fn [db [_ id request-type response]]
@@ -89,11 +119,6 @@
        (assoc-in [:errors request-type] (or (get-in response [:response :status-text])
                                             (get response :status-text)))
        (notifications/clear-button-state id request-type))))
-
-(rf/reg-event-db
-  ::ignore-word
-  (fn [db [_ uuid]]
-    (update-in db [:words :unknown] dissoc uuid)))
 
 (rf/reg-sub
  ::words
