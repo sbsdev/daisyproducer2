@@ -188,11 +188,13 @@
       :put {:summary "Update or create a local word for a given document"
             :middleware [wrap-restricted]
             :swagger {:security [{:apiAuth []}]}
-            :parameters {:body {:untranslated string? :type int?
+            :parameters {:body {:untranslated string?
+                                :type int?
                                 (spec/opt :uncontracted) ::braille
                                 (spec/opt :contracted) ::braille
                                 :homograph-disambiguation string?
-                                :document-id int? :islocal boolean?
+                                :document-id int?
+                                :islocal boolean?
                                 :hyphenated (spec/maybe ::hyphenation)
                                 :spelling ::spelling}}
             :handler (fn [{{word :body} :parameters}]
@@ -202,7 +204,8 @@
       :delete {:summary "Delete a local word for a given document"
                :middleware [wrap-restricted]
                :swagger {:security [{:apiAuth []}]}
-               :parameters {:body {:untranslated string? :type int?
+               :parameters {:body {:untranslated string?
+                                   :type int?
                                    (spec/opt :uncontracted) ::braille
                                    (spec/opt :contracted) ::braille
                                    :homograph-disambiguation string?
@@ -227,7 +230,22 @@
                              :or {limit default-limit offset 0}} :query} :parameters}]
                        (let [version (docs/get-latest-version id)
                              unknown (unknown/get-words version id grade limit offset)]
-                         (ok unknown)))}}]
+                         (ok unknown)))}
+
+      :put {:summary "Ignore an unknown word for a given document"
+            :middleware [wrap-restricted]
+            :swagger {:security [{:apiAuth []}]}
+            :parameters {:body {:untranslated string?
+                                :type int?
+                                (spec/opt :uncontracted) ::braille
+                                (spec/opt :contracted) ::braille
+                                :homograph-disambiguation string?
+                                :document-id int?
+                                :hyphenated (spec/maybe ::hyphenation)
+                                :spelling ::spelling}}
+            :handler (fn [{{word :body} :parameters}]
+                       (unknown/ignore-word word)
+                       (no-content))}}]
 
     ["/versions"
      {:swagger {:tags ["Versions"]}}

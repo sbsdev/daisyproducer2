@@ -1,0 +1,2 @@
+ALTER TABLE dictionary_unknownword
+ADD COLUMN isIgnored BOOLEAN NOT NULL DEFAULT FALSE AFTER isLocal;
