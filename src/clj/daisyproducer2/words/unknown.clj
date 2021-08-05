@@ -150,4 +150,12 @@
          (map words/complement-ellipsis-braille)
          (map words/complement-hyphenation))))))
 
+(defn ignore-word
+  "Mark an unknown `word` as \"ignored\". Returns the number of
+  updates."
+  [word]
+  (log/debug "Update unknown word" word)
+  (db/ignore-unknown-word word))
+
 (prometheus/instrument! metrics/registry #'get-words)
+(prometheus/instrument! metrics/registry #'ignore-word)

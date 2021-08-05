@@ -184,6 +184,16 @@ ON u.untranslated = l.untranslated AND u.type = l.type AND u.document_id = l.doc
 WHERE u.untranslated IS NULL
 AND l.document_id = :document-id
 
+-- :name ignore-unknown-word :! :n
+-- :doc mark an unknown word given by `:untranslated`, `:type`, `:homograph-disambiguation` and `:document-id` as ingnored. This will change the order in which unknown words are returned in `get-all-unknown-words`
+
+UPDATE dictionary_unknownword
+SET isIgnored = TRUE
+WHERE untranslated = :untranslated
+AND type = :type
+AND homograph_disambiguation = :homograph-disambiguation
+AND document_id = :document-id
+
 -- :name get-all-unknown-words :? :*
 -- :doc given a `document-id` and a `:grade` retrieve all unknown words for it. If `:grade` is 0 then return words for both grade 1 and 2. Otherwise just return the unknown words for the given grade.This assumes that the new words contained in this document have been inserted into the `dictionary_unknownword` table.
 -- NOTE: This query assumes that there are only records for the current document-id in the dictionary_unknownword table.
