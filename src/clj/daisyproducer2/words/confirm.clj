@@ -36,7 +36,16 @@
       ;; drop the hyphenation, otherwise the hyphenation is removed
       ;; and right after added again
       (let [word (dissoc word :hyphenated)
-            deletions (local/delete-word word)]
+            ;; in some cases the type of the word is changed at the
+            ;; same time as it is confirmed. In that case we need to
+            ;; do the deletion using the old type, otherwise we will
+            ;; not find it.
+            type (:type word)
+            old-type (case type
+                       1 2 ; if :type-name-hoffmann it was previously :type-name
+                       3 4 ; if :type-place-langenthal it was previously :type-place
+                       type)
+            deletions (local/delete-word (assoc word :type old-type))]
         (if-not (> deletions 0)
           ;; if we couldn't delete anything then presumably this word
           ;; doesn't exist in the local words, so there is certainly
