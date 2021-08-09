@@ -118,6 +118,7 @@
             :on-change #(reset! password (-> % .-target .-value))
             :on-key-down #(case (.-which %)
                             27 (reset! password "")
+                            13 (rf/dispatch [::login @username @password])
                             nil)
             :value @password}]]
          [:div.field.is-grouped
