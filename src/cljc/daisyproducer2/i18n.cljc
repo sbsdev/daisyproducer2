@@ -44,7 +44,12 @@
                     :author "Author"
                     :source-publisher "Source Publisher"
                     :state "State"
+                    :language "language"
                     :spelling "Spelling"
+                    :date "Date"
+                    :modified-at "Last modified at"
+                    ;;
+                    :transitions-state "Transition state to '%1'"
                     ;;
                     :details "Details"
                     :unknown-words "Unknown Words"
@@ -120,7 +125,12 @@
                     :author "Autor"
                     :source-publisher "Verlag"
                     :state "Status"
+                    :language "Sprache"
                     :spelling "Rechtschreibung"
+                    :date "Datum"
+                    :modified-at "Letzte Änderung"
+                    ;;
+                    :transitions-state "Status auf '%1' setzen"
                     ;;
                     :details "Details"
                     :unknown-words "Unbekannte Wörter"

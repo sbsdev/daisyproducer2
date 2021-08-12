@@ -52,6 +52,9 @@
           (auth/user-buttons)]]]])))
 
 (def state-mapping {1 (tr [:new]) 7 (tr [:in-production]) 8 (tr [:finished])})
+(def state-next-mapping {1 7 ; new -> in production
+                         7 8 ; in production -> finished
+                         8 1}) ; finished -> new
 
 (defn document-summary [{:keys [title author source-publisher state-id]}]
   (let [state (state-mapping state-id state-id)]
@@ -78,11 +81,18 @@
      ]]])
 
 (defn document-details [document]
-  [:table.table.is-striped
-   [:tbody
-    (for [[k v] document]
-      ^{:key k}
-      [:tr [:th k] [:td v]])]])
+  [:div.block
+   [:table.table.is-striped
+    [:tbody
+     (for [k [:date :modified-at :spelling :language]
+           :let [v (case k
+                     :spelling (state-mapping (get document k))
+                     (get document k))]
+           :when (not (string/blank? v))]
+       ^{:key k}
+       [:tr [:th (tr [k])] [:td v]])]]
+   [:button.button.is-success
+    (tr [:transitions-state] [(-> document :state-id state-next-mapping state-mapping)])]])
 
 (defn document-page []
   (let [document @(rf/subscribe [:current-document])]
