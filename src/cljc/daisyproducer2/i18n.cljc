@@ -36,6 +36,7 @@
                     :book "Book"
                     ;;
                     :new "New"
+                    :old "Old"
                     :in-production "In Production"
                     :finished "Finished"
                     ;;
@@ -43,20 +44,15 @@
                     :author "Author"
                     :source-publisher "Source Publisher"
                     :state "State"
+                    :spelling "Spelling"
                     ;;
                     :details "Details"
                     :unknown-words "Unknown Words"
                     :local-words "Local Words"
                     ;;
-                    :spelling
-                    {:title "Spelling"
-                     :old "Old spelling"
-                     :new "New spelling"
-                     :unknown "Unknown spelling"
-                     :old-brief "Old"
-                     :new-brief "New"
-                     :unknown-brief "Unknown"
-                     }
+                    :old-spelling "Old spelling"
+                    :new-spelling "New spelling"
+                    :unknown-spelling "Unknown spelling"
                     ;;
                     :type-none "None"
                     :type-name "Name"
@@ -126,20 +122,15 @@
                     :author "Autor"
                     :source-publisher "Verlag"
                     :state "Status"
+                    :spelling "Rechtschreibung"
                     ;;
                     :details "Details"
                     :unknown-words "Unbekannte Wörter"
                     :local-words "Lokale Wörter"
                     ;;
-                    :spelling
-                    {:title "Rechtschreibung"
-                     :old "Alte Rechtschreibung"
-                     :new "Neue Rechtschreibung"
-                     :unknown "Rechtschreibung unbekannt"
-                     :old-brief "Alt"
-                     :new-brief "Neu"
-                     :unknown-brief "Unbekannt"
-                     }
+                    :old-spelling "Alte Rechtschreibung"
+                    :new-spelling "Neue Rechtschreibung"
+                    :unknown-spelling "Rechtschreibung unbekannt"
                     ;;
                     :type-none ""
                     :type-name "Name"

@@ -229,7 +229,7 @@
            [:th (tr [:uncontracted])]
            [:th (tr [:contracted])]
            [:th (tr [:hyphenated])]
-           [:th [:abbr {:title (tr [:spelling/title])} (subs (tr [:spelling/title]) 0 1)]]
+           [:th [:abbr {:title (tr [:spelling])} (subs (tr [:spelling]) 0 1)]]
            [:th [:abbr {:title (tr [:type])} (subs (tr [:type]) 0 1)]]
            [:th [:abbr {:title (tr [:homograph-disambiguation])} (subs (tr [:homograph-disambiguation]) 0 1)]]
            [:th (tr [:book])]

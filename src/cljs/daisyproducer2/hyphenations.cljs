@@ -154,8 +154,8 @@
       [:div.select.is-fullwidth
        [:select
         {:on-change emit}
-        (for [[v s] [[1 (tr [:spelling/new])]
-                     [0 (tr [:spelling/old])]]]
+        (for [[v s] [[1 (tr [:new-spelling])]
+                     [0 (tr [:old-spelling])]]]
           ^{:key v}
           [:option (if (not= current v) {:value v} {:selected "selected" :value v}) s])]]]]))
 

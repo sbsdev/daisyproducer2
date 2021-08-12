@@ -11,12 +11,12 @@
 
 (defn spelling-string [spelling]
   (case spelling
-    0 (tr [:spelling/old])
-    1 (tr [:spelling/new])
-    (tr [:spelling/unknown])))
+    0 (tr [:old-spelling])
+    1 (tr [:new-spelling])
+    (tr [:unknown-spelling])))
 
 (defn spelling-brief-string [spelling]
   (case spelling
-    0 (tr [:spelling/old-brief])
-    1 (tr [:spelling/new-brief])
-    (tr [:spelling/unknown-brief])))
+    0 (tr [:old])
+    1 (tr [:new])
+    (tr [:unknown])))
