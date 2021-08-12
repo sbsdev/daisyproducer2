@@ -69,16 +69,14 @@
                     ;;
                     :previous "Previous"
                     :next "Next"
-                    :hyphenation
-                    {:word "Word"
-                     :hyphenation "Hypenation"
-                     :hyphenations "Hypenations"
-                     :suggested "Suggested Hyphenation"
-                     :corrected "Corrected Hyphenation"
-                     :lookup "Lookup"
-                     :already-defined "Word has already been defined. Use Edit to change it"
-                     :same-as-suggested "The hyphenation is the same as the suggestion"
-                     }
+                    :word "Word"
+                    :hyphenation "Hypenation"
+                    :hyphenations "Hypenations"
+                    :suggested-hyphenation "Suggested Hyphenation"
+                    :corrected-hyphenation "Corrected Hyphenation"
+                    :lookup-hyphenation "Lookup"
+                    :already-defined-hyphenation "Word has already been defined. Use Edit to change it"
+                    :same-as-suggested-hyphenation "The hyphenation is the same as the suggestion"
                     }
                    :de
                    {:missing "Fehlende Übersetzung"
@@ -147,17 +145,15 @@
                     ;;
                     :previous "Vorherige"
                     :next "Nächste"
-                    :hyphenation
-                    {:word "Wort"
-                     :hyphenation "Trennung"
-                     :hyphenations "Trennungen"
-                     :suggested "Vorgeschlagene Trennung"
-                     :corrected "Korrigierte Trennung"
-                     :lookup "Nachschlagen"
-                     :already-defined "Die Trennung ist schon definiert. Bitte benutzen Sie 'Editieren' um sie zu ändern"
-                     :same-as-suggested "Die Trennung ist gleich wie der Trenn-Vorschlag"
-                     }
+                    :word "Wort"
+                    :hyphenation "Trennung"
+                    :hyphenations "Trennungen"
+                    :suggested-hyphenation "Vorgeschlagene Trennung"
+                    :corrected-hyphenation "Korrigierte Trennung"
+                    :lookup-hyphenation "Nachschlagen"
+                    :already-defined-hyphenation "Die Trennung ist schon definiert. Bitte benutzen Sie 'Editieren' um sie zu ändern"
+                    :same-as-suggested-hyphenation "Die Trennung ist gleich wie der Trenn-Vorschlag"
                     }
-                    })
+                   })
 
 (def tr (partial tempura/tr {:dict translations :default-locale :en} [:de]))

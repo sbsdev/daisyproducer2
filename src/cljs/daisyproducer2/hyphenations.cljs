@@ -220,7 +220,7 @@
   (let [search @(rf/subscribe [::search])
         ]
     [:div.block
-     [:label.label (tr [:hyphenation/lookup])]
+     [:label.label (tr [:lookup-hyphenation])]
      [:div.buttons
       [lookup-button "Duden" "http://www.duden.de/suchen/dudenonline/" search]
       [lookup-button "TU Chemnitz" "http://dict.tu-chemnitz.de/?query=" search]
@@ -233,17 +233,17 @@
         already-defined? @(rf/subscribe [::already-defined?])
         klass (when already-defined? "is-danger")
         help-text (when already-defined?
-                    (tr [:hyphenation/already-defined]))]
+                    (tr [:already-defined-hyphenation]))]
     [:div.field
      [:label.label
       {:for "hyphenation-word"}
-      (tr [:hyphenation/word])]
+      (tr [:word])]
      [:div.control
       [:input.input {:type "text"
                      :id "hyphenation-word"
                      :class klass
-                     :placeholder (tr [:hyphenation/word])
-                     :aria-label (tr [:hyphenation/word])
+                     :placeholder (tr [:word])
+                     :aria-label (tr [:word])
                      :value @(rf/subscribe [::search])
                      :on-change #(save! (get-value %))
                      :on-key-down #(when (= (.-which %) 27) (reset!))}]]
@@ -255,7 +255,7 @@
     [:div.field
      [:label.label
       {:for "hyphenation-suggested"}
-      (tr [:hyphenation/suggested])]
+      (tr [:suggested-hyphenation])]
      [:div.control
       [:input.input {:type "text"
                      :id "hyphenation-suggested"
@@ -296,7 +296,7 @@
         [:div.field
          [:label.label
           {:for "hyphenation-corrected"}
-          (tr [:hyphenation/corrected])]
+          (tr [:corrected-hyphenation])]
          [:div.control
           [:input.input {:type "text"
                          :id "hyphenation-corrected"
@@ -307,7 +307,7 @@
            [:p.help.is-danger
             (if-not valid?
               (tr [:input-not-valid])
-              (tr [:hyphenation/same-as-suggested]))])]))))
+              (tr [:same-as-suggested-hyphenation]))])]))))
 
 (defn hyphenation-add-button []
   (let [valid? @(rf/subscribe [::valid?])
@@ -362,8 +362,8 @@
         [:table.table.is-striped
          [:thead
           [:tr
-           [:th (tr [:hyphenation/word])]
-           [:th (tr [:hyphenation/hyphenation])]]]
+           [:th (tr [:word])]
+           [:th (tr [:hyphenation])]]]
          [:tbody
           (for [{:keys [word hyphenation]} @(rf/subscribe [::hyphenations-sorted])]
             ^{:key word}
@@ -403,7 +403,7 @@
         [:div.field
          [:input.input {:type "text"
                         :class klass
-                        :aria-label (tr [:hyphenation/corrected])
+                        :aria-label (tr [:corrected-hyphenation])
                         :value value
                         :on-change #(save! (get-value %))
                         :on-key-down #(when (= (.-which %) 27) (reset!))}]
@@ -447,8 +447,8 @@
         [:table.table.is-striped
          [:thead
           [:tr
-           [:th (tr [:hyphenation/word])]
-           [:th (tr [:hyphenation/hyphenation])]
+           [:th (tr [:word])]
+           [:th (tr [:hyphenation])]
            [:th ""]]]
          [:tbody
           (for [{:keys [word hyphenation]} @(rf/subscribe [::hyphenations-sorted])]
