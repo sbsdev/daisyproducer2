@@ -91,7 +91,7 @@
            :when (not (string/blank? v))]
        ^{:key k}
        [:tr [:th (tr [k])] [:td v]])]]
-   [:button.button.is-success
+   #_[:button.button.is-success
     (tr [:transitions-state] [(-> document :state-id state-next-mapping state-mapping)])]])
 
 (defn document-page []
