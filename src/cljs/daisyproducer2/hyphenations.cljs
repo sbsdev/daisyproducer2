@@ -80,7 +80,7 @@
                         {:word word
                          :hyphenation @(rf/subscribe [::corrected])
                          :spelling @(rf/subscribe [::spelling])})]
-      {:db (notifications/set-button-state db (if id id word) :save)
+      {:db (notifications/set-button-state db (or id word) :save)
        :http-xhrio {:method          :put
                     :format          (ajax/json-request-format)
                     :headers 	     (auth/auth-header db)
@@ -88,7 +88,7 @@
                     :params          hyphenation
                     :response-format (ajax/json-response-format {:keywords? true})
                     :on-success      [::ack-save hyphenation (nil? id)]
-                    :on-failure      [::ack-failure :save]}})))
+                    :on-failure      [::ack-failure (or id word) :save]}})))
 
 (rf/reg-event-fx
   ::delete-hyphenation
@@ -102,7 +102,7 @@
                     :params          hyphenation
                     :response-format (ajax/json-response-format {:keywords? true})
                     :on-success      [::ack-delete id]
-                    :on-failure      [::ack-failure :delete]
+                    :on-failure      [::ack-failure id :delete]
                     }})))
 
 (rf/reg-event-fx
@@ -124,11 +124,11 @@
 
 (rf/reg-event-db
  ::ack-failure
- (fn [db [_ request-type response]]
+ (fn [db [_ id request-type response]]
    (-> db
        (assoc-in [:errors request-type] (or (get-in response [:response :status-text])
                                             (get response :status-text)))
-       (notifications/clear-button-state :hyphenation request-type))))
+       (notifications/clear-button-state id request-type))))
 
 (rf/reg-sub
   ::spelling
