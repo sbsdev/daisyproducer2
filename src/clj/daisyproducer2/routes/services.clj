@@ -307,7 +307,11 @@
                           (let [deleted (db/delete-hyphenation {:word word :spelling spelling})]
                             (if (> deleted 0)
                               (no-content) ; we found something and deleted it
-                              (not-found))))}}] ; couldn't find and delete the requested resource
+                              ;; if there was no deletion it can mean that either the hyphenation doesn't
+                              ;; exist or and this is more likely that the associated word still exists in
+                              ;; either the global or the local table. In that case respond with
+                              ;; precondition-failed.
+                              (precondition-failed {:status-text "The hyphenation either doesn't exist or more likely there is still an associated word in the local or in the global database."}))))}}]
     ["/suggested"
       {:get {:summary "Get the suggested hyphenation for a given word and spelling"
              :parameters {:query {:spelling ::spelling
