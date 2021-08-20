@@ -115,12 +115,12 @@
         {:db db :dispatch [::set-search ""]}
         {:db db}))))
 
-(rf/reg-event-fx
+(rf/reg-event-db
   ::ack-delete
-  (fn [{:keys [db]} [_ id]]
-    {:db (-> db
-             (update-in [:words :hyphenation] dissoc id)
-             (notifications/clear-button-state id :delete))}))
+  (fn [db [_ id]]
+    (-> db
+        (update-in [:words :hyphenation] dissoc id)
+        (notifications/clear-button-state id :delete))))
 
 (rf/reg-event-db
  ::ack-failure
