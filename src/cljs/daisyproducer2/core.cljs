@@ -10,17 +10,15 @@
     [daisyproducer2.ajax :as ajax]
     [daisyproducer2.events]
     [daisyproducer2.auth :as auth]
+    [daisyproducer2.documents.document :as document]
+    [daisyproducer2.documents.state :as state]
     [daisyproducer2.hyphenations :as hyphenations]
     [daisyproducer2.words :as words]
-    [daisyproducer2.words.unknown :as unknown]
-    [daisyproducer2.words.local :as local]
     [daisyproducer2.words.global :as global]
     [daisyproducer2.words.confirm :as confirm]
-    [daisyproducer2.words.grade :as grade]
     [daisyproducer2.i18n :refer [tr]]
     [reitit.core :as reitit]
-    [reitit.frontend.easy :as rfe]
-    [clojure.string :as string])
+    [reitit.frontend.easy :as rfe])
   (:import goog.History))
 
 (defn nav-link [uri title page]
@@ -51,72 +49,6 @@
          [:div.navbar-item
           (auth/user-buttons)]]]])))
 
-(def state-mapping {1 (tr [:new]) 7 (tr [:in-production]) 8 (tr [:finished])})
-(def state-next-mapping {1 7 ; new -> in production
-                         7 8 ; in production -> finished
-                         8 1}) ; finished -> new
-
-(defn document-summary [{:keys [title author source-publisher state-id]}]
-  (let [state (state-mapping state-id state-id)]
-    [:div.block
-     [:table.table
-      [:tbody
-       [:tr [:th {:width 200} (tr [:title])] [:td title]]
-       [:tr [:th (tr [:author])] [:td author]]
-       [:tr [:th (tr [:source-publisher])] [:td source-publisher]]
-       [:tr [:th (tr [:state])] [:td state]]]]]))
-
-(defn document-tab-link [uri title page on-click]
-  (if-let [is-active (= page @(rf/subscribe [:common/page-id]))]
-    [:li.is-active [:a title]]
-    [:li [:a {:href uri :on-click on-click} title]]))
-
-(defn document-tabs [{:keys [id]}]
-  [:div.block
-   [:div.tabs.is-boxed
-    [:ul
-     [document-tab-link (str "#/documents/" id) (tr [:details]) :document]
-     [document-tab-link (str "#/documents/" id "/unknown") (tr [:unknown-words]) :document-unknown (fn [_] (rf/dispatch [::unknown/fetch-words id]))]
-     [document-tab-link (str "#/documents/" id "/local") (tr [:local-words]) :document-local (fn [_] (rf/dispatch [::local/fetch-words id]))]
-     ]]])
-
-(defn document-details [document]
-  [:div.block
-   [:table.table.is-striped
-    [:tbody
-     (for [k [:date :modified-at :spelling :language]
-           :let [v (case k
-                     :spelling (state-mapping (get document k))
-                     (get document k))]
-           :when (not (string/blank? v))]
-       ^{:key k}
-       [:tr [:th (tr [k])] [:td v]])]]
-   #_[:button.button.is-success
-    (tr [:transitions-state] [(-> document :state-id state-next-mapping state-mapping)])]])
-
-(defn document-page []
-  (let [document @(rf/subscribe [:current-document])]
-    [:section.section>div.container>div.content
-     [document-summary document]
-     [document-tabs document]
-     [document-details document]]))
-
-(defn document-unknown []
-  (let [document @(rf/subscribe [:current-document])]
-    [:section.section>div.container>div.content
-     [document-summary document]
-     [document-tabs document]
-     [grade/selector ::unknown/fetch-words]
-     [unknown/unknown-words]]))
-
-(defn document-local []
-  (let [document @(rf/subscribe [:current-document])]
-    [:section.section>div.container>div.content
-     [document-summary document]
-     [document-tabs document]
-     [grade/selector ::local/fetch-words]
-     [local/local-words]]))
-
 (defn documents-search []
   (let [gettext (fn [e] (-> e .-target .-value))
         emit    (fn [e] (rf/dispatch [:documents-search-change (gettext e)]))]
@@ -144,7 +76,7 @@
      (for [{:keys [id author source-publisher state-id] :as document} @(rf/subscribe [:documents])]
        ^{:key id} [:tr
                    [:td [document-link document]]
-                   [:td author] [:td source-publisher] [:td (state-mapping state-id state-id)]])]]])
+                   [:td author] [:td source-publisher] [:td (state/mapping state-id state-id)]])]]])
 
 (defn page []
   (if-let [page @(rf/subscribe [:common/page])]
@@ -163,13 +95,13 @@
      ["/login" {:name :login
                 :view #'auth/login-page}]
      ["/documents/:id" {:name :document
-                        :view #'document-page
+                        :view #'document/page
                         :controllers [{:parameters {:path [:id]}
                                        :start (fn [params] (rf/dispatch [:init-current-document (-> params :path :id)]))}]}]
      ["/documents/:id/unknown" {:name :document-unknown
-                                :view #'document-unknown}]
+                                :view #'document/unknown}]
      ["/documents/:id/local" {:name :document-local
-                              :view #'document-local}]
+                              :view #'document/local}]
      ["/hyphenations" {:name :hyphenations
                        :view #'hyphenations/add-page}]
      ["/hyphenations/edit" {:name :hyphenations-edit
