@@ -166,9 +166,9 @@
      [:td [fields/local-field :unknown uuid]]
      [:td {:width "8%"} [buttons uuid]]]))
 
-(defn unknown-words []
+(defn unknown-words [current-document-subscription]
   (let [words @(rf/subscribe [::words-sorted])
-        document @(rf/subscribe [:current-document])
+        document @(rf/subscribe current-document-subscription)
         spelling (:spelling (first words))
         grade @(rf/subscribe [::grade/grade])
         loading? @(rf/subscribe [::notifications/loading? :unknown])

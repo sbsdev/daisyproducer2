@@ -202,9 +202,9 @@
      [:td [fields/local-field :local uuid]]
      [:td {:width "8%"} [buttons uuid]]]))
 
-(defn local-words []
+(defn local-words [current-document-subscription]
   (let [words @(rf/subscribe [::words])
-        document @(rf/subscribe [:current-document])
+        document @(rf/subscribe current-document-subscription)
         spelling (:spelling (first words))
         grade @(rf/subscribe [::grade/grade])
         loading? @(rf/subscribe [::notifications/loading? :local])

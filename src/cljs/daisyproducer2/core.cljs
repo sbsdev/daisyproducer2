@@ -62,7 +62,7 @@
 
 (defn document-link [{:keys [id title] :as document}]
   [:a {:href (str "#/documents/" id)
-       :on-click (fn [_] (rf/dispatch [:set-current-document document]))}
+       :on-click (fn [_] (rf/dispatch [::document/set-current document]))}
    title])
 
 (defn documents-page []
@@ -97,7 +97,7 @@
      ["/documents/:id" {:name :document
                         :view #'document/page
                         :controllers [{:parameters {:path [:id]}
-                                       :start (fn [params] (rf/dispatch [:init-current-document (-> params :path :id)]))}]}]
+                                       :start (fn [params] (rf/dispatch [::document/init-current (-> params :path :id)]))}]}]
      ["/documents/:id/unknown" {:name :document-unknown
                                 :view #'document/unknown}]
      ["/documents/:id/local" {:name :document-local
