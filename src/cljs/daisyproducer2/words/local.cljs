@@ -202,9 +202,9 @@
      [:td [fields/local-field :local uuid]]
      [:td {:width "8%"} [buttons uuid]]]))
 
-(defn local-words [current-document-subscription]
+(defn local-words []
   (let [words @(rf/subscribe [::words])
-        document @(rf/subscribe current-document-subscription)
+        document @(rf/subscribe [:daisyproducer2.documents.document/current])
         spelling (:spelling (first words))
         grade @(rf/subscribe [::grade/grade])
         loading? @(rf/subscribe [::notifications/loading? :local])
