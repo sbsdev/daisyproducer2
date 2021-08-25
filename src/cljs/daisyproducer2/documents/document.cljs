@@ -1,5 +1,6 @@
 (ns daisyproducer2.documents.document
-  (:require [clojure.string :as string]
+  (:require [ajax.core :as ajax]
+            [clojure.string :as string]
             [daisyproducer2.documents.state :as state]
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.words.grade :as grade]
