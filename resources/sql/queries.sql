@@ -97,10 +97,11 @@ AND hyphenation.spelling =
   (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END
   FROM  documents_document
   WHERE id = :id)
+WHERE words.document_id = :id
 -- either uncontracted or contracted should always be non-null so the following should be implicitely the case and hence not needed
--- (when (= (:grade params) 0) "WHERE words.uncontracted IS NOT NULL OR words.contracted IS NOT NULL")
---~ (when (= (:grade params) 1) "WHERE words.uncontracted IS NOT NULL")
---~ (when (= (:grade params) 2) "WHERE words.contracted IS NOT NULL")
+-- (when (= (:grade params) 0) "AND words.uncontracted IS NOT NULL OR words.contracted IS NOT NULL")
+--~ (when (= (:grade params) 1) "AND words.uncontracted IS NOT NULL")
+--~ (when (= (:grade params) 2) "AND words.contracted IS NOT NULL")
 ORDER BY words.untranslated
 --~ (when (:limit params) "LIMIT :limit")
 --~ (when (:offset params) "OFFSET :offset")
