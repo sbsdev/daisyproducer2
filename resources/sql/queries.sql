@@ -99,7 +99,7 @@ AND hyphenation.spelling =
   WHERE id = :id)
 WHERE words.document_id = :id
 -- either uncontracted or contracted should always be non-null so the following should be implicitely the case and hence not needed
--- (when (= (:grade params) 0) "AND words.uncontracted IS NOT NULL OR words.contracted IS NOT NULL")
+-- (when (= (:grade params) 0) "AND (words.uncontracted IS NOT NULL OR words.contracted IS NOT NULL)")
 --~ (when (= (:grade params) 1) "AND words.uncontracted IS NOT NULL")
 --~ (when (= (:grade params) 2) "AND words.contracted IS NOT NULL")
 --~ (when (:search params) "AND words.untranslated LIKE :search")
