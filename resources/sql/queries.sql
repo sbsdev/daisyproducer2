@@ -102,6 +102,7 @@ WHERE words.document_id = :id
 -- (when (= (:grade params) 0) "AND words.uncontracted IS NOT NULL OR words.contracted IS NOT NULL")
 --~ (when (= (:grade params) 1) "AND words.uncontracted IS NOT NULL")
 --~ (when (= (:grade params) 2) "AND words.contracted IS NOT NULL")
+--~ (when (:search params) "AND words.untranslated LIKE :search")
 ORDER BY words.untranslated
 --~ (when (:limit params) "LIMIT :limit")
 --~ (when (:offset params) "OFFSET :offset")
