@@ -20,6 +20,7 @@
     [daisyproducer2.auth :as auth]
     [daisyproducer2.hyphenate :as hyphenate]
     [daisyproducer2.validation :as validation]
+    [daisyproducer2.documents.versions :as versions]
     [daisyproducer2.words.unknown :as unknown]
     [daisyproducer2.words.local :as local]
     [daisyproducer2.words.confirm :as confirm]
@@ -236,17 +237,48 @@
       {:get {:summary "Get all versions of a given document"
              :parameters {:path {:id int?}}
              :handler (fn [{{{:keys [id]} :path} :parameters}]
-                        (if-let [doc (db/get-versions {:document_id id})]
-                          (ok doc)
-                          (not-found)))}}]
-
-     ["/latest"
+                        (if-let [versions (not-empty (versions/get-versions id))]
+                          (ok versions)
+                          (not-found)))}
+       :post {:summary "Create a new version for a given document"
+              ;; :middleware [wrap-restricted]
+              ;; :swagger {:security [{:apiAuth []}]}
+              :parameters {:path {:id int?}
+                           :query {:comment string?
+                                   :username string?}
+                           :multipart {:file multipart/temp-file-part}}
+              :handler (fn [{{{:keys [id]} :path {:keys [file]} :multipart {:keys [comment username]} :query} :parameters}]
+                         (let [new-key (versions/insert-version id (:tempfile file) comment username)
+                               new-url (format "/documents/%s/versions/%s" id new-key)]
+                           (created new-url)))}}]
+     #_["/latest"
       {:get {:summary "Get the latest version of a given document"
              :parameters {:path {:id int?}}
              :handler (fn [{{{:keys [id]} :path} :parameters}]
                         (if-let [doc (db/get-latest-version {:document_id id})]
                           (ok doc)
-                          (not-found)))}}]]]
+                          (not-found)))}}]
+     ["/:version-id"
+      {:get {:summary "Get a version"
+             :parameters {:path {:id int?
+                                 :version-id int?}}
+             :handler (fn [{{{:keys [version-id]} :path} :parameters}]
+                        (if-let [version (versions/get-version version-id)]
+                          (ok version)
+                          (not-found)))}
+       :delete {:summary "Delete a version"
+              ;; :middleware [wrap-restricted]
+              ;; :swagger {:security [{:apiAuth []}]}
+                :parameters {:path {:id int?
+                                    :version-id int?}}
+                :handler (fn [{{{id :version-id} :path} :parameters}]
+                           (let [deleted (versions/delete-version id)]
+                             (case deleted
+                               true (no-content)
+                               false (internal-server-error) ; we found something but could not delete the content
+                               nil (not-found))))}}]
+
+     ]]
 
    ["/confirmable"
     {:swagger {:tags ["Confirmable Words"]}

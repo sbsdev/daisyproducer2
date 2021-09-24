@@ -3,7 +3,8 @@
   :description "FIXME: write description"
   :url "https://github.com/sbsdev/daisyproducer2"
 
-  :dependencies [[buddy/buddy-auth "2.2.0"]
+  :dependencies [[babashka/fs "0.0.5"]
+                 [buddy/buddy-auth "2.2.0"]
                  [buddy/buddy-core "1.9.0"]
                  [buddy/buddy-hashers "1.7.0"]
                  [buddy/buddy-sign "3.3.0"]
