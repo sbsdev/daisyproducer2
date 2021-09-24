@@ -35,11 +35,25 @@ WHERE document_id = :id
 SELECT * FROM documents_version
 WHERE document_id = :document_id
 
+-- :name get-version :? :1
+-- :doc retrieve a version for given `id`
+SELECT * FROM documents_version
+WHERE id = :id
+
 -- :name get-latest-version :? :1
 -- :doc retrieve the latest version of a document given a `document_id`
 SELECT * FROM documents_version
 WHERE document_id = :document_id
 AND created_at = (SELECT MAX(created_at) FROM documents_version WHERE document_id = :document_id)
+
+-- :name insert-version :insert :raw
+-- :doc Insert a new version for a given `document_id` with given `comment`, `content` and `user`.
+INSERT INTO documents_version (comment, document_id, content, created_by_id)
+VALUES (:comment, :document_id, :content, (SELECT id FROM auth_user WHERE username = :user))
+
+-- :name delete-version :! :n
+-- :doc Delete a version.
+DELETE FROM documents_version WHERE id = :id
 
 ------------------
 -- Global Words --
