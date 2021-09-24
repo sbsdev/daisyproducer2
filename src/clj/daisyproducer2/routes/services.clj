@@ -241,8 +241,8 @@
                           (ok versions)
                           (not-found)))}
        :post {:summary "Create a new version for a given document"
-              ;; :middleware [wrap-restricted]
-              ;; :swagger {:security [{:apiAuth []}]}
+              :middleware [wrap-restricted]
+              :swagger {:security [{:apiAuth []}]}
               :parameters {:path {:id int?}
                            ;; FIXME: the comment and the username should be in the body of the request I'd
                            ;; say. I get failures with coercion though
@@ -269,8 +269,8 @@
                           (ok version)
                           (not-found)))}
        :delete {:summary "Delete a version"
-              ;; :middleware [wrap-restricted]
-              ;; :swagger {:security [{:apiAuth []}]}
+                :middleware [wrap-restricted]
+                :swagger {:security [{:apiAuth []}]}
                 :parameters {:path {:id int?
                                     :version-id int?}}
                 :handler (fn [{{{id :version-id} :path} :parameters}]
