@@ -244,13 +244,15 @@
               ;; :middleware [wrap-restricted]
               ;; :swagger {:security [{:apiAuth []}]}
               :parameters {:path {:id int?}
-                           :query {:comment string?
-                                   :username string?}
+                           ;; FIXME: the comment and the username should be in the body of the request I'd
+                           ;; say. I get failures with coercion though
+                           :query {:comment string? :username string?}
                            :multipart {:file multipart/temp-file-part}}
               :handler (fn [{{{:keys [id]} :path {:keys [file]} :multipart {:keys [comment username]} :query} :parameters}]
                          (let [new-key (versions/insert-version id (:tempfile file) comment username)
                                new-url (format "/documents/%s/versions/%s" id new-key)]
                            (created new-url)))}}]
+     ;; FIXME: implement latest as a filter on get all versions GET /documents/123/versions?latest=true
      #_["/latest"
       {:get {:summary "Get the latest version of a given document"
              :parameters {:path {:id int?}}
