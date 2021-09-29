@@ -29,6 +29,10 @@
                     :logout "Log out"
                     :username "Username"
                     :password "Password"
+                    :comment "Comment"
+                    :choose-file "Choose a file"
+                    :no-file "No file selected"
+                    :upload "Upload"
                     ;;
                     :documents "Documents"
                     :confirm "Confirm"
@@ -111,6 +115,10 @@
                     :logout "Abmelden"
                     :username "Benutzername"
                     :password "Passwort"
+                    :comment "Kommentar"
+                    :choose-file "Datei wählen"
+                    :no-file "Keine Datei ausgewählt"
+                    :upload "Hochladen"
                     ;;
                     :documents "Dokumente"
                     :confirm "Bestätigen"
