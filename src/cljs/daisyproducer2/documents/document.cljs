@@ -3,6 +3,7 @@
             [clojure.string :as string]
             [daisyproducer2.documents.state :as state]
             [daisyproducer2.documents.version :as version]
+            [daisyproducer2.documents.image :as image]
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.words.grade :as grade]
             [daisyproducer2.words.local :as local]
@@ -69,7 +70,8 @@
        [:tr [:th (tr [k])] [:td v]])]]
    #_[:button.button.is-success
       (tr [:transitions-state] [(-> document :state-id state/next-mapping state/mapping)])]
-   [version/upload (:id document)]])
+   [version/upload (:id document)]
+   [image/upload (:id document)]])
 
 (defn page []
   (let [document @(rf/subscribe [::current])]
