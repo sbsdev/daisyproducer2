@@ -33,6 +33,13 @@
       (not (string/ends-with? s "$")) (append "%")
       true (string/replace #"[$^]" ""))))
 
+(defn get-generated-key
+  "Extract the generated key from the return value of an insert statement.
+  NOTE: This most likely only works when using MySQL and `clojure.jdbc`,
+  see also the [section on Retrieving Last Inserted ID](https://www.hugsql.org/#using-insert)"
+  [return-value]
+  (-> return-value first :generated_key))
+
 (extend-protocol next.jdbc.result-set/ReadableColumn
   java.sql.Timestamp
   (read-column-by-label [^java.sql.Timestamp v _]

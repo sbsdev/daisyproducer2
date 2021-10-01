@@ -39,9 +39,7 @@
     (->
      (db/insert-version {:document_id document-id :comment comment :content (str path) :user user})
      ;; ... and return the new key
-     ;; FIXME: the following most likely only works on MySQL
-     first
-     :generated_key)))
+     db/get-generated-key)))
 
 (defn delete-version
   [id]
