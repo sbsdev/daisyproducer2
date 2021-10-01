@@ -6,6 +6,13 @@
             [daisyproducer2.words.notifications :as notifications]
             [re-frame.core :as rf]))
 
+;; see https://www.dotkam.com/2012/11/23/convert-html5-filelist-to-clojure-vector/
+(defn toArray [js-col]
+  (-> (clj->js [])
+      (.-slice)
+      (.call js-col)
+      (js->clj)))
+
 (rf/reg-event-fx
   ::add-images
   (fn [{:keys [db]} [_ id js-file-value]]
@@ -50,7 +57,7 @@
 
 (defn- image-files []
   (let [get-value (fn [e] (-> e .-target .-files))
-        save!     #(rf/dispatch [::set-image-files %])
+        save!     #(rf/dispatch [::set-image-files (toArray %)])
         files     @(rf/subscribe [::image-files])
         names     @(rf/subscribe [::image-file-names])]
     [:p.control
