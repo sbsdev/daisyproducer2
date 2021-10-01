@@ -261,19 +261,17 @@
                           (not-found)))}}]
      ["/:version-id"
       {:get {:summary "Get a version"
-             :parameters {:path {:id int?
-                                 :version-id int?}}
-             :handler (fn [{{{:keys [version-id]} :path} :parameters}]
-                        (if-let [version (versions/get-version version-id)]
+             :parameters {:path {:id int? :version-id int?}}
+             :handler (fn [{{{:keys [id version-id]} :path} :parameters}]
+                        (if-let [version (versions/get-version id version-id)]
                           (ok version)
                           (not-found)))}
        :delete {:summary "Delete a version"
                 :middleware [wrap-restricted]
                 :swagger {:security [{:apiAuth []}]}
-                :parameters {:path {:id int?
-                                    :version-id int?}}
-                :handler (fn [{{{id :version-id} :path} :parameters}]
-                           (let [deleted (versions/delete-version id)]
+                :parameters {:path {:id int? :version-id int?}}
+                :handler (fn [{{{:keys [id version-id]} :path} :parameters}]
+                           (let [deleted (versions/delete-version id version-id)]
                              (case deleted
                                true (no-content)
                                false (internal-server-error) ; we found something but could not delete the content
