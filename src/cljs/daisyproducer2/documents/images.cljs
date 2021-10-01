@@ -14,12 +14,12 @@
       (js->clj)))
 
 (rf/reg-event-fx
-  ::add-images
+  ::add-image
   (fn [{:keys [db]} [_ id js-file-value]]
-    (let [form-data (doto (js/FormData.)
-                      (.append "file" js-file-value "filename.txt"))]
-      {:db (notifications/set-button-state db :images :save)
-       :http-xhrio {:method          :post
+    (let [name (.-name js-file-value)
+          form-data (doto (js/FormData.)
+                      (.append "file" js-file-value name))]
+      {:http-xhrio {:method          :post
                     :format          (ajax/json-request-format)
                     :headers 	     (auth/auth-header db)
                     :uri             (str "/api/documents/" id "/images")
@@ -28,6 +28,15 @@
                     :on-success      [::ack-add-images]
                     :on-failure      [::ack-failure]
                     }})))
+
+(rf/reg-event-fx
+ ::add-all-images
+ (fn [{:keys [db]} [_ id images]]
+   {:db (push-image-uploading-state db id images)
+    ;; FIXME: :dispatch-n should be replaced with
+    ;; :fx (mapv (fn [img] [:dispatch [::add-image id img]]) images)
+    :dispatch-n (map (fn [img] [::add-image id img]) images)
+    }))
 
 (rf/reg-event-db
   ::ack-add-images
@@ -87,7 +96,7 @@
         [:button.button.is-success
          {:disabled (or (nil? files) (not authenticated?))
           :class klass
-          :on-click (fn [e] (rf/dispatch [::add-images id files]))}
+          :on-click (fn [e] (rf/dispatch [::add-all-images id files]))}
          [:span.icon {:aria-hidden true} [:i.mi.mi-backup]]
          [:span (tr [:upload])]]]])))
 
