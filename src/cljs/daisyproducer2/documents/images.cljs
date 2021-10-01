@@ -69,7 +69,7 @@
 (rf/reg-sub
  ::image-file-names
  :<- [::image-files]
- (fn [files] (->> files (map #(.-name %)) (string/join ","))))
+ (fn [files] (->> files (map #(.-name %)) (string/join ", "))))
 
 (rf/reg-event-db
   ::set-image-files
