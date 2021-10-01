@@ -22,6 +22,7 @@
     [daisyproducer2.hyphenations :as hyphenations]
     [daisyproducer2.validation :as validation]
     [daisyproducer2.documents.versions :as versions]
+    [daisyproducer2.documents.images :as images]
     [daisyproducer2.words.unknown :as unknown]
     [daisyproducer2.words.local :as local]
     [daisyproducer2.words.confirm :as confirm]
@@ -105,18 +106,6 @@
             :parameters {:path {:id int?}}
             :handler (fn [{{{:keys [id]} :path} :parameters}]
                        (if-let [doc (db/get-document {:id id})]
-                         (ok doc)
-                         (not-found)))}}]
-
-    ["/:id/images"
-     {:get {:summary "Get all images for a given document"
-            :parameters {:path {:id int?}
-                         :query {(spec/opt :limit) int?
-                                 (spec/opt :offset) int?}}
-            :handler (fn [{{{:keys [id]} :path
-                            {:keys [limit offset]
-                             :or {limit default-limit offset 0}} :query} :parameters}]
-                       (if-let [doc (db/get-images {:id id})]
                          (ok doc)
                          (not-found)))}}]]
 
@@ -299,9 +288,46 @@
                              (case deleted
                                true (no-content)
                                false (internal-server-error) ; we found something but could not delete the content
-                               nil (not-found))))}}]
+                               nil (not-found))))}}]]
 
-     ]]
+    ["/images"
+     {:swagger {:tags ["Images"]}}
+
+     [""
+      {:get {:summary "Get all images of a given document"
+             :parameters {:path {:id int?}
+                          :query {(spec/opt :limit) int?
+                                  (spec/opt :offset) int?}}
+             :handler (fn [{{{:keys [id]} :path
+                             {:keys [limit offset]
+                              :or {limit default-limit offset 0}} :query} :parameters}]
+                        (ok (images/get-images id limit offset)))}
+       :post {:summary "Add a new image to a given document"
+              :middleware [wrap-restricted]
+              :swagger {:security [{:apiAuth []}]}
+              :parameters {:path {:id int?} :multipart {:file multipart/temp-file-part}}
+              :handler (fn [{{{:keys [id]} :path {{:keys [filename tempfile]} :file} :multipart} :parameters
+                             {{uid :uid} :user} :identity}]
+                         (let [new-key (images/insert-image id filename tempfile)
+                               new-url (format "/documents/%s/images/%s" id new-key)]
+                           (created new-url)))}}]
+     ["/:image-id"
+      {:get {:summary "Get an image"
+             :parameters {:path {:id int? :image-id int?}}
+             :handler (fn [{{{:keys [id image-id]} :path} :parameters}]
+                        (if-let [image (images/get-image id image-id)]
+                          (ok image)
+                          (not-found)))}
+       :delete {:summary "Delete an image"
+                :middleware [wrap-restricted]
+                :swagger {:security [{:apiAuth []}]}
+                :parameters {:path {:id int? :image-id int?}}
+                :handler (fn [{{{:keys [id image-id]} :path} :parameters}]
+                           (let [deleted (images/delete-image id image-id)]
+                             (case deleted
+                               true (no-content)
+                               false (internal-server-error) ; we found something but could not delete the content
+                               nil (not-found))))}}]]]
 
    ["/confirmable"
     {:swagger {:tags ["Confirmable Words"]}

@@ -21,11 +21,6 @@ SELECT *, (CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END) A
 FROM documents_document
 WHERE id = :id
 
--- :name get-images :? :*
--- :doc retrieve the images for a given document `id`
-SELECT * FROM documents_image
-WHERE document_id = :id
-
 --------------
 -- Versions --
 --------------
@@ -55,6 +50,34 @@ VALUES (:comment, :document_id, :content, (SELECT id FROM auth_user WHERE userna
 -- :name delete-version :! :n
 -- :doc Delete a version.
 DELETE FROM documents_version WHERE id = :id
+
+------------
+-- Images --
+------------
+
+-- :name get-images :? :*
+-- :doc retrieve all images of a document given a `document_id`, a `limit` and an `offset`
+SELECT * FROM documents_image
+WHERE document_id = :document_id
+LIMIT :limit OFFSET :offset
+
+-- :name get-image :? :1
+-- :doc retrieve an image for given `id`
+SELECT * FROM documents_image
+WHERE document_id = :document_id
+AND id = :id
+
+-- :name insert-image :insert :raw
+-- :doc Insert a new image for a given `document_id` with given and `content`.
+INSERT INTO documents_image (document_id, content)
+VALUES (:document_id, :content)
+ON DUPLICATE KEY UPDATE
+content = VALUES(content),
+document_id = VALUES(document_id)
+
+-- :name delete-image :! :n
+-- :doc Delete an image.
+DELETE FROM documents_image WHERE id = :id
 
 ------------------
 -- Global Words --
