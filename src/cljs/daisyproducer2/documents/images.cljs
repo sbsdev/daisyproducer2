@@ -13,6 +13,12 @@
       (.call js-col)
       (js->clj)))
 
+(defn push-image-uploading-state [db id images]
+  (assoc-in db [:loading :images id] (set (map (fn [img] (.-name img)) images))))
+
+(defn pop-image-uploading-state [db id img]
+  (update-in db [:loading :images id] disj img))
+
 (rf/reg-event-fx
   ::add-image
   (fn [{:keys [db]} [_ id js-file-value]]
@@ -25,8 +31,8 @@
                     :uri             (str "/api/documents/" id "/images")
                     :body            form-data
                     :response-format (ajax/raw-response-format)
-                    :on-success      [::ack-add-images]
-                    :on-failure      [::ack-failure]
+                    :on-success      [::ack-add-image id name]
+                    :on-failure      [::ack-failure id name]
                     }})))
 
 (rf/reg-event-fx
@@ -39,17 +45,22 @@
     }))
 
 (rf/reg-event-db
-  ::ack-add-images
-  (fn [db [_]]
-    (-> db (notifications/clear-button-state :images :save))))
+ ::ack-add-image
+ (fn [db [_ id name]]
+   (pop-image-uploading-state db id name)))
 
 (rf/reg-event-db
  ::ack-failure
- (fn [db [_ response]]
+ (fn [db [_ id name response]]
    (-> db
        (assoc-in [:errors :version] (or (get-in response [:response :status-text])
                                         (get response :status-text)))
-       (notifications/clear-button-state :images :save))))
+       (pop-image-uploading-state id name))))
+
+(rf/reg-sub
+  ::images-uploading?
+  (fn [db [_ id]]
+    (-> db :loading :images (get id) seq)))
 
 (rf/reg-sub
  ::image-files
@@ -86,7 +97,7 @@
 (defn upload [id]
   (let [files @(rf/subscribe [::image-files])
         authenticated? @(rf/subscribe [::auth/authenticated?])
-        klass (when @(rf/subscribe [::notifications/button-loading? :images :save]) "is-loading")
+        klass (when @(rf/subscribe [::images-uploading? id]) "is-loading")
         errors? @(rf/subscribe [::notifications/errors?])]
     (if errors?
       [notifications/error-notification]
