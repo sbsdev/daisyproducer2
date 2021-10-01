@@ -246,9 +246,9 @@
               :parameters {:path {:id int?}
                            :multipart {:file multipart/temp-file-part
                                        :comment string?}}
-              :handler (fn [{{{:keys [id]} :path {:keys [file comment]} :multipart} :parameters
+              :handler (fn [{{{:keys [id]} :path {{tempfile :tempfile} :file comment :comment} :multipart} :parameters
                              {{uid :uid} :user} :identity}]
-                         (let [new-key (versions/insert-version id (:tempfile file) comment uid)
+                         (let [new-key (versions/insert-version id tempfile comment uid)
                                new-url (format "/documents/%s/versions/%s" id new-key)]
                            (created new-url)))}}]
      ;; FIXME: implement latest as a filter on get all versions GET /documents/123/versions?latest=true
