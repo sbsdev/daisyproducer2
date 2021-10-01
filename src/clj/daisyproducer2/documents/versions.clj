@@ -1,19 +1,18 @@
 (ns daisyproducer2.documents.versions
-  (:require
-   [daisyproducer2.db.core :as db]
-   [daisyproducer2.config :refer [env]]
-   [daisyproducer2.metrics :as metrics]
-   [clojure.java.io :as io]
-   [babashka.fs :as fs]
-   [iapetos.collector.fn :as prometheus]))
+  (:require [babashka.fs :as fs]
+            [clojure.java.io :as io]
+            [daisyproducer2.config :refer [env]]
+            [daisyproducer2.db.core :as db]
+            [daisyproducer2.metrics :as metrics]
+            [iapetos.collector.fn :as prometheus]))
 
 (defn get-versions
   [document-id]
   (db/get-versions {:document_id document-id}))
 
 (defn get-version
-  [id]
-  (db/get-version {:id id}))
+  [document-id id]
+  (db/get-version {:document_id document-id :id id}))
 
 (defn get-latest
   [document-id]
@@ -42,8 +41,8 @@
      db/get-generated-key)))
 
 (defn delete-version
-  [id]
-  (when-let [{:keys [id content]} (not-empty (db/get-version {:id id}))]
+  [document-id id]
+  (when-let [{:keys [id content]} (not-empty (db/get-version {:document_id document-id :id id}))]
     (db/delete-version {:id id})
     (fs/delete-if-exists (fs/path (env :document-root) content))))
 

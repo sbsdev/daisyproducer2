@@ -38,7 +38,8 @@ WHERE document_id = :document_id
 -- :name get-version :? :1
 -- :doc retrieve a version for given `id`
 SELECT * FROM documents_version
-WHERE id = :id
+WHERE document_id = :document_id
+AND id = :id
 
 -- :name get-latest-version :? :1
 -- :doc retrieve the latest version of a document given a `document_id`
