@@ -69,10 +69,7 @@
                      (get document k))]
            :when (not (string/blank? v))]
        ^{:key k}
-       [:tr [:th (tr [k])] [:td v]])]]
-   #_[:button.button.is-success
-      (tr [:transitions-state] [(-> document :state-id state/next-mapping state/mapping)])]
-   ])
+       [:tr [:th (tr [k])] [:td v]])]]])
 
 (defn page []
   (let [document @(rf/subscribe [::current])]
@@ -104,4 +101,6 @@
      [tabs document]
      [:div.block
       [version/upload (:id document)]
-      [image/upload (:id document)]]]))
+      [image/upload (:id document)]
+      [:button.button.is-success
+       (tr [:transitions-state] [(-> document :state-id state/next-mapping state/mapping)])]]]))
