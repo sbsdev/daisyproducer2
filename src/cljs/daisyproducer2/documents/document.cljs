@@ -45,6 +45,7 @@
      [tab-link (str "#/documents/" id) (tr [:details]) :document]
      [tab-link (str "#/documents/" id "/unknown") (tr [:unknown-words]) :document-unknown (fn [_] (rf/dispatch [::unknown/fetch-words id]))]
      [tab-link (str "#/documents/" id "/local") (tr [:local-words]) :document-local (fn [_] (rf/dispatch [::local/fetch-words id]))]
+     [tab-link (str "#/documents/" id "/upload") (tr [:upload]) :document-upload]
      ]]])
 
 (defn summary [{:keys [title author source-publisher state-id]}]
@@ -70,8 +71,7 @@
        [:tr [:th (tr [k])] [:td v]])]]
    #_[:button.button.is-success
       (tr [:transitions-state] [(-> document :state-id state/next-mapping state/mapping)])]
-   [version/upload (:id document)]
-   [image/upload (:id document)]])
+   ])
 
 (defn page []
   (let [document @(rf/subscribe [::current])]
@@ -96,3 +96,11 @@
      [grade/selector ::local/fetch-words]
      [local/local-words [::current]]]))
 
+(defn upload []
+  (let [document @(rf/subscribe [::current])]
+    [:section.section>div.container>div.content
+     [summary document]
+     [tabs document]
+     [:div.block
+      [version/upload (:id document)]
+      [image/upload (:id document)]]]))

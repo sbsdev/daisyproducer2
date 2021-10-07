@@ -102,6 +102,8 @@
                                 :view #'document/unknown}]
      ["/documents/:id/local" {:name :document-local
                               :view #'document/local}]
+     ["/documents/:id/upload" {:name :document-upload
+                               :view #'document/upload}]
      ["/hyphenations" {:name :hyphenations
                        :view #'hyphenations/add-page}]
      ["/hyphenations/edit" {:name :hyphenations-edit
