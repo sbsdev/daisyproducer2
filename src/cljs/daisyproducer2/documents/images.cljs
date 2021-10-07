@@ -83,7 +83,7 @@
          :on-change #(save! (get-value %))}]
        [:span.file-cta
         [:span.file-icon [:i.mi.mi-file-upload]]
-        [:span.file-label (tr [:choose-file])]]
+        [:span.file-label (tr [:choose-images])]]
        [:span.file-name (if files names (tr [:no-file]))]]]]))
 
 (defn upload [id]
