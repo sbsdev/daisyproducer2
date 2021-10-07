@@ -31,7 +31,8 @@
                     :username "Username"
                     :password "Password"
                     :comment "Comment"
-                    :choose-file "Choose a file"
+                    :choose-dtbook "Choose a DTBook file"
+                    :choose-images "Choose images"
                     :no-file "No file selected"
                     :upload "Upload"
                     ;;
@@ -123,7 +124,8 @@
                     :username "Benutzername"
                     :password "Passwort"
                     :comment "Kommentar"
-                    :choose-file "Datei wählen"
+                    :choose-dtbook "DTBook Datei wählen"
+                    :choose-images "Bilder wählen"
                     :no-file "Keine Datei ausgewählt"
                     :upload "Hochladen"
                     ;;
