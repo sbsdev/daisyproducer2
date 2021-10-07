@@ -13,11 +13,8 @@
       (.call js-col)
       (js->clj)))
 
-(defn push-image-uploading-state [db id images]
-  (assoc-in db [:loading :images id] (set (map (fn [img] (.-name img)) images))))
-
-(defn pop-image-uploading-state [db id img]
-  (update-in db [:loading :images id] disj img))
+(defn- extract-filenames [images]
+  (map (fn [img] (.-name img)) images))
 
 (rf/reg-event-fx
   ::add-image
@@ -38,7 +35,7 @@
 (rf/reg-event-fx
  ::add-all-images
  (fn [{:keys [db]} [_ id images]]
-   {:db (push-image-uploading-state db id images)
+   {:db (notifications/set-upload-state db id (set (extract-filenames images)))
     ;; FIXME: :dispatch-n should be replaced with
     ;; :fx (mapv (fn [img] [:dispatch [::add-image id img]]) images)
     :dispatch-n (map (fn [img] [::add-image id img]) images)
@@ -47,7 +44,7 @@
 (rf/reg-event-db
  ::ack-add-image
  (fn [db [_ id name]]
-   (pop-image-uploading-state db id name)))
+   (notifications/clear-upload-state db id name)))
 
 (rf/reg-event-db
  ::ack-failure
@@ -55,12 +52,7 @@
    (-> db
        (assoc-in [:errors :version] (or (get-in response [:response :status-text])
                                         (get response :status-text)))
-       (pop-image-uploading-state id name))))
-
-(rf/reg-sub
-  ::images-uploading?
-  (fn [db [_ id]]
-    (-> db :loading :images (get id) seq)))
+       (notifications/clear-upload-state id name))))
 
 (rf/reg-sub
  ::image-files
@@ -97,7 +89,7 @@
 (defn upload [id]
   (let [files @(rf/subscribe [::image-files])
         authenticated? @(rf/subscribe [::auth/authenticated?])
-        klass (when @(rf/subscribe [::images-uploading? id]) "is-loading")
+        klass (when @(rf/subscribe [::notifications/files-uploading? id]) "is-loading")
         errors? @(rf/subscribe [::notifications/errors?])]
     (if errors?
       [notifications/error-notification]
