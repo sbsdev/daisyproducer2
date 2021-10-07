@@ -4,6 +4,7 @@
             [daisyproducer2.documents.state :as state]
             [daisyproducer2.documents.preview :as preview]
             [daisyproducer2.i18n :refer [tr]]
+            [daisyproducer2.words :as words]
             [daisyproducer2.words.grade :as grade]
             [daisyproducer2.words.local :as local]
             [daisyproducer2.words.unknown :as unknown]
@@ -69,7 +70,7 @@
     [:tbody
      (for [k [:date :modified-at :spelling :language]
            :let [v (case k
-                     :spelling (state/mapping (get document k))
+                     :spelling (words/spelling-brief-string (get document k))
                      (get document k))]
            :when (not (string/blank? v))]
        ^{:key k}
