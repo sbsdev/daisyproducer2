@@ -25,9 +25,10 @@
      [:div.control
       [:div.select.is-fullwidth
        [:select
-        {:on-change emit}
+        {:value current
+         :on-change emit}
         (for [[v s] [[1 (tr [:uncontracted])]
                      [2 (tr [:contracted])]
                      [0 (tr [:both-grades])]]]
           ^{:key v}
-          [:option (if (not= current v) {:value v} {:selected "selected" :value v}) s])]]]]))
+          [:option {:value v} s])]]]]))

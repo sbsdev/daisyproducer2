@@ -153,11 +153,12 @@
      [:div.control
       [:div.select.is-fullwidth
        [:select
-        {:on-change emit}
+        {:value current
+         :on-change emit}
         (for [[v s] [[1 (tr [:new-spelling])]
                      [0 (tr [:old-spelling])]]]
           ^{:key v}
-          [:option (if (not= current v) {:value v} {:selected "selected" :value v}) s])]]]]))
+          [:option {:value v} s])]]]]))
 
 (rf/reg-sub
   ::hyphenations
