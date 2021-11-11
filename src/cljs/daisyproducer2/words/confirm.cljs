@@ -175,22 +175,14 @@
       0 nil
       (1 2)
       [:div.select
-       [:select
-        [:option {:selected (= type 2)
-                  :on-click (set-type-fn 2)}
-         (tr [:type-name])]
-        [:option {:selected (= type 1)
-                  :on-click (set-type-fn 1)}
-         (tr [:type-name-hoffmann])]]]
+       [:select {:value type}
+        [:option {:value 2 :on-click (set-type-fn 2)} (tr [:type-name])]
+        [:option {:value 1 :on-click (set-type-fn 1)} (tr [:type-name-hoffmann])]]]
       (3 4)
       [:div.select
-       [:select
-        [:option {:selected (= type 4)
-                  :on-click (set-type-fn 4)}
-         (tr [:type-place])]
-        [:option {:selected (= type 3)
-                  :on-click (set-type-fn 3)}
-         (tr [:type-place-langenthal])]]]
+       [:select {:value type}
+        [:option {:value 4 :on-click (set-type-fn 4)} (tr [:type-place])]
+        [:option {:value 3 :on-click (set-type-fn 3)} (tr [:type-place-langenthal])]]]
       5 (tr [:type-homograph])
       :else (tr [:unknown]))))
 
