@@ -105,7 +105,12 @@
 (rf/reg-sub
   ::words
   (fn [db _]
-    (->> db :words :global vals (sort-by :untranslated))))
+    (->> db :words :global vals)))
+
+(rf/reg-sub
+ ::words-sorted
+ :<- [::words]
+ (fn [words] (->> words (sort-by (juxt :untranslated :type)))))
 
 (rf/reg-sub
   ::search
@@ -206,6 +211,6 @@
             [:th (tr [:homograph-disambiguation])]
             [:th (tr [:action])]]]
           [:tbody
-           (for [{:keys [uuid]} @(rf/subscribe [::words])]
+           (for [{:keys [uuid]} @(rf/subscribe [::words-sorted])]
              ^{:key uuid} [word uuid])]]
          [pagination/pagination :global [::fetch-words]]])]]))

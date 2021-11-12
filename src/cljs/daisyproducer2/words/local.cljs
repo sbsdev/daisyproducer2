@@ -147,7 +147,12 @@
 (rf/reg-sub
  ::words
  (fn [db _]
-   (->> db :words :local vals (sort-by :untranslated))))
+   (->> db :words :local vals)))
+
+(rf/reg-sub
+ ::words-sorted
+ :<- [::words]
+ (fn [words] (->> words (sort-by (juxt :untranslated :type)))))
 
 (rf/reg-sub
  ::word
@@ -203,7 +208,7 @@
      [:td {:width "8%"} [buttons uuid]]]))
 
 (defn local-words []
-  (let [words @(rf/subscribe [::words])
+  (let [words @(rf/subscribe [::words-sorted])
         document @(rf/subscribe [:daisyproducer2.documents.document/current])
         spelling (:spelling (first words))
         grade @(rf/subscribe [::grade/grade])
