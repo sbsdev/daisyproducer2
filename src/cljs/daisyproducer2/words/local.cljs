@@ -89,8 +89,15 @@
 (rf/reg-event-db
   ::ack-save
   (fn [db [_ id]]
-    (-> db
-        (notifications/clear-button-state id :save))))
+    (let [new-id (str (random-uuid))
+          new-word (-> db (get-in [:words :local id]) (assoc :uuid new-id))]
+      (-> db
+          ;; give the saved word a new uuid so that the react component of the
+          ;; input fields is re-mounted and its local state is refreshed. The idea
+          ;; for this comes from https://stackoverflow.com/a/48451229
+          (update-in [:words :local] dissoc id)
+          (assoc-in [:words :local new-id] new-word)
+          (notifications/clear-button-state id :save)))))
 
 (rf/reg-event-fx
   ::ack-delete
