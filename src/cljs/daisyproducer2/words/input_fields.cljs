@@ -1,6 +1,8 @@
 (ns daisyproducer2.words.input-fields
-  (:require [daisyproducer2.i18n :refer [tr]]
-            [re-frame.core :as rf]))
+  (:require [clojure.string :as str]
+            [daisyproducer2.i18n :refer [tr]]
+            [re-frame.core :as rf]
+            [reagent.core :as reagent]))
 
 (rf/reg-sub
  ::word-field
@@ -23,15 +25,19 @@
               :checked value
               :on-change #(rf/dispatch [::set-word-field page id :islocal (not value)])}]]))
 
+;; An input-field component keeps its value as component local state.
+;; It only updates the app state when saving by pressing RET or on
+;; blur. Much of this is inspired by the reframe todomvc example at
+;; https://github.com/day8/re-frame/blob/master/examples/todomvc/src/todomvc/views.cljs#L7
 (defn input-field [page id field-id validator]
   (let [initial-value @(rf/subscribe [::word-field page id field-id])
-        get-value (fn [e] (-> e .-target .-value))
-        reset! #(rf/dispatch [::set-word-field page id field-id initial-value])
-        save! #(rf/dispatch [::set-word-field page id field-id %])]
+        value (reagent/atom initial-value)
+        stop #(reset! value initial-value)
+        save #(let [v (-> @value str str/trim)]
+                (rf/dispatch [::set-word-field page id field-id v]))]
     (fn []
-      (let [value @(rf/subscribe [::word-field page id field-id])
-            valid? (validator value)
-            changed? (not= initial-value value)
+      (let [valid? (validator @value)
+            changed? (not= initial-value @value)
             klass (list (cond (not valid?) "is-danger"
                               changed? "is-warning")
                         ;; braille fields should be in mono space
@@ -40,9 +46,13 @@
          [:input.input {:type "text"
                         :aria-label (tr [field-id])
                         :class klass
-                        :value value
-                        :on-change #(save! (get-value %))
-                        :on-key-down #(when (= (.-which %) 27) (reset!))}]
+                        :value @value
+                        :on-blur save
+                        :on-change #(reset! value (-> % .-target .-value))
+                        :on-key-down #(case (.-which %)
+                                        13 (save) ; RET
+                                        27 (stop) ; ESC
+                                        nil)}]
          (when-not valid?
            [:p.help.is-danger (tr [:input-not-valid])])]))))
 
