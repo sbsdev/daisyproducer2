@@ -9,11 +9,15 @@
    [daisyproducer2.words.notifications :as notifications]
    [clojure.string :as string]))
 
+(defn- get-search [db] (get-in db [:search :hyphenation]))
+(defn- get-spelling [db] (get-in db [:current :spelling] 1))
+(defn- get-corrected [db] (get-in db [:current :hyphenation :corrected]))
+
 (rf/reg-event-fx
   ::fetch-hyphenations
   (fn [{:keys [db]} [_]]
-    (let [search @(rf/subscribe [::search])
-          spelling @(rf/subscribe [::spelling])
+    (let [search (get-search db)
+          spelling (get-spelling db)
           offset (pagination/offset db :hyphenation)]
       {:db (assoc-in db [:loading :hyphenation] true)
        :http-xhrio {:method          :get
@@ -47,8 +51,8 @@
 (rf/reg-event-fx
   ::fetch-suggested-hyphenation
   (fn [{:keys [db]} [_]]
-    (let [word @(rf/subscribe [::search])
-          spelling @(rf/subscribe [::spelling])]
+    (let [word (get-search db)
+          spelling (get-spelling db)]
       {:http-xhrio {:method          :get
                     :uri             "/api/hyphenations/suggested"
                     :params          {:spelling spelling
@@ -72,14 +76,14 @@
 (rf/reg-event-fx
   ::save-hyphenation
   (fn [{:keys [db]} [_ id]]
-    (let [word @(rf/subscribe [::search])
+    (let [word (get-search db)
           hyphenation (if id
                         ;; save an existing hyphenation
                         (get-in db [:words :hyphenation id])
                         ;; insert a new hyphenation
                         {:word word
-                         :hyphenation @(rf/subscribe [::corrected])
-                         :spelling @(rf/subscribe [::spelling])})]
+                         :hyphenation (get-corrected db)
+                         :spelling (get-spelling db)})]
       {:db (notifications/set-button-state db (or id word) :save)
        :http-xhrio {:method          :put
                     :format          (ajax/json-request-format)
@@ -130,10 +134,7 @@
                                             (get response :status-text)))
        (notifications/clear-button-state id request-type))))
 
-(rf/reg-sub
-  ::spelling
-  (fn [db _]
-    (get-in db [:current :spelling] 1)))
+(rf/reg-sub ::spelling (fn [db _] (get-spelling db)))
 
 (rf/reg-event-fx
   ::set-spelling
@@ -180,10 +181,7 @@
   (fn [db _]
     (get-in db [:current :hyphenation :suggested] "")))
 
-(rf/reg-sub
-  ::search
-  (fn [db _]
-    (get-in db [:search :hyphenation])))
+(rf/reg-sub ::search (fn [db _] (get-search db)))
 
 (rf/reg-event-fx
    ::set-search
@@ -262,10 +260,7 @@
                      :disabled "disabled"
                      :value suggested}]]]))
 
-(rf/reg-sub
-  ::corrected
-  (fn [db _]
-    (get-in db [:current :hyphenation :corrected])))
+(rf/reg-sub ::corrected (fn [db _] (get-corrected db)))
 
 (rf/reg-event-db
  ::set-corrected

@@ -9,10 +9,12 @@
             [daisyproducer2.words.notifications :as notifications]
             [re-frame.core :as rf]))
 
+(defn- get-search [db] (get-in db [:search :global]))
+
 (rf/reg-event-fx
   ::fetch-words
   (fn [{:keys [db]} [_]]
-    (let [search @(rf/subscribe [::search])
+    (let [search (get-search db)
           offset (pagination/offset db :global)]
       {:db (assoc-in db [:loading :global] true)
        :http-xhrio {:method          :get
@@ -120,10 +122,7 @@
  :<- [::words]
  (fn [words] (->> words (sort-by (juxt :untranslated :type)))))
 
-(rf/reg-sub
-  ::search
-  (fn [db _]
-    (get-in db [:search :global])))
+(rf/reg-sub ::search (fn [db _] (get-search db)))
 
 (rf/reg-event-fx
    ::set-search
