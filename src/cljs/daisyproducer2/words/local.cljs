@@ -11,12 +11,14 @@
             [daisyproducer2.words.notifications :as notifications]
             [re-frame.core :as rf]))
 
+(defn- get-search [db document-id] (get-in db [:search :local document-id]))
+
 (rf/reg-event-fx
   ::fetch-words
   (fn [{:keys [db]} [_ id]]
-    (let [grade @(rf/subscribe [::grade/grade])
+    (let [grade (grade/get-grade db)
           offset (pagination/offset db :local)
-          search @(rf/subscribe [::search id])]
+          search (get-search db id)]
       {:db (assoc-in db [:loading :local] true)
        :http-xhrio {:method          :get
                     :uri             (str "/api/documents/" id "/words")
@@ -118,10 +120,7 @@
                                             (get response :status-text)))
        (notifications/clear-button-state id request-type))))
 
-(rf/reg-sub
-  ::search
-  (fn [db [_ document-id]]
-    (get-in db [:search :local document-id])))
+(rf/reg-sub ::search (fn [db [_ document-id]] (get-search db document-id) ))
 
 (rf/reg-event-fx
    ::set-search

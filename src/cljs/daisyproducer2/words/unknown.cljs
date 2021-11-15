@@ -14,7 +14,7 @@
 (rf/reg-event-fx
   ::fetch-words
   (fn [{:keys [db]} [_ id]]
-    (let [grade @(rf/subscribe [::grade/grade])
+    (let [grade (grade/get-grade db)
           offset (pagination/offset db :unknown)]
       {:db (assoc-in db [:loading :unknown] true)
        :http-xhrio {:method          :get

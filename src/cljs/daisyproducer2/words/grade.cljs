@@ -3,6 +3,11 @@
    [re-frame.core :as rf]
    [daisyproducer2.i18n :refer [tr]]))
 
+; FIXME: Instead of a default value, maybe there should be an init
+; event that initializes the value of current-grade at the start of
+; the app
+(defn get-grade [db] (get db :current-grade 0))
+
 (rf/reg-event-fx
   ::set-grade
   (fn [{:keys [db]} [_ grade dispatch]]
@@ -10,12 +15,7 @@
       {:db (assoc db :current-grade (js/parseInt grade))
        :dispatch [dispatch id]})))
 
-(rf/reg-sub
- ::grade
- ; FIXME: Instead of a default value, maybe there should be an init
- ; event that initializes the value of current-grade at the start of
- ; the app
- (fn [db _] (get db :current-grade 0)))
+(rf/reg-sub ::grade (fn [db _] (get-grade db)))
 
 (defn selector [dispatch-event]
   (let [current @(rf/subscribe [::grade])
