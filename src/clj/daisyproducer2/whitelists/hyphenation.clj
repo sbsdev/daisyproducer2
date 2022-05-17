@@ -63,6 +63,15 @@
                           (nio/posix-file-permission :others-read))]
     (nio/set-posix-file-permissions! file permissions)))
 
+(defn- invoke-substrings-program
+  "Invoke the substrings program and return the result in the style of
+  `clojure.java.shell/sh`"
+  [infile outfile]
+  ;; redirect the output of substrings.pl to /dev/null. Otherwise it can happen that we
+  ;; blow the memory. Idea taken from https://stackoverflow.com/a/7027280
+  (sh "sh" "-c"
+      (string/join " " [substrings-program infile outfile "> /dev/null"])))
+
 (defn- export*
   "Export all hyphenation patterns from the database and prepare for
   libhyphen consumption, i.e. run them through substrings.pl"
@@ -79,11 +88,13 @@
     (log/info "Exporting hyphenation whitelist for" dictionary)
     (log/debug "Wrote the whitelist" whitelist)
     (let [tmp-file (nio/absolute-path (nio/create-temp-file! "hyphen-" ".dic"))
-          result (sh substrings-program whitelist (str tmp-file))]
-      (log/debugf "substrings.pl %s %s returned %s" whitelist tmp-file result)
-      (set-file-permissions! tmp-file)
-      (nio/move! tmp-file dictionary StandardCopyOption/REPLACE_EXISTING)
-      (log/debugf "Move %s to %s" tmp-file dictionary))))
+          result (invoke-substrings-program whitelist (str tmp-file))]
+      (if (not= (:exit result) 0)
+        (log/errorf "substrings.pl %s %s failed with %s" whitelist tmp-file result)
+        (do
+          (set-file-permissions! tmp-file)
+          (nio/move! tmp-file dictionary StandardCopyOption/REPLACE_EXISTING)
+          (log/debugf "Move %s to %s" tmp-file dictionary))))))
 
 (defn- exporter
   "Create a channel and attach a listener to it so that events can be
