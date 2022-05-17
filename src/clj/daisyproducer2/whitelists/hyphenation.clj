@@ -99,7 +99,11 @@
   (let [debounce-chan (async/chan (async/dropping-buffer 1))]
     (async/go-loop []
       (when-let [_ (async/<! debounce-chan)]
-        (export*)
+        (try
+          (export*)
+          (catch Exception e
+            (log/error "Exception when exporting: " (.getMessage e))
+            (throw e))) ; bubble the exception up
         (recur)))
     debounce-chan))
 

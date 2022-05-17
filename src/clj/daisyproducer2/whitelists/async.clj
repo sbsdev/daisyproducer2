@@ -4,6 +4,7 @@
   (:require [chime.core :as chime]
             [clojure.core.async :as async
              :refer [<! >! >!! alts! buffer chan close! go go-loop timeout]]
+            [clojure.tools.logging :as log]
             [daisyproducer2.whitelists.tables :as tables]
             [mount.core :refer [defstate]])
   (:import [java.time LocalTime Period ZonedDateTime ZoneId]))
@@ -30,7 +31,11 @@
            ;; the actual worker thread that writes the tables
            (go (loop []
                  (when-let [document-id (<! write-ch)]
-                   (tables/export-local-tables document-id)
+                   (try
+                     (tables/export-local-tables document-id)
+                     (catch Exception e
+                       (log/error "Exception when exporting: " (.getMessage e))
+                       (throw e))) ; bubble the exception up
                    (recur))))
 
            (go-loop [document-ids #{}]
