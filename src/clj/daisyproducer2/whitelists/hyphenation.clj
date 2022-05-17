@@ -50,7 +50,14 @@
 (defn- write-file [words file-name original-dict]
   (with-open [w (io/writer file-name :encoding "ISO-8859-1")]
     ;; insert the original dict
-    (io/copy (io/file original-dict) w :encoding "ISO-8859-1")
+    (with-open [original (io/reader (io/file original-dict) :encoding "ISO-8859-1")]
+      (doseq [line (line-seq original)]
+        ;; newer versions of substrings.pl cannot handle '#'-style comments, so replace with '%'
+        (let [sanitized (-> line
+                            (string/replace #"^# " "% ")
+                            (string/replace #"^##" "%#"))]
+          (.write w sanitized)
+          (.newLine w))))
     (doseq [word words]
       (.write w word)
       (.newLine w))))
