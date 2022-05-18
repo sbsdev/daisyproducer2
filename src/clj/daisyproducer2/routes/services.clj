@@ -19,6 +19,7 @@
     [daisyproducer2.documents :as docs]
     [daisyproducer2.auth :as auth]
     [daisyproducer2.hyphenate :as hyphenate]
+    [daisyproducer2.hyphenations :as hyphenations]
     [daisyproducer2.validation :as validation]
     [daisyproducer2.words.unknown :as unknown]
     [daisyproducer2.words.local :as local]
@@ -284,8 +285,7 @@
                                  (spec/opt :offset) int?}}
             :handler (fn [{{{:keys [spelling search limit offset]
                              :or {limit default-limit offset 0}} :query} :parameters}]
-                       (ok (db/get-hyphenation {:spelling spelling :search (db/search-to-sql search)
-                                                :limit limit :offset offset})))}
+                       (ok (hyphenations/get-hyphenations spelling search limit offset)))}
 
       :put {:summary "Update or create a hyphenation"
             :middleware [wrap-restricted]
@@ -294,7 +294,7 @@
                                 :hyphenation string?
                                 :spelling ::spelling}}
             :handler (fn [{{{:keys [word hyphenation spelling]} :body} :parameters}]
-                       (db/insert-hyphenation {:word word :hyphenation hyphenation :spelling spelling})
+                       (hyphenations/put-hyphenation word hyphenation spelling)
                        (no-content))}
 
       :delete {:summary "Delete a hyphenation"
@@ -304,7 +304,7 @@
                                    :spelling ::spelling
                                    :hyphenation string?}}
                :handler (fn [{{{:keys [word spelling]} :body} :parameters}]
-                          (let [deleted (db/delete-hyphenation {:word word :spelling spelling})]
+                          (let [deleted (hyphenations/delete-hyphenation word spelling)]
                             (if (> deleted 0)
                               (no-content) ; we found something and deleted it
                               ;; if there was no deletion it can mean that either the hyphenation doesn't
