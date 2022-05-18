@@ -7,8 +7,8 @@
             [iapetos.collector.fn :as prometheus]))
 
 (defn get-words [{:keys [untranslated limit offset]}]
-  (-> (db/find-global-words {:untranslated (db/search-to-sql untranslated)
-                             :limit limit :offset offset})))
+  (db/find-global-words {:untranslated (db/search-to-sql untranslated)
+                         :limit limit :offset offset}))
 
 (def dictionary-keys [:untranslated :uncontracted :contracted :type :homograph-disambiguation])
 
