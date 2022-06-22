@@ -97,7 +97,8 @@
      ["/documents/:id" {:name :document
                         :view #'document/page
                         :controllers [{:parameters {:path [:id]}
-                                       :start (fn [params] (rf/dispatch [::document/init-current (-> params :path :id)]))}]}]
+                                       :start (fn [params] (rf/dispatch [::document/init-current (-> params :path :id)]))
+                                       :stop (fn [_] (rf/dispatch [::document/clear-current]))}]}]
      ["/documents/:id/unknown" {:name :document-unknown
                                 :view #'document/unknown}]
      ["/documents/:id/local" {:name :document-local
