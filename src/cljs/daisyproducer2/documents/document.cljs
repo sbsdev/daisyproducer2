@@ -19,6 +19,11 @@
   (fn [db [_ document]]
     (assoc db :current-document document)))
 
+(rf/reg-event-db
+  ::clear-current
+  (fn [db [_]]
+    (dissoc db :current-document)))
+
 (rf/reg-event-fx
   ::fetch-current
   (fn [_ [_ id]]
