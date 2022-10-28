@@ -115,15 +115,16 @@
 (rf/reg-event-fx
    ::set-search
    (fn [{:keys [db]} [_ new-search-value]]
-     (cond-> {:db (assoc-in db [:search :global] new-search-value)}
-       (> (count new-search-value) 2)
-       ;; if the string has more than 2 characters fetch the words
-       ;; from the server
-       (assoc :dispatch-n
-              (list
-               ;; when searching for a new word reset the pagination
-               [::pagination/reset :global]
-               [::fetch-words])))))
+     (let [length (count new-search-value)]
+       (cond-> {:db (assoc-in db [:search :global] new-search-value)}
+         (or (= length 0) (> length 2))
+         ;; do not fetch the productions from the server for very small strings,
+         ;; unless the string has been reset to the empty string
+         (assoc :dispatch-n
+                (list
+                 ;; when searching for a new word reset the pagination
+                 [::pagination/reset :global]
+                 [::fetch-words]))))))
 
 (defn words-search []
   (let [get-value (fn [e] (-> e .-target .-value))
