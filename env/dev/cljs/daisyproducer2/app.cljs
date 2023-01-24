@@ -1,4 +1,4 @@
-(ns^:figwheel-no-load daisyproducer2.app
+(ns ^:dev/once daisyproducer2.app
   (:require
     [daisyproducer2.core :as core]
     [cljs.spec.alpha :as s]

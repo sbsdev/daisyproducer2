@@ -31,7 +31,7 @@ It consists of a [REST API][5] and an SPA that interacts with it.
 
 [5]: http://localhost:3000/swagger-ui/index.html
 
-The app is based on the [Luminus template][6] version "3.76" and was
+The app is based on the [Luminus template][6] version "4.47" and was
 built with the following command:
 
     lein new luminus dp2 +reitit +mysql +re-frame +swagger +auth

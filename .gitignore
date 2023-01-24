@@ -11,7 +11,11 @@ test-config.edn
 profiles.clj
 /.env
 .nrepl-port
-
+/.clj-kondo/.cache/
+/.lsp/.cache/
+/.calva/output-window/
+/.shadow-cljs
 /node_modules
 /log
-/resources/sql/scratch.sql
+
+

@@ -6,7 +6,6 @@
     [clojure.spec.alpha :as s]
     [expound.alpha :as expound]
     [mount.core :as mount]
-    [daisyproducer2.figwheel :refer [start-fw stop-fw cljs]]
     [daisyproducer2.core :refer [start-app]]
     [daisyproducer2.db.core]
     [conman.core :as conman]
