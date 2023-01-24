@@ -15,6 +15,11 @@
   :start ((or (:init defaults) (fn [])))
   :stop  ((or (:stop defaults) (fn []))))
 
+(defn- async-aware-default-handler
+  ([_] nil)
+  ([_ respond _] (respond nil)))
+
+
 (mount/defstate app-routes
   :start
   (ring/ring-handler
@@ -29,7 +34,7 @@
       (ring/create-resource-handler
         {:path "/"})
       (wrap-content-type
-        (wrap-webjars (constantly nil)))
+        (wrap-webjars async-aware-default-handler))
       (ring/create-default-handler
         {:not-found
          (constantly (error-page {:status 404, :title "404 - Page not found"}))

@@ -23,14 +23,19 @@
   )
 
 (defn wrap-internal-error [handler]
-  (fn [req]
-    (try
-      (handler req)
-      (catch Throwable t
-        (log/error t (.getMessage t))
-        (error-page {:status 500
-                     :title (tr [:something-bad-happened])
-                     :message (tr [:something-bad-happened-message])})))))
+  (let [error-result (fn [^Throwable t]
+                       (log/error t (.getMessage t))
+                       (error-page {:status 500
+                                    :title (tr [:something-bad-happened])
+                                    :message (tr [:something-bad-happened-message])}))]
+    (fn wrap-internal-error-fn
+      ([req respond _]
+       (handler req respond #(respond (error-result %))))
+      ([req]
+       (try
+         (handler req)
+         (catch Throwable t
+           (error-result t)))))))
 
 (defn wrap-csrf [handler]
   (wrap-anti-forgery
@@ -43,10 +48,13 @@
 
 (defn wrap-formats [handler]
   (let [wrapped (-> handler wrap-params (wrap-format formats/instance))]
-    (fn [request]
-      ;; disable wrap-formats for websockets
-      ;; since they're not compatible with this middleware
-      ((if (:websocket? request) handler wrapped) request))))
+    (fn
+      ([request]
+         ;; disable wrap-formats for websockets
+         ;; since they're not compatible with this middleware
+       ((if (:websocket? request) handler wrapped) request))
+      ([request respond raise]
+       ((if (:websocket? request) handler wrapped) request respond raise)))))
 
 (defn on-unauthenticated [request response]
   (unauthorized

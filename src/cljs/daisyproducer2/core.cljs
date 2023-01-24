@@ -123,7 +123,7 @@
 
 ;; -------------------------
 ;; Initialize app
-(defn mount-components []
+(defn ^:dev/after-load mount-components []
   (rf/clear-subscription-cache!)
   (rdom/render [#'page] (.getElementById js/document "app")))
 

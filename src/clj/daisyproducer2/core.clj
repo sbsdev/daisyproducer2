@@ -29,7 +29,7 @@
         (update :io-threads #(or % (* 2 (.availableProcessors (Runtime/getRuntime))))) 
         (assoc  :handler (handler/app))
         (update :port #(or (-> env :options :port) %))
-        (select-keys [:handler :host :port])))
+        (select-keys [:io-threads :handler :host :port :async?])))
   :stop
   (http/stop http-server))
 
@@ -57,7 +57,9 @@
   (.addShutdownHook (Runtime/getRuntime) (Thread. stop-app)))
 
 (defn -main [& args]
-  (mount/start #'daisyproducer2.config/env)
+  (-> args
+      (parse-opts cli-options)
+      (mount/start-with-args #'daisyproducer2.config/env))
   (cond
     (nil? (:database-url env))
     (do
