@@ -1,0 +1,125 @@
+# -*- mode: restclient; -*-
+
+#################################
+# Manual tests for the REST API #
+#################################
+
+:auth-token = Token <my-secret-token>
+
+########
+# Auth #
+########
+
+# Get a token
+POST http://localhost:3000/api/login
+Content-Type: application/json
+{
+  "username": "ada",
+  "password": "lovelace"
+}
+
+# Get a token
+POST http://localhost:3000/api/login
+Content-Type: application/json
+{
+  "username": "berta",
+  "password": "lovelace"
+}
+
+#############
+# Documents #
+#############
+
+# Get documents
+GET http://localhost:3000/api/documents
+
+# Get one document
+GET http://localhost:3000/api/documents?limit=1
+
+# Get a specific document
+GET http://localhost:3000/api/documents/644
+
+# Get a specific document in the form of transit
+GET http://localhost:3000/api/documents/644
+Accept: application/transit+json
+
+# Search a specific document by title
+GET http://localhost:3000/api/documents?search=verona
+
+# Add a document
+POST http://localhost:3000/api/productions
+Authorization: :auth-token
+Content-Type: application/json
+{
+  "title": "Hehe",
+  "creator": "Foo",
+  "description": "not much",
+  "source": "978-3-257-07184-11",
+  "language": "de",
+  "source_date": "2022-06-16",
+  "source_publisher": "Vargos",
+  "library_number": "PNX 9435",
+  "state": "new",
+  "identifier": "978-3-570-15263-0",
+  "revision": 0,
+  "date": "2022-11-22"
+}
+
+# Add a production using transit
+POST http://localhost:3000/api/productions
+Authorization: :auth-token
+Content-Type: application/transit+json
+[
+  "^ ",
+  "~:description",
+  "Der Held muss in die Welt hinaus und Abenteuer erleben, um ein Held zu werden. Und was ist mit der Heldin? Doris Dörrie erzählt von drei Reisen nach San Francisco, Japan und Marokko und davon, als Frau in der Welt unterwegs zu sein. Sich dem Ungewissen, Fremden auszusetzen heisst immer auch, den eigenen Ängsten, Abhängigkeiten, Verlusten ins Auge zu sehen. Und dabei zur Heldin der eigenen Geschichte zu werden.",
+  "~:creator",
+  "Dörrie, Doris",
+  "~:source",
+  "978-3-257-07184-9",
+  "~:title",
+  "Die Heldin reist",
+  "~:source_publisher",
+  "Diogenes",
+  "~:language",
+  "de",
+  "~:source_date",
+  [
+    "~#LocalDate",
+    "2022-01-01"
+  ],
+  "~:library_number",
+  "PNX 9434",
+  "~:revision",
+  0,
+  "~:state",
+  "new",
+  "~:identifier",
+  "978-3-570-15263-0",
+  "~:date",
+  [
+    "~#LocalDate",
+    "2022-01-01"
+  ]
+]
+
+# Delete a document
+DELETE http://localhost:3000/api/documents/31411
+Authorization: :auth-token
+
+##########
+# Images #
+##########
+
+# Get all images for a document
+GET http://localhost:3000/api/documents/644/images
+
+# Get a specific image
+GET http://localhost:3000/api/documents/644/images/6419
+
+###########
+# Metrics #
+###########
+
+# Get Metrics
+GET http://localhost:3000/metrics
