@@ -12,6 +12,7 @@
     [daisyproducer2.auth :as auth]
     [daisyproducer2.documents.document :as document]
     [daisyproducer2.documents.image :as image]
+    [daisyproducer2.documents.version :as version]
     [daisyproducer2.documents.state :as state]
     [daisyproducer2.hyphenations :as hyphenations]
     [daisyproducer2.words :as words]
@@ -104,6 +105,10 @@
                                 :view #'document/unknown}]
      ["/documents/:id/local" {:name :document-local
                               :view #'document/local}]
+     ["/documents/:id/versions" {:name :document-versions
+                                 :view #'document/versions
+                                 :controllers [{:parameters {:path [:id]}
+                                                :start (fn [params] (rf/dispatch [::version/fetch-versions (-> params :path :id)]))}]}]
      ["/documents/:id/images" {:name :document-images
                                :view #'document/images
                                :controllers [{:parameters {:path [:id]}

@@ -36,6 +36,8 @@
                     :upload "Upload"
                     :image "Image"
                     :images "Images"
+                    :version "Version"
+                    :versions "Versions"
                     ;;
                     :documents "Documents"
                     :confirm "Confirm"
@@ -55,6 +57,7 @@
                     :spelling "Spelling"
                     :date "Date"
                     :modified-at "Last modified at"
+                    :created-at "Created at"
                     ;;
                     :transitions-state "Transition state to '%1'"
                     ;;
@@ -125,6 +128,8 @@
                     :upload "Hochladen"
                     :image "Bild"
                     :images "Bilder"
+                    :version "Version"
+                    :versions "Versionen"
                     ;;
                     :documents "Dokumente"
                     :confirm "Bestätigen"
@@ -143,6 +148,7 @@
                     :spelling "Rechtschreibung"
                     :date "Datum"
                     :modified-at "Letzte Änderung"
+                    :created-at "Erstellt am"
                     ;;
                     :transitions-state "Status auf '%1' setzen"
                     ;;

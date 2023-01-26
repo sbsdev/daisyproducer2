@@ -51,6 +51,7 @@
      [tab-link (str "#/documents/" id) (tr [:details]) :document]
      [tab-link (str "#/documents/" id "/unknown") (tr [:unknown-words]) :document-unknown (fn [_] (rf/dispatch [::unknown/fetch-words id]))]
      [tab-link (str "#/documents/" id "/local") (tr [:local-words]) :document-local (fn [_] (rf/dispatch [::local/fetch-words id]))]
+     [tab-link (str "#/documents/" id "/versions") (tr [:versions]) :document-versions]
      [tab-link (str "#/documents/" id "/images") (tr [:images]) :document-images]
      [tab-link (str "#/documents/" id "/upload") (tr [:upload]) :document-upload]
      ]]])
@@ -100,6 +101,14 @@
      [grade/selector ::local/fetch-words]
      [local/local-words [::current]]]))
 
+(defn versions []
+  (let [document @(rf/subscribe [::current])]
+    [:section.section>div.container>div.content
+     [summary document]
+     [tabs document]
+     [:div.block
+      [version/versions (:id document)]]]))
+
 (defn images []
   (let [document @(rf/subscribe [::current])]
     [:section.section>div.container>div.content
@@ -114,6 +123,5 @@
      [summary document]
      [tabs document]
      [:div.block
-      [version/upload (:id document)]
       [:button.button.is-success
        (tr [:transitions-state] [(-> document :state-id state/next-mapping state/mapping)])]]]))
