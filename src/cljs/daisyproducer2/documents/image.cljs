@@ -147,6 +147,11 @@
          [:span.icon {:aria-hidden true} [:i.mi.mi-backup]]
          [:span (tr [:upload])]]]])))
 
+(defn- image-row [{:keys [content]}]
+  [:tr
+   [:td (last (string/split content #"/"))]
+   [:td]])
+
 (defn images [id]
   (if-let [errors? @(rf/subscribe [::notifications/errors?])]
     [notifications/error-notification]
@@ -156,5 +161,5 @@
        [:th (tr [:image])]
        [:th (tr [:action])]]]
      [:tbody
-      (for [{:keys [uuid content]} @(rf/subscribe [::images-sorted])]
-        ^{:key uuid} [:tr [:td content] [:td]])]]))
+      (for [{:keys [uuid] :as image} @(rf/subscribe [::images-sorted])]
+        ^{:key uuid} [image-row image])]]))

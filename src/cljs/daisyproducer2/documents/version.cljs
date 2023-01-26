@@ -148,9 +148,9 @@
          [:span.icon {:aria-hidden true} [:i.mi.mi-backup]]
          [:span (tr [:upload])]]]])))
 
-(defn version-row [{:keys [content created-at created-by comment]}]
+(defn- version-row [{:keys [content created-at created-by comment]}]
   [:tr
-   [:td content]
+   [:td (last (string/split content #"/"))]
    [:td comment]
    [:td created-by]
    [:td (when created-at (tf/unparse (tf/formatters :date) created-at))]
