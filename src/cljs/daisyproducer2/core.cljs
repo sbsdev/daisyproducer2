@@ -11,6 +11,7 @@
     [daisyproducer2.events]
     [daisyproducer2.auth :as auth]
     [daisyproducer2.documents.document :as document]
+    [daisyproducer2.documents.image :as image]
     [daisyproducer2.documents.state :as state]
     [daisyproducer2.hyphenations :as hyphenations]
     [daisyproducer2.words :as words]
@@ -103,6 +104,10 @@
                                 :view #'document/unknown}]
      ["/documents/:id/local" {:name :document-local
                               :view #'document/local}]
+     ["/documents/:id/images" {:name :document-images
+                               :view #'document/images
+                               :controllers [{:parameters {:path [:id]}
+                                              :start (fn [params] (rf/dispatch [::image/fetch-images (-> params :path :id)]))}]}]
      ["/documents/:id/upload" {:name :document-upload
                                :view #'document/upload}]
      ["/hyphenations" {:name :hyphenations
