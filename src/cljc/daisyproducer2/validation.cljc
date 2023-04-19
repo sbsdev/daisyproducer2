@@ -5,7 +5,7 @@
 
 (def valid-braille-re
   "RegExp to validate Braille"
-  #"-?[A-Z0-9&%\[^\],;:/?+=\(*\).\\@#\"!>$_<\'àáâãåæçèéêëìíîïðñòóôõøùúûýþÿœāăąćĉċčďđēėęğģĥħĩīįıĳĵķĺļľŀłńņňŋōŏőŕŗřśŝşšţťŧũūŭůűųŵŷźżžǎẁẃẅỳ┊]+")
+  #"-?[A-Z0-9&%\[^\],;:/?+=\(*\).\\@#\"!>$_<\'àâçèéêëìîïòôùûœ┊]+")
 
 (def valid-hyphenation-re
   "RegExp to validate a hyphenation. Allow a set of lowercase characters
