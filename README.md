@@ -34,7 +34,7 @@ It consists of a [REST API][5] and an SPA that interacts with it.
 The app is based on the [Luminus template][6] version "3.76" and was
 built with the following command:
 
-    lein new luminus dp2 +reitit +mysql +re-frame +swagger +auth
+    lein new luminus dp2 +reitit +mysql +re-frame +swagger +auth +shadow-cljs
 
 [6]: https://github.com/luminus-framework/luminus-template
 
