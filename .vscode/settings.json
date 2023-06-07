@@ -21,9 +21,9 @@
     ],
     "calva.replConnectSequences": [
                 {
-            "name": "Server only - daisyproducer2",
+            "name": "daisyproducer2 Server",
             "projectType": "Leiningen",
-            "afterCLJReplJackInCode": "(start)",
+            "afterCLJReplJackInCode": "(in-ns 'user) (start) (println \"Access the server at http://localhost:3000\")",
             "cljsType": "none",
             "menuSelections": {
                 "leinProfiles": [
@@ -32,21 +32,16 @@
             }
         },
         {
-            "name": "Server + Client – daisyproducer2",
-            "projectType": "Leiningen",
-            "afterCLJReplJackInCode": "(start)",
-            "cljsType": {
-                "dependsOn": "lein-figwheel",
-                "connectCode": "(do (println (str \"Starting Fighweel. Client URL is http://127.0.0.1:\" (:port (clojure.edn/read-string (slurp \"dev-config.edn\"))))) (use 'figwheel-sidecar.repl-api) (when-not (figwheel-sidecar.repl-api/figwheel-running?) (figwheel-sidecar.repl-api/start-figwheel!)) (figwheel-sidecar.repl-api/cljs-repl))",
-                "isConnectedRegExp": "To quit, type: :cljs/quit",
-                "openUrlRegExp": "Client URL is (?<url>\\S+)",
-                "shouldOpenUrl": true,
-                "isReadyToStartRegExp": "Prompt will show"
-            },
+            "name": "daisyproducer2 Server + Client",
+            "projectType": "shadow-cljs",
+            "afterCLJReplJackInCode": "(in-ns 'user) (start) (println \"Access the server at http://localhost:3000\")",
+            "cljsType": "shadow-cljs",
             "menuSelections": {
-                "leinProfiles": [
-                    "dev"
-                ]
+                "cljsLaunchBuilds": [
+                    "app",
+                    "test"
+                ],
+                "cljsDefaultBuild": "app"
             }
         }
     ]

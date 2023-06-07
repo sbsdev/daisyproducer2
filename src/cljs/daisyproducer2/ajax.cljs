@@ -16,11 +16,10 @@
 
 ;; injects transit serialization config into request options
 (defn as-transit [opts]
-  (merge {:raw             false
-          :format          :transit
-          :response-format :transit
-          :reader          (transit/reader :json time/time-deserialization-handlers)
-          :writer          (transit/writer :json time/time-serialization-handlers)}
+  (merge {:format          (ajax/transit-request-format
+                             {:writer (transit/writer :json time/time-serialization-handlers)})
+          :response-format (ajax/transit-response-format
+                             {:reader (transit/reader :json time/time-deserialization-handlers)})}
          opts))
 
 (defn load-interceptors! []
