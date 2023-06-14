@@ -11,6 +11,7 @@
                     :edit "Edit"
                     :insert "Insert"
                     :ignore "Ignore"
+                    :download "Download"
                     :input-not-valid "Input not valid"
                     :unknown "Unknown"
                     :untranslated "Untranslated"
@@ -54,6 +55,7 @@
                     :details "Details"
                     :unknown-words "Unknown Words"
                     :local-words "Local Words"
+                    :preview "Preview"
                     ;;
                     :old-spelling "Old spelling"
                     :new-spelling "New spelling"
@@ -82,6 +84,10 @@
                     :lookup-hyphenation "Lookup"
                     :already-defined-hyphenation "Word has already been defined. Use Edit to change it"
                     :same-as-suggested-hyphenation "The hyphenation is the same as the suggestion"
+                    ;;
+                    :braille "Braille"
+                    :epub3 "EPUB3"
+                    :open-in-online-player "Open in Online Player"
                     }
                    :de
                    {:missing "Fehlende Übersetzung"
@@ -93,6 +99,7 @@
                     :edit "Editieren"
                     :insert "Einfügen"
                     :ignore "Ignorieren"
+                    :download "Herunterladen"
                     :input-not-valid "Eingabe ungültig"
                     :unknown "Unbekannt"
                     :untranslated "Schwarzschrift"
@@ -135,6 +142,7 @@
                     :details "Details"
                     :unknown-words "Unbekannte Wörter"
                     :local-words "Lokale Wörter"
+                    :preview "Vorschau"
                     ;;
                     :old-spelling "Alte Rechtschreibung"
                     :new-spelling "Neue Rechtschreibung"
@@ -163,6 +171,10 @@
                     :lookup-hyphenation "Nachschlagen"
                     :already-defined-hyphenation "Die Trennung ist schon definiert. Bitte benutzen Sie 'Editieren' um sie zu ändern"
                     :same-as-suggested-hyphenation "Die Trennung ist gleich wie der Trenn-Vorschlag"
+                    ;;
+                    :braille "Braille"
+                    :epub3 "EPUB3"
+                    :open-in-online-player "Im Online Player öffnen"
                     }
                    })
 

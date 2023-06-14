@@ -44,6 +44,7 @@
      [tab-link (str "#/documents/" id) (tr [:details]) :document]
      [tab-link (str "#/documents/" id "/unknown") (tr [:unknown-words]) :document-unknown (fn [_] (rf/dispatch [::unknown/fetch-words id]))]
      [tab-link (str "#/documents/" id "/local") (tr [:local-words]) :document-local (fn [_] (rf/dispatch [::local/fetch-words id]))]
+     [tab-link (str "#/documents/" id "/preview") (tr [:preview]) :document-preview]
      ]]])
 
 (defn summary [{:keys [title author source-publisher state-id]}]
@@ -70,6 +71,42 @@
    #_[:button.button.is-success
     (tr [:transitions-state] [(-> document :state-id state/next-mapping state/mapping)])]])
 
+(defn- tooltip-button [{:keys [tooltip icon href label] :as opts}]
+  ;; if we have an href we need an anchor element. Otherwise use a button
+  (let [element (if href :a.button.has-tooltip-arrow :button.button.has-tooltip-arrow)]
+    [element
+     (merge
+      {:data-tooltip (tr [tooltip])
+       :aria-label (tr [tooltip])}
+      (dissoc opts :tooltip :icon))
+     [:span.icon {:aria-hidden true}
+      [:i.mi {:class icon}]]
+     (when label [:span (tr [label])])]))
+
+(defn- label-button [{:keys [label icon href] :as opts}]
+  ;; if we have an href we need an anchor element. Otherwise use a button
+  (let [element (if href :a.button :button.button)]
+    [element
+     (dissoc opts :label :icon)
+     [:span.icon {:aria-hidden true}
+      [:i.mi {:class icon}]]
+     (when label [:span (tr [label])])]))
+
+(defn preview-links [document]
+  [:div.blockxo
+   [:table.table
+    [:tbody
+     ;; FIXME: not implemented yet
+     #_[:tr
+      [:th (tr [:braille])]
+      [:td [:div.field.is-grouped
+            [:p.control [tooltip-button {:tooltip :download :icon "mi-download"}]]]]]
+     [:tr
+      [:th (tr [:epub3])]
+      [:td [:div.field.is-grouped
+            [:p.control [tooltip-button {:tooltip :download :icon "mi-download"}]]
+            [:p.control [label-button {:label :open-in-online-player :icon "mi-open-in-new" }]]]]]]]])
+
 (defn page []
   (let [document @(rf/subscribe [::current])]
     [:section.section>div.container>div.content
@@ -92,4 +129,11 @@
      [tabs document]
      [grade/selector ::local/fetch-words]
      [local/local-words [::current]]]))
+
+(defn preview []
+  (let [document @(rf/subscribe [::current])]
+    [:section.section>div.container>div.content
+     [summary document]
+     [tabs document]
+     [preview-links document]]))
 
