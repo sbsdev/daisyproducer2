@@ -230,6 +230,29 @@
                              unknown (unknown/get-words version id grade limit offset)]
                          (ok unknown)))}}]
 
+    ["/preview"
+     {:swagger {:tags ["Preview"]}}
+
+     ["/epub"
+      {:get {:summary "Get an EPUB file for a document by ID"
+             :parameters {:path {:id int?}}
+             :handler (fn [{{{:keys [id]} :path} :parameters}]
+                        (if-let [doc (db/get-document {:id id})]
+                          (ok doc)
+                          (not-found)))}}]
+
+     ["/braille"
+      {:get {:summary "Get a braille file for a document by ID"
+             :parameters {:path {:id int?}}
+             :handler (fn [{{{:keys [id]} :path} :parameters}]
+                        (not-implemented))}}]
+
+     ["/large-print"
+      {:get {:summary "Get a large print file for a document by ID"
+             :parameters {:path {:id int?}}
+             :handler (fn [{{{:keys [id]} :path} :parameters}]
+                        (not-implemented))}}]]
+
     ["/versions"
      {:swagger {:tags ["Versions"]}}
 
