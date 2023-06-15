@@ -11,6 +11,7 @@
                  [camel-snake-kebab "0.4.2"]
                  [cheshire "5.10.0"]
                  [clj-commons/iapetos "0.1.11"]
+                 [clj-http "3.12.3"] ;; to talk to the DAISY Pipeline2
                  [cljs-ajax "0.8.4"]
                  [clojure.java-time "1.1.0"]
                  [com.cognitect/transit-clj "1.0.329"]
@@ -55,6 +56,7 @@
                  [org.webjars.npm/material-icons "1.10.8"]
                  [org.webjars/webjars-locator "0.45"]
                  [org.webjars/webjars-locator-jboss-vfs "0.1.0"]
+                 [pandect "1.0.2"] ;; to talk to the DAISY Pipeline2
                  [re-frame "1.2.0"]
                  [reagent "1.1.1"]
                  [ring-webjars "0.2.0"]
