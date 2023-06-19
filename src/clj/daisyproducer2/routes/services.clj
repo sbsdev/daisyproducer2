@@ -247,12 +247,18 @@
      {:swagger {:tags ["Versions"]}}
 
      [""
-      {:get {:summary "Get all versions of a given document"
-             :parameters {:path {:id int?}}
-             :handler (fn [{{{:keys [id]} :path} :parameters}]
-                        (if-let [versions (not-empty (versions/get-versions id))]
-                          (ok versions)
-                          (not-found)))}
+      {:get {:summary "Get all versions of a given document. If `latest` is true, return only the latest version"
+             :parameters {:path {:id int?}
+                          :query {(spec/opt :latest) boolean?}}
+             :handler (fn [{{{:keys [id]} :path
+                             {:keys [latest] :or {latest false}} :query} :parameters}]
+                        (if latest
+                          (if-let [doc (db/get-latest-version {:document_id id})]
+                            (ok doc)
+                            (not-found))
+                          (if-let [versions (not-empty (versions/get-versions id))]
+                            (ok versions)
+                            (not-found))))}
        :post {:summary "Create a new version for a given document"
               :middleware [wrap-restricted]
               :swagger {:security [{:apiAuth []}]}
@@ -264,14 +270,7 @@
                          (let [new-key (versions/insert-version id tempfile comment uid)
                                new-url (format "/documents/%s/versions/%s" id new-key)]
                            (created new-url)))}}]
-     ;; FIXME: implement latest as a filter on get all versions GET /documents/123/versions?latest=true
-     #_["/latest"
-      {:get {:summary "Get the latest version of a given document"
-             :parameters {:path {:id int?}}
-             :handler (fn [{{{:keys [id]} :path} :parameters}]
-                        (if-let [doc (db/get-latest-version {:document_id id})]
-                          (ok doc)
-                          (not-found)))}}]
+
      ["/:version-id"
       {:get {:summary "Get a version"
              :parameters {:path {:id int? :version-id int?}}

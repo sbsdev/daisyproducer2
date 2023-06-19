@@ -107,6 +107,23 @@ Content-Type: application/transit+json
 DELETE http://localhost:3000/api/documents/31411
 Authorization: :auth-token
 
+##############
+# # Versions #
+##############
+
+# Get all versions for a document
+GET http://localhost:3000/api/documents/105/versions
+GET http://localhost:3000/api/documents/105/versions?latest=false
+
+# Get a specific version
+GET http://localhost:3000/api/documents/105/versions/8212
+
+# Get a specific non-existing version
+GET http://localhost:3000/api/documents/105/versions/0
+
+# Get the latest version
+GET http://localhost:3000/api/documents/105/versions?latest=true
+
 ##########
 # Images #
 ##########
@@ -116,6 +133,9 @@ GET http://localhost:3000/api/documents/644/images
 
 # Get a specific image
 GET http://localhost:3000/api/documents/644/images/6419
+
+# Get a specific non-existing image
+GET http://localhost:3000/api/documents/644/images/0
 
 ###########
 # Metrics #
