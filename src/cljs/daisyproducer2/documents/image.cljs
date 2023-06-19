@@ -3,8 +3,52 @@
             [clojure.string :as string]
             [daisyproducer2.auth :as auth]
             [daisyproducer2.i18n :refer [tr]]
+            [daisyproducer2.ajax :refer [as-transit]]
+            [daisyproducer2.pagination :as pagination]
             [daisyproducer2.words.notifications :as notifications]
             [re-frame.core :as rf]))
+
+(rf/reg-event-fx
+  ::fetch-images
+  (fn [{:keys [db]} [_ document-id]]
+    (let [offset (pagination/offset db :images)]
+      {:db (assoc-in db [:loading :images] true)
+       :http-xhrio (as-transit
+                    {:method          :get
+                     :uri             (str "/api/documents/" document-id "/images")
+                     :params          {:offset offset
+                                       :limit pagination/page-size}
+                     :on-success      [::fetch-images-success]
+                     :on-failure      [::fetch-images-failure]})})))
+
+(rf/reg-event-db
+ ::fetch-images-success
+ (fn [db [_ images]]
+   (let [images (->> images
+                     (map #(assoc % :uuid (str (random-uuid)))))
+         next? (-> images count (= pagination/page-size))]
+     (-> db
+         (assoc-in [:images] (zipmap (map :uuid images) images))
+         (pagination/update-next :images next?)
+         (assoc-in [:loading :images] false)
+         ;; clear all button loading states
+         (update-in [:loading] dissoc :buttons)))))
+
+(rf/reg-event-db
+ ::fetch-images-failure
+ (fn [db [_ response]]
+   (-> db
+       (notifications/set-errors :fetch-images (get response :status-text))
+       (assoc-in [:loading :images] false))))
+
+(rf/reg-sub
+  ::images
+  (fn [db _] (->> db :images vals)))
+
+(rf/reg-sub
+ ::images-sorted
+ :<- [::images]
+ (fn [images] (->> images (sort-by :title))))
 
 ;; see https://www.dotkam.com/2012/11/23/convert-html5-filelist-to-clojure-vector/
 (defn toArray [js-col]
@@ -103,3 +147,14 @@
          [:span.icon {:aria-hidden true} [:i.mi.mi-backup]]
          [:span (tr [:upload])]]]])))
 
+(defn images [id]
+  (if-let [errors? @(rf/subscribe [::notifications/errors?])]
+    [notifications/error-notification]
+    [:table.table.is-striped
+     [:thead
+      [:tr
+       [:th (tr [:image])]
+       [:th (tr [:action])]]]
+     [:tbody
+      (for [{:keys [uuid content]} @(rf/subscribe [::images-sorted])]
+        ^{:key uuid} [:tr [:td content] [:td]])]]))

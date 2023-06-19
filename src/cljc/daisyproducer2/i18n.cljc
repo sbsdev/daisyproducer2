@@ -35,6 +35,8 @@
                     :choose-images "Choose images"
                     :no-file "No file selected"
                     :upload "Upload"
+                    :image "Image"
+                    :images "Images"
                     ;;
                     :documents "Documents"
                     :confirm "Confirm"
@@ -128,6 +130,8 @@
                     :choose-images "Bilder wählen"
                     :no-file "Keine Datei ausgewählt"
                     :upload "Hochladen"
+                    :image "Bild"
+                    :images "Bilder"
                     ;;
                     :documents "Dokumente"
                     :confirm "Bestätigen"

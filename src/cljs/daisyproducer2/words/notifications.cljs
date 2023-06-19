@@ -57,6 +57,15 @@
    [:p.has-text-centered.has-text-weight-semibold (tr [:loading])]
    [:button.button.is-large.is-fullwidth.is-loading (tr [:loading])]])
 
+(defn set-errors
+  ([db id message]
+   (set-errors db id message nil))
+  ([db id message errors]
+   (-> db
+       (assoc-in [:errors id :message] message)
+       (cond-> (seq errors)
+         (assoc-in [:errors id :errors] errors)))))
+
 (defn error-notification []
   (let [errors @(rf/subscribe [::errors])]
     (when errors
