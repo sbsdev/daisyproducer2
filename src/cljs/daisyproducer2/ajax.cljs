@@ -15,6 +15,7 @@
     request))
 
 ;; injects transit serialization config into request options
+
 (defn as-transit [opts]
   (merge {:format          (ajax/transit-request-format
                              {:writer (transit/writer :json time/time-serialization-handlers)})
