@@ -1,10 +1,55 @@
 (ns daisyproducer2.documents.version
   (:require [ajax.core :as ajax]
             [clojure.string :as string]
+            [cljs-time.format :as tf]
             [daisyproducer2.auth :as auth]
             [daisyproducer2.i18n :refer [tr]]
+            [daisyproducer2.ajax :refer [as-transit]]
+            [daisyproducer2.pagination :as pagination]
             [daisyproducer2.words.notifications :as notifications]
             [re-frame.core :as rf]))
+
+(rf/reg-event-fx
+  ::fetch-versions
+  (fn [{:keys [db]} [_ document-id]]
+    (let [offset (pagination/offset db :versions)]
+      {:db (assoc-in db [:loading :versions] true)
+       :http-xhrio (as-transit
+                    {:method          :get
+                     :uri             (str "/api/documents/" document-id "/versions")
+                     :params          {:offset offset
+                                       :limit pagination/page-size}
+                     :on-success      [::fetch-versions-success]
+                     :on-failure      [::fetch-versions-failure]})})))
+
+(rf/reg-event-db
+ ::fetch-versions-success
+ (fn [db [_ versions]]
+   (let [versions (->> versions
+                       (map #(assoc % :uuid (str (random-uuid)))))
+         next? (-> versions count (= pagination/page-size))]
+     (-> db
+         (assoc-in [:versions] (zipmap (map :uuid versions) versions))
+         (pagination/update-next :versions next?)
+         (assoc-in [:loading :versions] false)
+         ;; clear all button loading states
+         (update-in [:loading] dissoc :buttons)))))
+
+(rf/reg-event-db
+ ::fetch-versions-failure
+ (fn [db [_ response]]
+   (-> db
+       (notifications/set-errors :fetch-versions (get response :status-text))
+       (assoc-in [:loading :versions] false))))
+
+(rf/reg-sub
+  ::versions
+  (fn [db _] (->> db :versions vals)))
+
+(rf/reg-sub
+ ::versions-sorted
+ :<- [::versions]
+ (fn [versions] (->> versions (sort-by :created-at))))
 
 (rf/reg-event-fx
   ::add-version
@@ -103,3 +148,27 @@
          [:span.icon {:aria-hidden true} [:i.mi.mi-backup]]
          [:span (tr [:upload])]]]])))
 
+(defn version-row [{:keys [content created-at created-by comment]}]
+  [:tr
+   [:td content]
+   [:td comment]
+   [:td created-by]
+   [:td (when created-at (tf/unparse (tf/formatters :date) created-at))]
+   [:td]])
+
+(defn versions [id]
+  (let [errors? @(rf/subscribe [::notifications/errors?])
+        versions @(rf/subscribe [::versions-sorted])]
+    (if errors?
+      [notifications/error-notification]
+      [:table.table.is-striped
+       [:thead
+        [:tr
+         [:th (tr [:version])]
+         [:th (tr [:comment])]
+         [:th (tr [:author])]
+         [:th (tr [:created-at])]
+         [:th (tr [:action])]]]
+       [:tbody
+        (for [{:keys [uuid] :as version} versions]
+          ^{:key uuid} [version-row version])]])))
