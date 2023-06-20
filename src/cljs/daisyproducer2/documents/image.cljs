@@ -8,16 +8,20 @@
             [daisyproducer2.words.notifications :as notifications]
             [re-frame.core :as rf]))
 
+(defn- get-search [db document-id] (get-in db [:search :images document-id]))
+
 (rf/reg-event-fx
   ::fetch-images
   (fn [{:keys [db]} [_ document-id]]
-    (let [offset (pagination/offset db :images)]
+    (let [offset (pagination/offset db :images)
+          search (get-search db document-id)]
       {:db (assoc-in db [:loading :images] true)
        :http-xhrio (as-transit
                     {:method          :get
                      :uri             (str "/api/documents/" document-id "/images")
-                     :params          {:offset offset
-                                       :limit pagination/page-size}
+                     :params          (cond-> {:offset offset
+                                               :limit pagination/page-size}
+                                        (not (string/blank? search)) (assoc :search search))
                      :on-success      [::fetch-images-success]
                      :on-failure      [::fetch-images-failure]})})))
 
@@ -40,6 +44,45 @@
    (-> db
        (notifications/set-errors :fetch-images (get response :status-text))
        (assoc-in [:loading :images] false))))
+
+(rf/reg-sub ::search (fn [db [_ document-id]] (get-search db document-id) ))
+
+(rf/reg-event-fx
+   ::set-search
+   (fn [{:keys [db]} [_ document-id new-search-value]]
+     {:db (assoc-in db [:search :images document-id] new-search-value)
+      :dispatch-n (list
+                   ;; when searching for a new image reset the pagination
+                   [::pagination/reset :images]
+                   [::fetch-images document-id])}))
+
+(defn image-search [document-id]
+  (let [get-value (fn [e] (-> e .-target .-value))
+        reset!    #(rf/dispatch [::set-search document-id ""])
+        save!     #(rf/dispatch [::set-search document-id %])]
+    [:div.field
+     [:div.control
+      [:input.input {:type "text"
+                     :placeholder (tr [:search])
+                     :aria-label (tr [:search])
+                     :value @(rf/subscribe [::search document-id])
+                     :on-change #(save! (get-value %))
+                     :on-key-down #(when (= (.-which %) 27) (reset!))}]]]))
+
+(defn image-upload [document-id]
+  [:button.button.is-primary
+   [:span.icon {:aria-hidden true}
+    [:i.mi {:class "mi-upload"}]]
+   [:span (tr [:upload])]])
+
+(defn image-filter [document-id]
+  [:div.field.is-horizontal
+   [:div.field-body
+    [:div.field.is-grouped
+     [:p.control.is-expanded
+      [image-search document-id]]
+     #_[:p.control
+      [image-upload document-id]]]]])
 
 (rf/reg-sub
   ::images
@@ -153,13 +196,20 @@
    [:td]])
 
 (defn images [id]
-  (if-let [errors? @(rf/subscribe [::notifications/errors?])]
-    [notifications/error-notification]
-    [:table.table.is-striped
-     [:thead
-      [:tr
-       [:th (tr [:image])]
-       [:th (tr [:action])]]]
-     [:tbody
-      (for [{:keys [uuid] :as image} @(rf/subscribe [::images-sorted])]
-        ^{:key uuid} [image-row image])]]))
+  (let [loading? @(rf/subscribe [::notifications/loading? :images])
+        errors? @(rf/subscribe [::notifications/errors?])]
+    [:<>
+     [image-filter (:id id)]
+     (cond
+       errors? [notifications/error-notification]
+       :else
+       [:<>
+        [:table.table.is-striped
+         [:thead
+          [:tr
+           [:th (tr [:image])]
+           [:th (tr [:action])]]]
+         [:tbody
+          (for [{:keys [uuid] :as image} @(rf/subscribe [::images-sorted])]
+            ^{:key uuid} [image-row image])]]
+        [pagination/pagination :images [::fetch-images (:id id)]]])]))

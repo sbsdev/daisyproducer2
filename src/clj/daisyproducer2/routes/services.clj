@@ -293,14 +293,17 @@
      {:swagger {:tags ["Images"]}}
 
      [""
-      {:get {:summary "Get all images of a given document"
+      {:get {:summary "Get all images of a given document. Optionally limit the result set using a `search` term, a `limit` and an `offset`."
              :parameters {:path {:id int?}
-                          :query {(spec/opt :limit) int?
+                          :query {(spec/opt :search) string?
+                                  (spec/opt :limit) int?
                                   (spec/opt :offset) int?}}
              :handler (fn [{{{:keys [id]} :path
-                             {:keys [limit offset]
+                             {:keys [limit offset search]
                               :or {limit default-limit offset 0}} :query} :parameters}]
-                        (ok (images/get-images id limit offset)))}
+                        (ok (if (blank? search)
+                              (images/get-images id limit offset)
+                              (images/find-images id limit offset (db/search-to-sql search)))))}
        :post {:summary "Add a new image to a given document"
               :middleware [wrap-restricted]
               :swagger {:security [{:apiAuth []}]}

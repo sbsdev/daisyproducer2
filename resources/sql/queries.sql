@@ -62,6 +62,14 @@ WHERE document_id = :document_id
 ORDER BY content
 LIMIT :limit OFFSET :offset
 
+-- :name find-images :? :*
+-- :doc retrieve all images given a `search` term, a `limit` and an `offset`
+SELECT * FROM documents_image
+WHERE document_id = :document_id
+AND LOWER(content) LIKE LOWER(:search)
+ORDER BY content
+LIMIT :limit OFFSET :offset
+
 -- :name get-image :? :1
 -- :doc retrieve an image for given `id`
 SELECT * FROM documents_image

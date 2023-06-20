@@ -138,6 +138,15 @@ GET http://localhost:3000/api/documents/644/images/6419
 # Get a specific non-existing image
 GET http://localhost:3000/api/documents/644/images/0
 
+# Limit the results
+GET http://localhost:3000/api/documents/576/images?limit=2
+
+# Limit the results and use an offset
+GET http://localhost:3000/api/documents/576/images?limit=2&offset=20
+
+# Search an image
+GET http://localhost:3000/api/documents/576/images?search=p016
+
 ###########
 # Metrics #
 ###########

@@ -10,6 +10,10 @@
   [document-id limit offset]
   (db/get-images {:document_id document-id :limit limit :offset offset}))
 
+(defn find-images
+  [document-id limit offset search]
+  (db/find-images {:document_id document-id :limit limit :offset offset :search search}))
+
 (defn get-image
   [document-id id]
   (db/get-image {:document_id document-id :id id}))
