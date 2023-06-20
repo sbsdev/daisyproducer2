@@ -11,6 +11,8 @@
     [daisyproducer2.events]
     [daisyproducer2.auth :as auth]
     [daisyproducer2.documents.document :as document]
+    [daisyproducer2.documents.image :as image]
+    [daisyproducer2.documents.version :as version]
     [daisyproducer2.documents.state :as state]
     [daisyproducer2.hyphenations :as hyphenations]
     [daisyproducer2.words :as words]
@@ -105,6 +107,8 @@
                               :view #'document/local}]
      ["/documents/:id/preview" {:name :document-preview
                                 :view #'document/preview}]
+     ["/documents/:id/versions" {:name :document-versions :view #'document/versions}]
+     ["/documents/:id/images" {:name :document-images :view #'document/images}]
      ["/hyphenations" {:name :hyphenations
                        :view #'hyphenations/add-page}]
      ["/hyphenations/edit" {:name :hyphenations-edit

@@ -2,6 +2,8 @@
   (:require [ajax.core :as ajax]
             [clojure.string :as string]
             [daisyproducer2.documents.state :as state]
+            [daisyproducer2.documents.image :as image]
+            [daisyproducer2.documents.version :as version]
             [daisyproducer2.documents.preview :as preview]
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.words :as words]
@@ -51,6 +53,8 @@
      [tab-link (str "#/documents/" id) (tr [:details]) :document]
      [tab-link (str "#/documents/" id "/unknown") (tr [:unknown-words]) :document-unknown (fn [_] (rf/dispatch [::unknown/fetch-words id]))]
      [tab-link (str "#/documents/" id "/local") (tr [:local-words]) :document-local (fn [_] (rf/dispatch [::local/fetch-words id]))]
+     [tab-link (str "#/documents/" id "/versions") (tr [:versions]) :document-versions (fn [_] (rf/dispatch [::version/fetch-versions id]))]
+     [tab-link (str "#/documents/" id "/images") (tr [:images]) :document-images (fn [_] (rf/dispatch [::image/fetch-images id]))]
      [tab-link (str "#/documents/" id "/preview") (tr [:preview]) :document-preview]
      ]]])
 
@@ -107,3 +111,17 @@
      [summary document]
      [tabs document]
      [preview/preview-links document]]))
+
+(defn versions []
+  (let [document @(rf/subscribe [::current])]
+    [:section.section>div.container>div.content
+     [summary document]
+     [tabs document]
+     [version/versions document]]))
+
+(defn images []
+  (let [document @(rf/subscribe [::current])]
+    [:section.section>div.container>div.content
+     [summary document]
+     [tabs document]
+     [image/images document]]))
