@@ -59,6 +59,7 @@ DELETE FROM documents_version WHERE id = :id
 -- :doc retrieve all images of a document given a `document_id`, a `limit` and an `offset`
 SELECT * FROM documents_image
 WHERE document_id = :document_id
+ORDER BY content
 LIMIT :limit OFFSET :offset
 
 -- :name get-image :? :1

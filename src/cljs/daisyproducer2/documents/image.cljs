@@ -48,7 +48,7 @@
 (rf/reg-sub
  ::images-sorted
  :<- [::images]
- (fn [images] (->> images (sort-by :title))))
+ (fn [images] (->> images (sort-by :content))))
 
 ;; see https://www.dotkam.com/2012/11/23/convert-html5-filelist-to-clojure-vector/
 (defn toArray [js-col]
