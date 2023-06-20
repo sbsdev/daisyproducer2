@@ -2,6 +2,7 @@
   (:require [ajax.core :as ajax]
             [clojure.string :as string]
             [cljs-time.format :as tf]
+            [cljs-time.coerce :as tc]
             [daisyproducer2.auth :as auth]
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.ajax :refer [as-transit]]
@@ -49,7 +50,7 @@
 (rf/reg-sub
  ::versions-sorted
  :<- [::versions]
- (fn [versions] (->> versions (sort-by :created-at))))
+ (fn [versions] (->> versions (sort-by (comp tc/to-epoch :created-at)))))
 
 (rf/reg-event-fx
   ::add-version
