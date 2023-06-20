@@ -96,6 +96,7 @@
                     :same-as-suggested-hyphenation "The hyphenation is the same as the suggestion"
                     ;;
                     :braille "Braille"
+                    :large-print "Large Print"
                     :epub3 "EPUB3"
                     :open-in-online-player "Open in Online Player"
                     }
@@ -193,6 +194,7 @@
                     :same-as-suggested-hyphenation "Die Trennung ist gleich wie der Trenn-Vorschlag"
                     ;;
                     :braille "Braille"
+                    :large-print "Grossdruck"
                     :epub3 "EPUB3"
                     :open-in-online-player "Im Online Player öffnen"
                     }

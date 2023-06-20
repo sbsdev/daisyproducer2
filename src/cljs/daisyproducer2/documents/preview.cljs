@@ -33,8 +33,7 @@
   [:div.block
    [:table.table
     [:tbody
-     ;; FIXME: not implemented yet
-     #_[:tr
+     [:tr
       [:th (tr [:braille])]
       [:td [:div.field.is-grouped
             [:p.control [tooltip-button {:tooltip :download :icon "mi-download"}]]]]]
@@ -42,6 +41,10 @@
       [:th (tr [:epub3])]
       [:td [:div.field.is-grouped
             [:p.control [tooltip-button {:tooltip :download :icon "mi-download"}]]
-            [:p.control [label-button {:label :open-in-online-player :icon "mi-open-in-new" }]]]]]]]])
+            [:p.control [label-button {:label :open-in-online-player :icon "mi-open-in-new" }]]]]]
+     [:tr
+      [:th (tr [:large-print])]
+      [:td [:div.field.is-grouped
+            [:p.control [tooltip-button {:tooltip :download :icon "mi-download"}]]]]]]]])
 
 
