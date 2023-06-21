@@ -190,10 +190,22 @@
          [:span.icon {:aria-hidden true} [:i.mi.mi-backup]]
          [:span (tr [:upload])]]]])))
 
-(defn- image-row [{:keys [content]}]
+(defn buttons [id]
+  (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
+    [:div.buttons.has-addons
+     (if @(rf/subscribe [::notifications/button-loading? id :delete])
+       [:button.button.is-danger.is-loading]
+       [:button.button.is-danger.has-tooltip-arrow
+        {:disabled (not authenticated?)
+         :data-tooltip (tr [:delete])
+         :aria-label (tr [:delete])
+         :on-click (fn [e] (rf/dispatch [::delete-word id]))}
+        [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]])]))
+
+(defn- image-row [{:keys [uuid content]}]
   [:tr
    [:td (last (string/split content #"/"))]
-   [:td]])
+   [:td {:width "5%"} [buttons uuid]]])
 
 (defn images [document]
   (let [loading? @(rf/subscribe [::notifications/loading? :images])
