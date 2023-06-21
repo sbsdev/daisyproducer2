@@ -154,8 +154,7 @@
    [:td (last (string/split content #"/"))]
    [:td comment]
    [:td created-by]
-   [:td (when created-at (tf/unparse (tf/formatters :date) created-at))]
-   [:td]])
+   [:td (when created-at (tf/unparse (tf/formatters :date) created-at))]])
 
 (defn versions [id]
   (let [errors? @(rf/subscribe [::notifications/errors?])
@@ -168,8 +167,7 @@
          [:th (tr [:version])]
          [:th (tr [:comment])]
          [:th (tr [:author])]
-         [:th (tr [:created-at])]
-         [:th (tr [:action])]]]
+         [:th (tr [:created-at])]]]
        [:tbody
         (for [{:keys [uuid] :as version} versions]
           ^{:key uuid} [version-row version])]])))
