@@ -242,4 +242,4 @@
           (for [{:keys [uuid]} words]
             ^{:key uuid}
             [word uuid])]]
-        [pagination/pagination :local [::fetch-words (:id document)]]])]))
+        [pagination/pagination [:words :local] [::fetch-words (:id document)]]])]))

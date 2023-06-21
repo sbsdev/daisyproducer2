@@ -220,4 +220,4 @@
           [:tbody
            (for [{:keys [uuid]} @(rf/subscribe [::words-sorted])]
              ^{:key uuid} [word uuid])]]
-         [pagination/pagination :global [::fetch-words]]])]]))
+         [pagination/pagination [:words :global] [::fetch-words]]])]]))

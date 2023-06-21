@@ -366,7 +366,7 @@
             [:tr
              [:td word]
              [:td hyphenation]])]]
-        [pagination/pagination :hyphenation [::fetch-hyphenations]]])
+        [pagination/pagination [:words :hyphenation] [::fetch-hyphenations]]])
      ]))
 
 (rf/reg-sub
@@ -454,4 +454,4 @@
              [:td [hyphenation-field word hyphenation]]
              [:td {:width "8%"}
               [buttons word]]])]]
-        [pagination/pagination :hyphenation [::fetch-hyphenations]]])]))
+        [pagination/pagination [:words :hyphenation] [::fetch-hyphenations]]])]))

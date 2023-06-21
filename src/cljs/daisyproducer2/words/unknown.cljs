@@ -194,4 +194,4 @@
            ^{:key uuid}
            [word uuid])]]
        [submit-all/buttons (tr [:approve-all]) [::words-valid?] [::has-words?] [::save-all-words]]
-       [pagination/pagination :unknown [::fetch-words (:id document)]]])))
+       [pagination/pagination [:words :unknown] [::fetch-words (:id document)]]])))

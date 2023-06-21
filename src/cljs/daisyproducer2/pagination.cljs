@@ -27,11 +27,12 @@
 
 (rf/reg-event-fx
  ::next-page
- (fn [{:keys [db]} [_ id fetch-event]]
-   (let [inc-offset (->
+ (fn [{:keys [db]} [_ path fetch-event]]
+   (let [id (last path)
+         inc-offset (->
                      (fn [offset window-size] (+ offset window-size))
                      (fnil 0))
-         window-size (-> db (get-in [:words id]) count)]
+         window-size (-> db (get-in path) count)]
      (when (has-next? db id)
        {:db (-> db
                 (update-in [:pagination id :offset] inc-offset window-size)
@@ -60,8 +61,9 @@
  (fn [db [_ id]]
    (has-previous? db id)))
 
-(defn pagination [id event]
-  (let [has-previous? @(rf/subscribe [::has-previous? id])
+(defn pagination [path event]
+  (let [id (last path)
+        has-previous? @(rf/subscribe [::has-previous? id])
         has-next? @(rf/subscribe [::has-next? id])]
     [:nav.pagination.is-right {:role "navigation" :aria-label "pagination"}
      [:button.pagination-previous
@@ -70,7 +72,7 @@
       (tr [:previous])]
      [:button.pagination-next
       {:disabled (not has-next?)
-       :on-click (fn [e] (rf/dispatch [::next-page id event]))}
+       :on-click (fn [e] (rf/dispatch [::next-page path event]))}
       (tr [:next])]
      ;; we have to add an empty pagination list to make the rest of the pagination nav work
      [:ul.pagination-list]]))

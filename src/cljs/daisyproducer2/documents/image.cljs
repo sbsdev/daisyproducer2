@@ -195,11 +195,11 @@
    [:td (last (string/split content #"/"))]
    [:td]])
 
-(defn images [id]
+(defn images [document]
   (let [loading? @(rf/subscribe [::notifications/loading? :images])
         errors? @(rf/subscribe [::notifications/errors?])]
     [:<>
-     [image-filter (:id id)]
+     [image-filter (:id document)]
      (cond
        errors? [notifications/error-notification]
        :else
@@ -212,4 +212,4 @@
          [:tbody
           (for [{:keys [uuid] :as image} @(rf/subscribe [::images-sorted])]
             ^{:key uuid} [image-row image])]]
-        [pagination/pagination :images [::fetch-images (:id id)]]])]))
+        [pagination/pagination [:images] [::fetch-images (:id document)]]])]))

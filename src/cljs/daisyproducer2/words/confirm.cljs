@@ -231,4 +231,4 @@
           (for [{:keys [uuid]} @(rf/subscribe [::words-sorted])]
             ^{:key uuid} [word uuid])]]
         [submit-all/buttons (tr [:approve-all]) [::words-valid?] [::has-words?] [::save-all-words]]
-        [pagination/pagination :confirm [::fetch-words]]])]))
+        [pagination/pagination [:words :confirm] [::fetch-words]]])]))
