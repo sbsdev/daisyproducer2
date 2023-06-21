@@ -32,6 +32,10 @@
 (defn preview-links [document]
   [:div.block
    [:table.table
+    [:thead
+     [:tr
+      [:th {:width "100%"} (tr [:format])]
+      [:th (tr [:action])]]]
     [:tbody
      [:tr
       [:th (tr [:braille])]

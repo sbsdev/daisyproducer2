@@ -66,6 +66,7 @@
                     :unknown-words "Unknown Words"
                     :local-words "Local Words"
                     :preview "Preview"
+                    :format "Format"
                     ;;
                     :old-spelling "Old spelling"
                     :new-spelling "New spelling"
@@ -164,6 +165,7 @@
                     :unknown-words "Unbekannte Wörter"
                     :local-words "Lokale Wörter"
                     :preview "Vorschau"
+                    :format "Format"
                     ;;
                     :old-spelling "Alte Rechtschreibung"
                     :new-spelling "Neue Rechtschreibung"
