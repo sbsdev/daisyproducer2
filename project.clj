@@ -4,6 +4,7 @@
   :url "https://github.com/sbsdev/daisyproducer2"
 
   :dependencies [[babashka/fs "0.2.14"]
+                 [babashka/process "0.5.21"]
                  [buddy/buddy-auth "3.0.323"]
                  [buddy/buddy-core "1.10.413"]
                  [buddy/buddy-hashers "1.8.158"]
