@@ -7,7 +7,6 @@
   (:require
    [babashka.fs :as fs]
    [babashka.process :as process]
-   [clojure.java.shell :refer [sh]]
    [clojure.string :as s]
    [clojure.tools.logging :as log]
    [daisyproducer2.config :refer [env]]))
@@ -54,7 +53,7 @@
                   "--validatorInputDelegates=org.daisy.util.fileset.validation.delegate.impl.NoDocTypeDeclarationDelegate"]
           daisy202 [;; make sure it is a DAISY 202 file
                     "--validatorRequireInputType=DAISY 2.02 DTB"]]
-      (-> (apply sh (concat args (case type :dtbook dtbook :daisy202 daisy202)))
+      (-> (apply process/sh (concat args (case type :dtbook dtbook :daisy202 daisy202)))
           :out
           (filter-output file)))))
 
