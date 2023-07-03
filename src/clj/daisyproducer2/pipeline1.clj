@@ -9,7 +9,8 @@
    [babashka.process :as process]
    [clojure.java.shell :refer [sh]]
    [clojure.string :as s]
-   [mdr2.config :refer [env]]))
+   [clojure.tools.logging :as log]
+   [daisyproducer2.config :refer [env]]))
 
 (defn continuation-line? [line]
   (cond
@@ -92,7 +93,7 @@
         pdf-path (fs/path tmp-dir (str (fs/file-name (fs/strip-ext input)) ".pdf"))]
     (try
       (process/shell "latexmk" "-interaction=batchmode" "-xelatex"
-                     (format "-output-directory=%" tmp-dir) input)
+                     (format "-output-directory=%s" tmp-dir) input)
       (fs/move pdf-path output)
       (catch clojure.lang.ExceptionInfo e
         (log/error (ex-message e))
