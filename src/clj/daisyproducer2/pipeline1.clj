@@ -83,7 +83,7 @@
       (catch clojure.lang.ExceptionInfo e
         (log/error (ex-message e))
         (throw
-         (ex-info (format "Conversion of %s failed" input) {:error-id ::latex-conversion-failed}))))))
+         (ex-info (format "Conversion of %s failed" input) {:error-id ::latex-conversion-failed} e))))))
 
 (defn latex-to-pdf
   "Invoke `latexmk` on the given `input` file and store the resulting PDF in the given `output` file."
@@ -97,9 +97,9 @@
       (catch clojure.lang.ExceptionInfo e
         (log/error (ex-message e))
         (throw
-         (ex-info (format "Conversion of %s failed" input) {:error-id ::pdf-conversion-failed})))
+         (ex-info (format "Conversion of %s failed" input) {:error-id ::pdf-conversion-failed} e)))
       (catch java.nio.file.NoSuchFileException e
         (log/error (ex-message e))
         (throw
-         (ex-info (format "Move of %s to %s failed" pdf-path output) {:error-id ::no-such-file})))
+         (ex-info (format "Move of %s to %s failed" pdf-path output) {:error-id ::no-such-file} e)))
       (finally (fs/delete-tree tmp-dir)))))
