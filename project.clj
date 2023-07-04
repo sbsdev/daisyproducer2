@@ -25,6 +25,7 @@
                  [com.taoensso/tempura "1.5.3"]
                  [conman "0.9.6"]
                  [cprop "0.1.19"]
+                 [crypto-random "1.2.1"] ; for pipeline2 client
                  [day8.re-frame/http-fx "0.2.4"]
                  [expound "0.9.0"]
                  [funcool/struct "1.4.0"]
@@ -48,6 +49,8 @@
                  [org.clojure/clojurescript "1.11.60" :scope "provided"]
                  [org.clojure/core.async "1.6.673"]
                  [org.clojure/tools.cli "1.0.214"]
+                 [org.clojure/data.codec "0.1.1"] ; to talk to the DAISY Pipeline2
+                 [org.clojure/data.zip "1.0.0"] ; to talk to the DAISY Pipeline2
                  [org.clojure/tools.logging "1.2.4"]
                  [org.daisy.bindings/jhyphen "1.0.2" :exclusions [net.java.dev.jna/jna]]
                  [org.liblouis/liblouis-java "4.3.1" :exclusions [net.java.dev.jna/jna]]
