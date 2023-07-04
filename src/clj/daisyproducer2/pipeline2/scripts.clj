@@ -15,7 +15,7 @@
 (defn epub3-to-daisy202 [input & {:keys [temp-dir output-dir] :as opts}]
   (pipeline2/create-job-and-wait "epub3-to-daisy202" {} (merge {:epub input} opts)))
 
-(defn dtbook-to-ebbook [dtbook epub]
+(defn dtbook-to-ebook [dtbook epub]
   (pipeline2/with-job [job (pipeline2/job-create "sbs:dtbook-to-ebook" {:source dtbook} {})]
     (let [completed (pipeline2/wait-for-result job)
           results (pipeline2/get-results completed)
