@@ -16,18 +16,18 @@
       {:data-tooltip (tr [tooltip])
        :aria-label (tr [tooltip])}
       (dissoc opts :tooltip :icon))
+     (when label [:span (tr [label])])
      [:span.icon {:aria-hidden true}
-      [:i.mi {:class icon}]]
-     (when label [:span (tr [label])])]))
+      [:i.mi {:class icon}]]]))
 
 (defn- label-button [{:keys [label icon href] :as opts}]
   ;; if we have an href we need an anchor element. Otherwise use a button
   (let [element (if href :a.button :button.button)]
     [element
      (dissoc opts :label :icon)
+     (when label [:span (tr [label])])
      [:span.icon {:aria-hidden true}
-      [:i.mi {:class icon}]]
-     (when label [:span (tr [label])])]))
+      [:i.mi {:class icon}]]]))
 
 (defn preview-links [document]
   [:div.block
