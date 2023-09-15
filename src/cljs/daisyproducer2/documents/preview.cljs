@@ -31,24 +31,30 @@
 
 (defn preview-links [document]
   [:div.block
-   [:table.table
-    [:thead
-     [:tr
-      [:th {:width "100%"} (tr [:format])]
-      [:th (tr [:action])]]]
-    [:tbody
-     [:tr
-      [:th (tr [:braille])]
-      [:td [:div.field.is-grouped
-            [:p.control [tooltip-button {:tooltip :download :icon "mi-download"}]]]]]
-     [:tr
-      [:th (tr [:epub3])]
-      [:td [:div.field.is-grouped
-            [:p.control [tooltip-button {:tooltip :download :icon "mi-download"}]]
-            [:p.control [label-button {:label :open-in-online-player :icon "mi-open-in-new" }]]]]]
-     [:tr
-      [:th (tr [:large-print])]
-      [:td [:div.field.is-grouped
-            [:p.control [tooltip-button {:tooltip :download :icon "mi-download"}]]]]]]]])
+    [:table.table
+     [:thead
+      [:tr
+       [:th {:width "100%"} (tr [:format])]
+       [:th (tr [:action])]]]
+     [:tbody
+      #_[:tr
+       [:th (tr [:braille])]
+       [:td [:div.field.is-grouped
+             [:p.control [tooltip-button {:tooltip :download :icon "mi-download"}]]]]]
+      [:tr
+       [:th (tr [:epub3])]
+       [:td [:div.field.is-grouped
+             [:p.control [label-button {:label :download :icon "mi-download"}]]
+             [:p.control [label-button {:label :open-in-online-player :icon "mi-open-in-new" }]]]]]
+      #_[:tr
+       [:th (tr [:large-print])]
+       [:td [:div.field.is-grouped
+             [:p.control [label-button {:label "Library" :icon "mi-download"}]]
+             [:p.control [label-button {:label "Sale" :icon "mi-download"}]]
+             [:p.control [label-button {:label "Configurable" :icon "mi-download"}]]]]]
+      #_[:tr
+       [:th (tr [:open-document "Open Document"])]
+       [:td [:div.field.is-grouped
+             [:p.control [tooltip-button {:tooltip :download :icon "mi-download"}]]]]]]]])
 
 
