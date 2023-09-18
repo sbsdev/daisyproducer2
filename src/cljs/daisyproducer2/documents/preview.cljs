@@ -45,7 +45,7 @@
        [:th (tr [:epub3])]
        [:td [:div.field.is-grouped
              [:p.control [label-button {:label :download :icon "mi-download"}]]
-             [:p.control [label-button {:label :open-in-online-player :icon "mi-open-in-new" }]]]]]
+             [:p.control [label-button {:label :online-player :icon "mi-open-in-new" }]]]]]
       #_[:tr
        [:th (tr [:large-print])]
        [:td [:div.field.is-grouped

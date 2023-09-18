@@ -99,7 +99,7 @@
                     :braille "Braille"
                     :large-print "Large Print"
                     :epub3 "EPUB3"
-                    :open-in-online-player "Open in Online Player"
+                    :online-player "Online Player"
                     }
                    :de
                    {:missing "Fehlende Übersetzung"
@@ -198,7 +198,7 @@
                     :braille "Braille"
                     :large-print "Grossdruck"
                     :epub3 "EPUB3"
-                    :open-in-online-player "Im Online Player öffnen"
+                    :online-player "Online Player"
                     }
                    })
 
