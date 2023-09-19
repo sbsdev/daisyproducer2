@@ -102,12 +102,24 @@
                              (db/find-documents {:limit limit :offset offset :search (db/search-to-sql search)}))))}}]
 
     ["/:id"
-     {:get {:summary "Get a document by ID"
-            :parameters {:path {:id int?}}
-            :handler (fn [{{{:keys [id]} :path} :parameters}]
-                       (if-let [doc (db/get-document {:id id})]
-                         (ok doc)
-                         (not-found)))}}]]
+     [""
+      {:get {:summary "Get a document by ID"
+             :parameters {:path {:id int?}}
+             :handler (fn [{{{:keys [id]} :path} :parameters}]
+                        (if-let [doc (db/get-document {:id id})]
+                          (ok doc)
+                          (not-found)))}}]
+     ["/products"
+      {:get {:summary "Get all products for a document. Optionally limit the result by `type`"
+             :parameters {:path {:id int?}
+                          :query {(spec/opt :type) int?}}
+             :handler (fn [{{{:keys [id]} :path
+                             {:keys [type]} :query} :parameters}]
+                        (if (nil? type)
+                          (ok (db/get-products {:document_id id}))
+                          (if-let [product (db/get-products {:document_id id :type type})]
+                            (ok product)
+                            (not-found))))}}]]]
 
    ["/words"
     {:swagger {:tags ["Global Words"]}}

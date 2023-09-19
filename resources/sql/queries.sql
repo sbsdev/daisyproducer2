@@ -22,6 +22,16 @@ FROM documents_document
 WHERE id = :id
 
 --------------
+-- Products --
+--------------
+
+-- :name get-products :? :*
+-- :doc retrieve all product record given the associated `document_id` and an optional `type`
+SELECT * FROM documents_product
+WHERE document_id = :document_id
+--~ (when (:type params) "AND type = :type")
+
+--------------
 -- Versions --
 --------------
 
