@@ -153,3 +153,10 @@ GET http://localhost:3000/api/documents/576/images?search=p016
 
 # Get Metrics
 GET http://localhost:3000/metrics
+
+###########
+# Preview #
+###########
+
+# Get EPUB
+GET http://localhost:3000/api/documents/412/preview/epub
