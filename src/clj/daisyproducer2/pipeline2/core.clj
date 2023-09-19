@@ -82,17 +82,15 @@
    [{:name "job-data" :content (io/file (zip-files (vals inputs)))}
     {:name "job-request" :content body}]})
 
-(defn- maybe-multipart [inputs body]
-  (if (empty? inputs) body (multipart-request inputs body)))
+(defn- maybe-multipart [inputs request]
+  (if (empty? inputs) request (multipart-request inputs request)))
 
 (defn job-create [script inputs options]
   (let [url (str ws-url "/jobs")
         request (job-request script inputs options)
         auth (auth-query-params url)
-        body {:body request}
         multipart (maybe-multipart inputs request)
-        ;;response (client/post url (merge multipart auth))]
-        response (client/post url (merge body auth))]
+        response (client/post url (merge multipart auth))]
     (when (client/success? response)
       (-> response :body xml/parse-str))))
 
