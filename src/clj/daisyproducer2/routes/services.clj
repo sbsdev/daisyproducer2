@@ -25,7 +25,8 @@
     [daisyproducer2.words.unknown :as unknown]
     [daisyproducer2.words.local :as local]
     [daisyproducer2.words.confirm :as confirm]
-    [daisyproducer2.words.global :as global]))
+    [daisyproducer2.words.global :as global]
+    [daisyproducer2.pipeline2.scripts :as scripts]))
 
 (s/def ::grade (s/and int? #(<= 0 % 2)))
 (s/def ::spelling (s/and int? #{0 1}))
@@ -240,7 +241,24 @@
              :parameters {:path {:id int?}}
              :handler (fn [{{{:keys [id]} :path} :parameters}]
                         (if-let [doc (db/get-document {:id id})]
-                          (ok doc)
+                          (let [dtbook (-> (versions/get-latest id)
+                                           (versions/get-content))
+                                ;; the product-id is needed because we want our EPUBs to be named
+                                ;; <product-id>.epub, e.g. EB12345.epub
+                                product-id (or (->
+                                                (db/get-products {:document_id id :type 2}) ;; type 2 => ebook
+                                                :identifier)
+                                               "unknown") ;; FIXME
+                                epub-name (str product-id ".epub")
+                                epub-path (str "/tmp/" epub-name)]
+                            (scripts/dtbook-to-ebook dtbook epub-path)
+                            (->
+                             (file-response epub-path)
+                             (content-type "application/epub+zip")
+                             ;; set the Content-Disposition header
+                             (header "Content-Disposition" (format "attachment; filename=%s" epub-name))))
+                          (not-found)))}}]
+
                           (not-found)))}}]
 
      ["/braille"
