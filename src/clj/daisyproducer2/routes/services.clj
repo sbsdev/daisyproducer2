@@ -274,7 +274,7 @@
                                 host "http://xmlp02.sbszh.ch"
                                 location (format "%s%s/ebooks/%s/EPUB/package.opf" player-url host version-id)]
                             (scripts/dtbook-to-ebook dtbook epub-path)
-                            (ok {:location location}))
+                            (found location))
                           (not-found)))}}]
 
      ["/braille"
