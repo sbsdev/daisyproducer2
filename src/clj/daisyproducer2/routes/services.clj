@@ -259,6 +259,22 @@
                              (header "Content-Disposition" (format "attachment; filename=%s" epub-name))))
                           (not-found)))}}]
 
+     ["/epub-in-player"
+      {:get {:summary "Redirect to a view of the EPUB file in an online player"
+             :parameters {:path {:id int?}}
+             :handler (fn [{{{:keys [id]} :path} :parameters}]
+                        (if-let [doc (db/get-document {:id id})]
+                          (let [latest (versions/get-latest id)
+                                dtbook (versions/get-content latest)
+                                version-id (:id latest)
+                                epub-name (str version-id ".epub")
+                                epub-path (str "/var/spool/ebooks/" epub-name)
+                                epub-path (str "/tmp/" epub-name)
+                                player-url "http://player2.sbs.dmz/?autoPlay=true&url="
+                                host "http://xmlp02.sbszh.ch"
+                                location (format "%s%s/ebooks/%s/EPUB/package.opf" player-url host version-id)]
+                            (scripts/dtbook-to-ebook dtbook epub-path)
+                            (ok {:location location}))
                           (not-found)))}}]
 
      ["/braille"
