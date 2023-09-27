@@ -16,8 +16,11 @@
 
 (defn get-latest
   [document-id]
+  (db/get-latest-version {:document_id document-id}))
+
+(defn get-content
+  [version]
   (let [document-root (env :document-root)
-        version (db/get-latest-version {:document_id document-id})
         path (:content version)]
     (io/file document-root path)))
 
@@ -49,5 +52,6 @@
 (prometheus/instrument! metrics/registry #'get-versions)
 (prometheus/instrument! metrics/registry #'get-version)
 (prometheus/instrument! metrics/registry #'get-latest)
+(prometheus/instrument! metrics/registry #'get-content)
 (prometheus/instrument! metrics/registry #'insert-version)
 (prometheus/instrument! metrics/registry #'delete-version)

@@ -16,7 +16,6 @@
     [ring.util.http-response :refer :all]
     [clojure.java.io :as io]
     [clojure.string :refer [blank?]]
-    [daisyproducer2.documents :as docs]
     [daisyproducer2.auth :as auth]
     [daisyproducer2.hyphenate :as hyphenate]
     [daisyproducer2.hyphenations :as hyphenations]
@@ -228,8 +227,9 @@
             :handler (fn [{{{:keys [id]} :path
                             {:keys [grade limit offset]
                              :or {limit default-limit offset 0}} :query} :parameters}]
-                       (let [version (docs/get-latest-version id)
-                             unknown (unknown/get-words version id grade limit offset)]
+                       (let [content (-> (versions/get-latest id)
+                                         (versions/get-content))
+                             unknown (unknown/get-words content id grade limit offset)]
                          (ok unknown)))}}]
 
     ["/preview"
@@ -265,8 +265,8 @@
              :handler (fn [{{{:keys [id]} :path
                              {:keys [latest] :or {latest false}} :query} :parameters}]
                         (if latest
-                          (if-let [doc (db/get-latest-version {:document_id id})]
-                            (ok doc)
+                          (if-let [latest (versions/get-latest id)]
+                            (ok latest)
                             (not-found))
                           (if-let [versions (not-empty (versions/get-versions id))]
                             (ok versions)
