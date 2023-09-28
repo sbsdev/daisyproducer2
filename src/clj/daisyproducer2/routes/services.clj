@@ -245,12 +245,11 @@
                             (->
                              (file-response epub-path)
                              (content-type "application/epub+zip")
-                             ;; set the Content-Disposition header
                              (header "Content-Disposition" (format "attachment; filename=%s" epub-name))))
                           (not-found)))}}]
 
      ["/epub-in-player"
-      {:get {:summary "Redirect to a view of the EPUB file in an online player"
+      {:get {:summary "Generate the EPUB and redirect to a view of it in the online player"
              :parameters {:path {:id int?}}
              :handler (fn [{{{:keys [id]} :path} :parameters}]
                         (if-let [doc (db/get-document {:id id})]
