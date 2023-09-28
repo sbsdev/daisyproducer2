@@ -95,7 +95,7 @@
      [summary document]
      [tabs document]
      [grade/selector ::unknown/fetch-words]
-     [unknown/unknown-words [::current]]]))
+     [unknown/unknown-words]]))
 
 (defn local []
   (let [document @(rf/subscribe [::current])]
@@ -103,7 +103,7 @@
      [summary document]
      [tabs document]
      [grade/selector ::local/fetch-words]
-     [local/local-words [::current]]]))
+     [local/local-words]]))
 
 (defn preview []
   (let [document @(rf/subscribe [::current])]
