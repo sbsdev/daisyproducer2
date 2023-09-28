@@ -96,19 +96,22 @@
            :controllers [{:start (fn [_] (rf/dispatch [:init-documents]))}]}]
      ["/login" {:name :login
                 :view #'auth/login-page}]
-     ["/documents/:id" {:name :document
-                        :view #'document/page
-                        :controllers [{:parameters {:path [:id]}
-                                       :start (fn [params] (rf/dispatch [::document/init-current (-> params :path :id)]))
-                                       :stop (fn [_] (rf/dispatch [::document/clear-current]))}]}]
-     ["/documents/:id/unknown" {:name :document-unknown
-                                :view #'document/unknown}]
-     ["/documents/:id/local" {:name :document-local
-                              :view #'document/local}]
-     ["/documents/:id/preview" {:name :document-preview
-                                :view #'document/preview}]
-     ["/documents/:id/versions" {:name :document-versions :view #'document/versions}]
-     ["/documents/:id/images" {:name :document-images :view #'document/images}]
+     ["/documents/:id" {:controllers
+                        [{:parameters {:path [:id]}
+                          :start (fn [params] (rf/dispatch [::document/init-current (-> params :path :id)]))
+                          :stop (fn [_] (rf/dispatch [::document/clear-current]))}]}
+      ["" {:name :document :view #'document/page
+            :controllers [{:parameters {:path [:id]}}]}]
+      ["/unknown" {:name :document-unknown :view #'document/unknown
+                   :controllers [{:parameters {:path [:id]}}]}]
+      ["/local" {:name :document-local :view #'document/local
+                 :controllers [{:parameters {:path [:id]}}]}]
+      ["/preview" {:name :document-preview :view #'document/preview
+                   :controllers [{:parameters {:path [:id]}}]}]
+      ["/versions" {:name :document-versions :view #'document/versions
+                    :controllers [{:parameters {:path [:id]}}]}]
+      ["/images" {:name :document-images :view #'document/images
+                  :controllers [{:parameters {:path [:id]}}]}]]
      ["/hyphenations" {:name :hyphenations
                        :view #'hyphenations/add-page}]
      ["/hyphenations/edit" {:name :hyphenations-edit
