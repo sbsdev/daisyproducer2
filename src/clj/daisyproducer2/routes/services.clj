@@ -17,6 +17,7 @@
     [clojure.java.io :as io]
     [clojure.string :refer [blank?]]
     [daisyproducer2.auth :as auth]
+    [daisyproducer2.config :refer [env]]
     [daisyproducer2.hyphenate :as hyphenate]
     [daisyproducer2.hyphenations :as hyphenations]
     [daisyproducer2.validation :as validation]
@@ -257,11 +258,11 @@
                                 dtbook (versions/get-content latest)
                                 version-id (:id latest)
                                 epub-name (str version-id ".epub")
-                                epub-path (str "/var/spool/ebooks/" epub-name)
-                                epub-path (str "/tmp/" epub-name)
-                                player-url "http://player2.sbs.dmz/?autoPlay=true&url="
-                                host "http://xmlp02.sbszh.ch"
-                                location (format "%s%s/ebooks/%s/EPUB/package.opf" player-url host version-id)]
+                                config (env :online-player)
+                                epub-path (str (config :spool-dir) epub-name)
+                                player-url (config :url)
+                                source (format (config :source) version-id)
+                                location (str player-url source)]
                             (scripts/dtbook-to-ebook dtbook epub-path)
                             (found location))
                           (not-found)))}}]
