@@ -18,7 +18,7 @@
                  [clojure.java-time "1.2.0"]
                  [com.cognitect/transit-clj "1.0.333"]
                  [com.cognitect/transit-cljs "0.8.280"]
-                 [com.google.javascript/closure-compiler-unshaded "v20220803"]
+                 [com.google.javascript/closure-compiler-unshaded "v20230411"]
                  ;; [com.fasterxml.jackson.core/jackson-core "2.12.5"]
                  ;; [com.fasterxml.jackson.core/jackson-databind "2.12.5"]
                  [com.google.protobuf/protobuf-java "3.23.3"]
@@ -47,7 +47,7 @@
                  [org.clojars.pntblnk/clj-ldap "0.0.17"]
                  [org.clojure/clojure "1.11.1"]
                  [org.clojure/clojurescript "1.11.60" :scope "provided"]
-                 [org.clojure/core.async "1.6.673"]
+                 [org.clojure/core.async "1.5.648"]
                  [org.clojure/data.codec "0.1.1"] ; to talk to the DAISY Pipeline2
                  [org.clojure/data.zip "1.0.0"] ; to talk to the DAISY Pipeline2
                  [org.clojure/tools.cli "1.0.219"]
@@ -67,7 +67,7 @@
                  [ring/ring-core "1.10.0"]
                  [ring/ring-defaults "0.3.4"]
                  [selmer "1.12.58"]
-                 [thheller/shadow-cljs "2.20.3" :scope "provided"]
+                 [thheller/shadow-cljs "2.25.7" :scope "provided"]
                  [trptcolin/versioneer "0.2.0"]]
 
   :min-lein-version "2.0.0"
