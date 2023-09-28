@@ -29,10 +29,10 @@
 (defn auth-query-params [uri]
   (let [timestamp (time/format :iso-local-date-time (time/local-date-time))
         nonce (crypt-rand/base64 32)
-        auth-id (env :pipeline2-auth-id)
+        auth-id (get-in env [:pipeline2 :auth-id])
         params {"authid" auth-id "time" timestamp "nonce" nonce}
         query-string (str uri "?" (client/generate-query-string params))
-        hashcode (create-hash query-string (env :pipeline2-secret))]
+        hashcode (create-hash query-string (get-in env [:pipeline2 :secret]))]
     {:query-params
      {"authid" auth-id "time" timestamp "nonce" nonce "sign" hashcode}}))
 
@@ -44,7 +44,7 @@
      [(qname "script") {:href script-url}]
      (for [[port file] inputs]
        [(qname "input") {:name (name port)}
-        [(qname "item") {:value (if-not (env :pipeline2-remote)
+        [(qname "item") {:value (if-not (get-in env [:pipeline2 :remote])
                                   (str "file:" (url-encode file))
                                   (url-encode (.getName (io/file file))))}]])
      (for [[key value] options]
