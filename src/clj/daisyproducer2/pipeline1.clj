@@ -1,4 +1,4 @@
-(ns mdr2.pipeline1
+(ns daisyproducer2.pipeline1
   "Wrapper around the DAISY pipeline 1 scripts.
 
   It is assumed that there is a binary named `daisy-pipeline` on the
