@@ -10,6 +10,7 @@
     [reitit.ring.middleware.parameters :as parameters]
     [spec-tools.data-spec :as spec]
     [clojure.spec.alpha :as s]
+    [babashka.fs :as fs]
     [daisyproducer2.middleware :refer [wrap-restricted wrap-authorized]]
     [daisyproducer2.middleware.formats :as formats]
     [daisyproducer2.middleware.exception :as exception]
@@ -256,13 +257,17 @@
                           (let [latest (versions/get-latest id)
                                 dtbook (versions/get-content latest)
                                 version-id (:id latest)
-                                epub-name (str version-id ".epub")
-                                config (env :online-player)
-                                epub-path (str (config :spool-dir) epub-name)
-                                player-url (config :url)
-                                source (format (config :source) version-id)
+                                spool-dir (get-in env [:online-player :spool-dir])
+                                path (fs/path spool-dir (str version-id ".epub"))
+                                player-url (get-in env [:online-player :url])
+                                source (format (get-in env [:online-player :source]) version-id)
                                 location (str player-url source)]
-                            (scripts/dtbook-to-ebook dtbook epub-path)
+                            ;; generate the epub
+                            (scripts/dtbook-to-ebook dtbook (str path))
+                            ;; unpack it in the spool directory
+                            (fs/unzip path (fs/path spool-dir version-id))
+                            ;; remove the epub (as we only need the unpacked aritfact)
+                            (fs/delete path)
                             (found location))
                           (not-found)))}}]
 
