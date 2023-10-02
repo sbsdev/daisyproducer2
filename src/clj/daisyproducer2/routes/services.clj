@@ -265,7 +265,7 @@
                             ;; generate the epub
                             (scripts/dtbook-to-ebook dtbook (str path))
                             ;; unpack it in the spool directory
-                            (fs/unzip path (fs/path spool-dir (str version-id)))
+                            (fs/unzip path (fs/path spool-dir (str version-id)) {:replace-existing true})
                             ;; remove the epub (as we only need the unpacked artifact)
                             (fs/delete path)
                             (found location))
