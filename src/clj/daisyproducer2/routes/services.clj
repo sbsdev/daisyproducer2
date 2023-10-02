@@ -266,7 +266,7 @@
                             (scripts/dtbook-to-ebook dtbook (str path))
                             ;; unpack it in the spool directory
                             (fs/unzip path (fs/path spool-dir version-id))
-                            ;; remove the epub (as we only need the unpacked aritfact)
+                            ;; remove the epub (as we only need the unpacked artifact)
                             (fs/delete path)
                             (found location))
                           (not-found)))}}]
