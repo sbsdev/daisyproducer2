@@ -232,21 +232,11 @@
              :parameters {:path {:id int?}}
              :handler (fn [{{{:keys [id]} :path} :parameters}]
                         (if-let [doc (db/get-document {:id id})]
-                          (let [dtbook (-> (versions/get-latest id)
-                                           (versions/get-content))
-                                ;; the product-id is needed because we want our EPUBs to be named
-                                ;; <product-id>.epub, e.g. EB12345.epub
-                                product-id (or (->
-                                                (db/get-products {:document_id id :type 2}) ;; type 2 => ebook
-                                                :identifier)
-                                               "unknown") ;; FIXME
-                                epub-name (str product-id ".epub")
-                                epub-path (str "/tmp/" epub-name)]
-                            (scripts/dtbook-to-ebook dtbook epub-path)
-                            (->
-                             (file-response epub-path)
-                             (content-type "application/epub+zip")
-                             (header "Content-Disposition" (format "attachment; filename=%s" epub-name))))
+                          (let [[epub-name epub-path] (previews/epub id)]
+                              (->
+                               (file-response epub-path)
+                               (content-type "application/epub+zip")
+                               (header "Content-Disposition" (format "attachment; filename=%s" epub-name))))
                           (not-found)))}}]
 
      ["/epub-in-player"
@@ -254,21 +244,18 @@
              :parameters {:path {:id int?}}
              :handler (fn [{{{:keys [id]} :path} :parameters}]
                         (if-let [doc (db/get-document {:id id})]
-                          (let [latest (versions/get-latest id)
-                                dtbook (versions/get-content latest)
-                                version-id (:id latest)
-                                spool-dir (get-in env [:online-player :spool-dir])
-                                path (fs/path spool-dir (str version-id ".epub"))
-                                player-url (get-in env [:online-player :url])
-                                source (format (get-in env [:online-player :source]) version-id)
-                                location (str player-url source)]
+                          (let [version-id (-> (versions/get-latest id) :id)
+                                spool-dir (get-in env [:online-player :spool-dir])]
                             ;; generate the epub
-                            (scripts/dtbook-to-ebook dtbook (str path))
-                            ;; unpack it in the spool directory
-                            (fs/unzip path (fs/path spool-dir (str version-id)) {:replace-existing true})
-                            ;; remove the epub (as we only need the unpacked artifact)
-                            (fs/delete path)
-                            (found location))
+                            (let [[_ path] (previews/epub id version-id spool-dir)]
+                              ;; unpack it in the spool directory
+                              (fs/unzip path (fs/path spool-dir (str version-id)) {:replace-existing true})
+                              ;; remove the epub (as we only need the unpacked artifact)
+                              (fs/delete path))
+                            (let [player-url (get-in env [:online-player :url])
+                                  source (format (get-in env [:online-player :source]) version-id)
+                                  location (str player-url source)]
+                              (found location)))
                           (not-found)))}}]
 
      ["/braille"
