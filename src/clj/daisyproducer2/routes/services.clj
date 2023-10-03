@@ -246,12 +246,14 @@
                         (if-let [doc (db/get-document {:id id})]
                           (let [version-id (-> (versions/get-latest id) :id)
                                 spool-dir (get-in env [:online-player :spool-dir])]
-                            ;; generate the epub
-                            (let [[_ path] (previews/epub id version-id spool-dir)]
-                              ;; unpack it in the spool directory
-                              (fs/unzip path (fs/path spool-dir (str version-id)) {:replace-existing true})
-                              ;; remove the epub (as we only need the unpacked artifact)
-                              (fs/delete path))
+                            ;; use the cached version if it exists
+                            (when-not (fs/exists? (fs/path spool-dir (str version-id) "EPUB" "package.opf"))
+                              ;; generate the epub
+                              (let [[_ path] (previews/epub id version-id spool-dir)]
+                                ;; unpack it in the spool directory
+                                (fs/unzip path (fs/path spool-dir (str version-id)) {:replace-existing true})
+                                ;; remove the epub (as we only need the unpacked artifact)
+                                (fs/delete path)))
                             (let [player-url (get-in env [:online-player :url])
                                   source (format (get-in env [:online-player :source]) version-id)
                                   location (str player-url source)]
