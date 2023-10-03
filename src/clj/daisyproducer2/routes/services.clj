@@ -7,7 +7,7 @@
    [daisyproducer2.config :refer [env]]
    [daisyproducer2.db.core :as db]
    [daisyproducer2.documents.images :as images]
-   [daisyproducer2.documents.previews :as previews]
+   [daisyproducer2.documents.preview :as preview]
    [daisyproducer2.documents.versions :as versions]
    [daisyproducer2.hyphenate :as hyphenate]
    [daisyproducer2.hyphenations :as hyphenations]
@@ -231,11 +231,11 @@
              :parameters {:path {:id int?}}
              :handler (fn [{{{:keys [id]} :path} :parameters}]
                         (if-let [doc (db/get-document {:id id})]
-                          (let [[epub-name epub-path] (previews/epub id)]
-                              (->
-                               (file-response epub-path)
-                               (content-type "application/epub+zip")
-                               (header "Content-Disposition" (format "attachment; filename=%s" epub-name))))
+                          (let [[epub-name epub-path] (preview/epub id)]
+                            (->
+                             (file-response epub-path)
+                             (content-type "application/epub+zip")
+                             (header "Content-Disposition" (format "attachment; filename=%s" epub-name))))
                           (not-found)))}}]
 
      ["/epub-in-player"
@@ -248,7 +248,7 @@
                             ;; use the cached version if it exists
                             (when-not (fs/exists? (fs/path spool-dir (str version-id) "EPUB" "package.opf"))
                               ;; generate the epub
-                              (let [[_ path] (previews/epub id version-id spool-dir)]
+                              (let [[_ path] (preview/epub id version-id spool-dir)]
                                 ;; unpack it in the spool directory
                                 (fs/unzip path (fs/path spool-dir (str version-id)) {:replace-existing true})
                                 ;; remove the epub (as we only need the unpacked artifact)

@@ -1,4 +1,4 @@
-(ns daisyproducer2.documents.previews
+(ns daisyproducer2.documents.preview
   (:require
    [babashka.fs :as fs]
    [daisyproducer2.db.core :as db]
