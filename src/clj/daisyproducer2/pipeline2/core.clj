@@ -12,8 +12,7 @@
             [crypto.random :as crypt-rand]
             [java-time :as time]
             [daisyproducer2.config :refer [env]]
-            [pandect.algo.sha1 :as pandect]
-            [clojure.tools.logging :as log])
+            [pandect.algo.sha1 :as pandect])
   (:import [java.util.zip ZipEntry ZipOutputStream]))
 
 (def ws-url "http://localhost:8181/ws")
@@ -156,6 +155,10 @@
   `(let [~job ~job-create-form]
      (try
        ~@body
+       (catch Exception e#
+         (throw (ex-info
+                 (format "Failed to run Pipeline2 job because %s" (ex-message e#))
+                 {:error-id ::pipeline2-failure})))
        (finally
          (when ~job
            (job-delete (get-id ~job)))))))
