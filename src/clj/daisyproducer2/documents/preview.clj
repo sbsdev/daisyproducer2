@@ -3,7 +3,9 @@
    [babashka.fs :as fs]
    [daisyproducer2.db.core :as db]
    [daisyproducer2.documents.versions :as versions]
-   [daisyproducer2.pipeline2.scripts :as scripts]))
+   [daisyproducer2.pipeline2.scripts :as scripts]
+   [daisyproducer2.metrics :as metrics]
+   [iapetos.collector.fn :as prometheus]))
 
 (defn epub
   "Generate an EPUB for given `document-id` and return a tuple
@@ -26,3 +28,6 @@
          epub-path (str (fs/path target-dir epub-name))]
      (scripts/dtbook-to-ebook dtbook epub-path)
      [epub-name epub-path])))
+
+(prometheus/instrument! metrics/registry #'epub)
+
