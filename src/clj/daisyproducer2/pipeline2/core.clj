@@ -163,7 +163,7 @@
          (when ~job
            (job-delete (get-id ~job)))))))
 
-(defn wait-for-result [job]
+(defn wait-for [job]
   (Thread/sleep poll-interval) ; wait a bit before polling the first time
   (let [id (get-id job)]
     (loop [result (get-job id)]
@@ -174,14 +174,6 @@
             (recur (get-job id)))
           result)))))
 
-(defn create-job-and-wait [script inputs options]
-  (let [id (get-id (job-create script inputs options))]
-    (Thread/sleep poll-interval) ; wait a bit before polling the first time
-    (loop [result (get-job id)]
-      (let [status (get-status result)
-            _ (println "Status: " status)]
-        (if (= "RUNNING" status)
-          (do
-            (Thread/sleep poll-interval)
-            (recur (get-job id)))
-          result)))))
+(defn create-job-and-wait [script input data options]
+  (-> (job-create script input data options)
+      wait-for))
