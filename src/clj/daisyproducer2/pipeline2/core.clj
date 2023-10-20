@@ -25,7 +25,7 @@
       b64/encode
       String.))
 
-(defn auth-query-params [uri]
+(defn- auth-query-params [uri]
   (let [timestamp (time/format :iso-local-date-time (time/local-date-time))
         nonce (crypt-rand/base64 32)
         auth-id (get-in env [:pipeline2 :auth-id])
@@ -37,7 +37,7 @@
 
 (def qname (partial xml/qname "http://www.daisy.org/ns/pipeline/data"))
 
-(defn job-sexp [script inputs options]
+(defn- job-sexp [script input options]
   (let [script-url (str ws-url "/scripts/" script)]
     [(qname "jobRequest")
      [(qname "script") {:href script-url}]
@@ -49,8 +49,8 @@
      (for [[key value] options]
        [(qname "option") {:name (name key)} value])]))
 
-(defn job-request [script inputs options]
-  (-> (job-sexp script inputs options)
+(defn- job-request [script input options]
+  (-> (job-sexp script input options)
       xml/sexp-as-element
       xml/emit-str))
 
@@ -76,7 +76,7 @@
         (.closeEntry zip)))
     tmp-name))
 
-(defn- multipart-request [inputs body]
+(defn- multipart-request [input body]
   {:multipart
    [{:name "job-data" :content (io/file (zip-files (vals inputs)))}
     {:name "job-request" :content body}]})
@@ -93,7 +93,7 @@
     (when (client/success? response)
       (-> response :body xml/parse-str))))
 
-(defn job-result-1 [url]
+(defn- job-result-1 [url]
   (let [response (client/get url (auth-query-params url))]
     (when (client/success? response)
       (-> response :body xml/parse-str))))
