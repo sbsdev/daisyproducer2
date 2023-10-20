@@ -7,17 +7,11 @@
             [daisyproducer2.pipeline2.core :as pipeline2]))
 
 (defn validate [input & {:keys [mathml-version check-images] :as opts}]
-  (pipeline2/create-job-and-wait "dtbook-validator" {} (merge opts {:input-dtbook input})))
+  (pipeline2/create-job-and-wait "dtbook-validator" [input] [] (merge opts {:input-dtbook input})))
 
-(defn daisy3-to-epub3 [input & {:keys [mediaoverlays assert-valid] :as opts}]
-  (pipeline2/create-job-and-wait "daisy3-to-epub3" {:source input} opts))
-
-(defn epub3-to-daisy202 [input & {:keys [temp-dir output-dir] :as opts}]
-  (pipeline2/create-job-and-wait "epub3-to-daisy202" {} (merge {:epub input} opts)))
-
-(defn dtbook-to-ebook [dtbook epub]
-  (pipeline2/with-job [job (pipeline2/job-create "sbs:dtbook-to-ebook" {:source dtbook} {})]
-    (let [completed (pipeline2/wait-for-result job)
+(defn dtbook-to-ebook [dtbook images epub]
+  (pipeline2/with-job [job (pipeline2/job-create "sbs:dtbook-to-ebook" [dtbook] images {})]
+    (let [completed (pipeline2/wait-for job)
           results (pipeline2/get-results completed)
           epub-stream (->> results
                            (filter #(string/ends-with? % ".epub"))

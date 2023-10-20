@@ -15,6 +15,9 @@
             [pandect.algo.sha1 :as pandect])
   (:import [java.util.zip ZipEntry ZipOutputStream]))
 
+;; the following assumes that the pipeline is run in remote mode and
+;; the default webservice url
+
 (def ws-url "http://localhost:8181/ws")
 
 (def ^:private timeout 1000)
@@ -41,11 +44,9 @@
   (let [script-url (str ws-url "/scripts/" script)]
     [(qname "jobRequest")
      [(qname "script") {:href script-url}]
-     (for [[port file] inputs]
-       [(qname "input") {:name (name port)}
-        [(qname "item") {:value (if-not (get-in env [:pipeline2 :remote])
-                                  (str "file:" (url-encode file))
-                                  (url-encode (.getName (io/file file))))}]])
+     [(qname "input") {:name "source"}
+      (for [item input]
+        [(qname "item") {:value (url-encode (.getName (io/file item)))}])]
      (for [[key value] options]
        [(qname "option") {:name (name key)} value])]))
 
@@ -78,17 +79,14 @@
 
 (defn- multipart-request [input body]
   {:multipart
-   [{:name "job-data" :content (io/file (zip-files (vals inputs)))}
+   [{:name "job-data" :content (io/file (zip-files input))}
     {:name "job-request" :content body}]})
 
-(defn- maybe-multipart [inputs request]
-  (if (empty? inputs) request (multipart-request inputs request)))
-
-(defn job-create [script inputs options]
+(defn job-create [script input data options]
   (let [url (str ws-url "/jobs")
-        request (job-request script inputs options)
+        request (job-request script input options)
         auth (auth-query-params url)
-        multipart (maybe-multipart inputs request)
+        multipart (multipart-request (concat input data) request)
         response (client/post url (merge multipart auth))]
     (when (client/success? response)
       (-> response :body xml/parse-str))))
