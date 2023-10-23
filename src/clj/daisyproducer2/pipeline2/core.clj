@@ -47,7 +47,7 @@
      [(qname "script") {:href script-url}]
      [(qname "input") {:name "source"}
       (for [item input]
-        [(qname "item") {:value (url-encode (.getName (io/file item)))}])]
+        [(qname "item") {:value (url-encode (fs/file-name (fs/file item)))}])]
      (for [[key value] options]
        [(qname "option") {:name (name key)} value])]))
 
@@ -70,12 +70,8 @@
       (-> response :body xml/parse-str))))
 
 (defn- zip-files [files]
-  (let [tmp-name (.getAbsolutePath (java.io.File/createTempFile "pipeline2-client" ".zip"))]
-    (with-open [zip (ZipOutputStream. (io/output-stream tmp-name))]
-      (doseq [f (map fs/file files)]
-        (.putNextEntry zip (ZipEntry. (.getName f)))
-        (io/copy f zip)
-        (.closeEntry zip)))
+  (let [tmp-name (str (fs/create-temp-file {:prefix "pipeline2-client" :suffix ".zip"}))]
+    (fs/zip tmp-name (map #(fs/relativize (fs/cwd) %) files) {:path-fn fs/file-name})
     tmp-name))
 
 (defn- multipart-request [input body]
