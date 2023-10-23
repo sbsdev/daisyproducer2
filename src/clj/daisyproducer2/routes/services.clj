@@ -256,27 +256,26 @@
              :parameters {:path {:id int?}}
              :handler (fn [{{{:keys [id]} :path} :parameters}]
                         (if-let [doc (db/get-document {:id id})]
-                          (let [version-id (-> (versions/get-latest id) :id)
-                                spool-dir (get-in env [:online-player :spool-dir])]
-                            ;; use the cached version if it exists
-                            (when-not (fs/exists? (fs/path spool-dir (str version-id) "EPUB" "package.opf"))
-                              (try
-                                ;; generate the epub
+                          (try
+                            (let [version-id (-> (versions/get-latest id) :id)
+                                  spool-dir (get-in env [:online-player :spool-dir])]
+                              ;; use the cached version if it exists
+                              (when-not (fs/exists? (fs/path spool-dir (str version-id) "EPUB" "package.opf"))
                                 (let [[_ path] (preview/epub id version-id spool-dir)]
-                                  ;; unpack it in the spool directory
-                                  (fs/unzip path (fs/path spool-dir (str version-id)) {:replace-existing true})
-                                  ;; remove the epub (as we only need the unpacked artifact)
-                                  (fs/delete path))
-                                (catch clojure.lang.ExceptionInfo e
-                                  (log/error (ex-message e))
-                                  (internal-server-error {:status-text (ex-message e)}))
-                                (catch java.nio.file.FileSystemException e
-                                  (log/error (str e))
-                                  (internal-server-error {:status-text (str e)}))))
-                            (let [player-url (get-in env [:online-player :url])
-                                  source (format (get-in env [:online-player :source]) version-id)
-                                  location (str player-url source)]
-                              (found location)))
+                                    ;; unpack it in the spool directory
+                                    (fs/unzip path (fs/path spool-dir (str version-id)) {:replace-existing true})
+                                    ;; remove the epub (as we only need the unpacked artifact)
+                                    (fs/delete path)))
+                              (let [player-url (get-in env [:online-player :url])
+                                    source (format (get-in env [:online-player :source]) version-id)
+                                    location (str player-url source)]
+                                (found location)))
+                            (catch clojure.lang.ExceptionInfo e
+                              (log/error (ex-message e))
+                              (internal-server-error {:status-text (ex-message e)}))
+                            (catch java.nio.file.FileSystemException e
+                              (log/error (str e))
+                              (internal-server-error {:status-text (str e)})))
                           (not-found)))}}]
 
      ["/braille"
