@@ -43,6 +43,10 @@
     (db/delete-image {:id id})
     (fs/delete-if-exists (fs/path (env :document-root) content))))
 
+(defn image-path [image]
+  (let [document-root (env :document-root)]
+    (fs/path document-root (:content image))))
+
 (prometheus/instrument! metrics/registry #'get-images)
 (prometheus/instrument! metrics/registry #'get-image)
 (prometheus/instrument! metrics/registry #'insert-image)
