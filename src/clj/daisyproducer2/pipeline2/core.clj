@@ -12,7 +12,8 @@
             [crypto.random :as crypt-rand]
             [java-time :as time]
             [daisyproducer2.config :refer [env]]
-            [pandect.algo.sha1 :as pandect])
+            [pandect.algo.sha1 :as pandect]
+            [babashka.fs :as fs])
   (:import [java.util.zip ZipEntry ZipOutputStream]))
 
 ;; the following assumes that the pipeline is run in remote mode and
@@ -71,7 +72,7 @@
 (defn- zip-files [files]
   (let [tmp-name (.getAbsolutePath (java.io.File/createTempFile "pipeline2-client" ".zip"))]
     (with-open [zip (ZipOutputStream. (io/output-stream tmp-name))]
-      (doseq [f (map io/file files)]
+      (doseq [f (map fs/file files)]
         (.putNextEntry zip (ZipEntry. (.getName f)))
         (io/copy f zip)
         (.closeEntry zip)))
