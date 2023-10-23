@@ -120,7 +120,7 @@
                                  [ring/ring-mock "0.4.0"]]
                   :plugins      [[com.jakemccrary/lein-test-refresh "0.24.1"]
                                  [jonase/eastwood "1.2.4"]
-                                 [cider/cider-nrepl "0.37.0"]]
+                                 [cider/cider-nrepl "0.40.0"]]
                   
                   
                   :source-paths ["env/dev/clj"  "env/dev/cljs" "test/cljs" ]
