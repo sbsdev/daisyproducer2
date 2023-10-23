@@ -5,7 +5,8 @@
    [daisyproducer2.documents.versions :as versions]
    [daisyproducer2.pipeline2.scripts :as scripts]
    [daisyproducer2.metrics :as metrics]
-   [iapetos.collector.fn :as prometheus]))
+   [iapetos.collector.fn :as prometheus]
+   [daisyproducer2.documents.images :as images]))
 
 (defn epub
   "Generate an EPUB for given `document-id` and return a tuple
@@ -24,9 +25,11 @@
   ([document-id name target-dir]
    (let [dtbook (-> (versions/get-latest document-id)
                     (versions/get-content))
+         images (->> (images/get-images document-id)
+                     (map images/image-path))
          epub-name (str name ".epub")
          epub-path (str (fs/path target-dir epub-name))]
-     (scripts/dtbook-to-ebook dtbook epub-path)
+     (scripts/dtbook-to-ebook dtbook images epub-path)
      [epub-name epub-path])))
 
 (prometheus/instrument! metrics/registry #'epub)
