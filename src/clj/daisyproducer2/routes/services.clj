@@ -247,8 +247,8 @@
                               (log/error (ex-message e))
                               (internal-server-error {:status-text (ex-message e)}))
                             (catch java.nio.file.FileSystemException e
-                                  (log/error (str e))
-                                  (internal-server-error {:status-text (str e)})))
+                              (log/error (str e))
+                              (internal-server-error {:status-text (str e)})))
                           (not-found)))}}]
 
      ["/epub-in-player"
