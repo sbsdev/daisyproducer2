@@ -234,6 +234,11 @@
                         (if-let [doc (db/get-document {:id id})]
                           (try
                             (let [[epub-name epub-path] (preview/epub id)]
+                              ;; copy the result to the spool dir if there is a spool dir defined
+                              ;; for the language and if the epub has a known product-id
+                              (if-let [spool-dir (get-in env [:ebook-spool-dir (:language doc)])]
+                                (when-not (= epub-name "unknown.epub")
+                                  (fs/copy epub-path spool-dir)))
                               (->
                                (file-response epub-path)
                                (content-type "application/epub+zip")
