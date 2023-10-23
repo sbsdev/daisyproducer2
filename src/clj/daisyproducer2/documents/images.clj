@@ -7,8 +7,10 @@
             [iapetos.collector.fn :as prometheus]))
 
 (defn get-images
-  [document-id limit offset]
-  (db/get-images {:document_id document-id :limit limit :offset offset}))
+  ([document-id]
+   (db/get-images {:document_id document-id}))
+  ([document-id limit offset]
+   (db/get-images {:document_id document-id :limit limit :offset offset})))
 
 (defn find-images
   [document-id limit offset search]

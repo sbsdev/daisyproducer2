@@ -66,11 +66,12 @@ DELETE FROM documents_version WHERE id = :id
 ------------
 
 -- :name get-images :? :*
--- :doc retrieve all images of a document given a `document_id`, a `limit` and an `offset`
+-- :doc retrieve all images of a document given a `document_id`. Optionally the results can be limited by `limit` and `offset`
 SELECT * FROM documents_image
 WHERE document_id = :document_id
 ORDER BY content
-LIMIT :limit OFFSET :offset
+--~ (when (:limit params) "LIMIT :limit")
+--~ (when (:offset params) "OFFSET :offset")
 
 -- :name find-images :? :*
 -- :doc retrieve all images given a `search` term, a `limit` and an `offset`
