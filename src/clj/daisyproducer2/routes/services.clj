@@ -245,7 +245,10 @@
                                (header "Content-Disposition" (format "attachment; filename=%s" epub-name))))
                             (catch clojure.lang.ExceptionInfo e
                               (log/error (ex-message e))
-                              (internal-server-error {:status-text (ex-message e)})))
+                              (internal-server-error {:status-text (ex-message e)}))
+                            (catch java.nio.file.FileSystemException e
+                                  (log/error (str e))
+                                  (internal-server-error {:status-text (str e)})))
                           (not-found)))}}]
 
      ["/epub-in-player"
@@ -268,8 +271,8 @@
                                   (log/error (ex-message e))
                                   (internal-server-error {:status-text (ex-message e)}))
                                 (catch java.nio.file.FileSystemException e
-                                  (log/error (ex-message e))
-                                  (internal-server-error {:status-text (ex-message e)}))))
+                                  (log/error (str e))
+                                  (internal-server-error {:status-text (str e)}))))
                             (let [player-url (get-in env [:online-player :url])
                                   source (format (get-in env [:online-player :source]) version-id)
                                   location (str player-url source)]
