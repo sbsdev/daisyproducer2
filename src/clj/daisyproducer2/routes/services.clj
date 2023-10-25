@@ -331,10 +331,9 @@
                 :parameters {:path {:id int? :version-id int?}}
                 :handler (fn [{{{:keys [id version-id]} :path} :parameters}]
                            (let [deleted (versions/delete-version id version-id)]
-                             (case deleted
-                               true (no-content)
-                               false (internal-server-error) ; we found something but could not delete the content
-                               nil (not-found))))}}]]
+                             (if (> deleted 0)
+                              (no-content) ; we found something and deleted it
+                              (not-found))))}}]]
 
     ["/images"
      {:swagger {:tags ["Images"]}}

@@ -4,7 +4,8 @@
             [daisyproducer2.config :refer [env]]
             [daisyproducer2.db.core :as db]
             [daisyproducer2.metrics :as metrics]
-            [iapetos.collector.fn :as prometheus]))
+            [iapetos.collector.fn :as prometheus]
+            [clojure.tools.logging :as log]))
 
 (defn get-versions
   [document-id]
@@ -43,11 +44,23 @@
      ;; ... and return the new key
      db/get-generated-key)))
 
+(defn version-path [version]
+  (let [document-root (env :document-root)]
+    (fs/path document-root (:content version))))
+
 (defn delete-version
+  "Delete a version given a `document-id` and an version `id`. Return the number of rows affected."
   [document-id id]
-  (when-let [{:keys [id content]} (not-empty (db/get-version {:document_id document-id :id id}))]
-    (db/delete-version {:id id})
-    (fs/delete-if-exists (fs/path (env :document-root) content))))
+  ;; we need to fetch the version first to know the path to the xml file, which we will have to
+  ;; delete also
+  (if-let [version (db/get-version {:document_id document-id :id id})]
+    (let [deletions (db/delete-version {:id id})]
+      (when-not (fs/delete-if-exists (version-path version))
+        ;; if a version file does not exist we simply log that fact,
+        ;; but do not raise an exception
+        (log/errorf "Attempting to delete non-existing version file %s" (version-path version)))
+      deletions)
+    0)) ;; since we could not find the version we'll return zero deletions
 
 (prometheus/instrument! metrics/registry #'get-versions)
 (prometheus/instrument! metrics/registry #'get-version)

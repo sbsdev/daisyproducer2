@@ -125,6 +125,32 @@ GET http://localhost:3000/api/documents/105/versions/0
 # Get the latest version
 GET http://localhost:3000/api/documents/105/versions?latest=true
 
+# Add a version
+:version := (with-temp-buffer (insert-file-contents "~/tmp/6304.xml") (buffer-string))
+
+POST http://localhost:3000/api/documents/105/versions
+Authorization: :auth-token
+Content-Type: multipart/form-data; boundary=e82bc39c68f1417d9ea12c5456182f3c
+
+--e82bc39c68f1417d9ea12c5456182f3c
+Content-Disposition: form-data; name="file"; filename="6304.xml"
+Content-Type: application/xml
+
+:version
+--e82bc39c68f1417d9ea12c5456182f3c
+Content-Disposition: form-data; name="comment"
+
+just a comment
+--e82bc39c68f1417d9ea12c5456182f3c--
+
+# Delete a non-existing version
+DELETE http://localhost:3000/api/documents/105/versions/0
+Authorization: :auth-token
+
+# Delete an existing version
+DELETE http://localhost:3000/api/documents/105/versions/8449
+Authorization: :auth-token
+
 ##########
 # Images #
 ##########
