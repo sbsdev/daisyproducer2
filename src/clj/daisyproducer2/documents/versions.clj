@@ -31,14 +31,14 @@
         name (str (java.util.UUID/randomUUID) ".xml")
         path (fs/path (str document-id) "versions" name)
         absolute-path (fs/absolutize (fs/path document-root path))]
-    ;; validate tempfile
+    ;; FIXME: validate tempfile
     ;; make sure path exists
     (fs/create-dirs (fs/parent absolute-path))
     ;; copy the contents into the archive
     (with-open [in (io/input-stream tempfile)
                 out (io/output-stream (fs/file absolute-path))]
       (io/copy in out))
-    ;; and store it in the db ...
+    ;; store it in the db ...
     (->
      (db/insert-version {:document_id document-id :comment comment :content (str path) :user user})
      ;; ... and return the new key
