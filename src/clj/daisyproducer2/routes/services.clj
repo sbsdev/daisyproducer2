@@ -373,10 +373,9 @@
                 :parameters {:path {:id int? :image-id int?}}
                 :handler (fn [{{{:keys [id image-id]} :path} :parameters}]
                            (let [deleted (images/delete-image id image-id)]
-                             (case deleted
-                               true (no-content)
-                               false (internal-server-error) ; we found something but could not delete the content
-                               nil (not-found))))}}]]]
+                             (if (> deleted 0)
+                              (no-content) ; we found something and deleted it
+                              (not-found))))}}]]]
 
    ["/confirmable"
     {:swagger {:tags ["Confirmable Words"]}

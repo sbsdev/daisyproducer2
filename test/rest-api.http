@@ -145,7 +145,29 @@ GET http://localhost:3000/api/documents/576/images?limit=2
 GET http://localhost:3000/api/documents/576/images?limit=2&offset=20
 
 # Search an image
-GET http://localhost:3000/api/documents/576/images?search=p016
+GET http://localhost:3000/api/documents/576/images?search=p015
+
+# Add an image
+:image := (with-temp-buffer (insert-file-contents "~/tmp/lambda.jpg") (buffer-string))
+
+POST http://localhost:3000/api/documents/644/images
+Authorization: :auth-token
+Content-Type: multipart/form-data; boundary=e82bc39c68f1417d9ea12c5456182f3c
+
+--e82bc39c68f1417d9ea12c5456182f3c
+Content-Disposition: form-data; name="file"; filename="lambda.jpg"
+Content-Type: application/jpg
+
+:image
+--e82bc39c68f1417d9ea12c5456182f3c--
+
+# Delete a non-existing image
+DELETE http://localhost:3000/api/documents/644/images/0
+Authorization: :auth-token
+
+# Delete an existing image
+DELETE http://localhost:3000/api/documents/644/images/6692
+Authorization: :auth-token
 
 ###########
 # Metrics #

@@ -1,6 +1,7 @@
 (ns daisyproducer2.documents.images
   (:require [babashka.fs :as fs]
             [clojure.java.io :as io]
+            [clojure.tools.logging :as log]
             [daisyproducer2.config :refer [env]]
             [daisyproducer2.db.core :as db]
             [daisyproducer2.metrics :as metrics]
@@ -38,10 +39,18 @@
      db/get-generated-key)))
 
 (defn delete-image
+  "Delete an image given a `document-id` and an image `id`. Return the number of rows affected."
   [document-id id]
-  (when-let [{:keys [id content]} (not-empty (db/get-image {:document_id document-id :id id}))]
-    (db/delete-image {:id id})
-    (fs/delete-if-exists (fs/path (env :document-root) content))))
+  ;; we need to fetch the image first to know the path to the image file, which we will have to
+  ;; delete also
+  (if-let [image (db/get-image {:document_id document-id :id id})]
+    (let [deletions (db/delete-image {:id id})]
+      (when-not (fs/delete-if-exists (image-path image))
+        ;; if an image file does not exist we simply log that fact, but do not raise an
+        ;; exception
+        (log/errorf "Attempting to delete non-existing image file %s" (image-path image)))
+      deletions)
+    0)) ;; since we could not find the image we'll return zero deletions
 
 (defn image-path [image]
   (let [document-root (env :document-root)]
