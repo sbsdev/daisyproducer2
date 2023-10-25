@@ -45,6 +45,39 @@
        (notifications/set-errors :fetch-images (get response :status-text))
        (assoc-in [:loading :images] false))))
 
+(rf/reg-event-fx
+ ::delete-image
+ (fn [{:keys [db]} [_ uuid]]
+   (let [{:keys [id document-id]} (get-in db [:images uuid])]
+     {:db (notifications/set-button-state db uuid :delete)
+      :http-xhrio {:method          :delete
+                   :format          (ajax/json-request-format)
+                   :headers 	     (auth/auth-header db)
+                   :uri             (str "/api/documents/" document-id "/images/" id)
+                   :response-format (ajax/json-response-format {:keywords? true})
+                   :on-success      [::ack-delete uuid document-id]
+                   :on-failure      [::ack-failure uuid :delete]
+                   }})))
+
+(rf/reg-event-fx
+ ::ack-delete
+ (fn [{:keys [db]} [_ uuid document-id]]
+   (let [db (-> db
+                (update-in [:images document-id] dissoc uuid)
+                (notifications/clear-button-state uuid :delete))
+         empty? (-> db (get-in [:images document-id]) count (< 1))]
+     (if empty?
+       {:db db :dispatch [::fetch-images document-id]}
+       {:db db}))))
+
+(rf/reg-event-db
+ ::ack-failure
+ (fn [db [_ uuid request-type response]]
+   (-> db
+       (assoc-in [:errors request-type] (or (get-in response [:response :status-text])
+                                            (get response :status-text)))
+       (notifications/clear-button-state uuid request-type))))
+
 (rf/reg-sub ::search (fn [db [_ document-id]] (get-search db document-id) ))
 
 (rf/reg-event-fx
@@ -133,14 +166,6 @@
  (fn [db [_ id name]]
    (notifications/clear-upload-state db id name)))
 
-(rf/reg-event-db
- ::ack-failure
- (fn [db [_ id name response]]
-   (-> db
-       (assoc-in [:errors :version] (or (get-in response [:response :status-text])
-                                        (get response :status-text)))
-       (notifications/clear-upload-state id name))))
-
 (rf/reg-sub
  ::image-files
  (fn [db _] (-> db :image-files)))
@@ -199,7 +224,7 @@
         {:disabled (not authenticated?)
          :data-tooltip (tr [:delete])
          :aria-label (tr [:delete])
-         :on-click (fn [e] (rf/dispatch [::delete-word id]))}
+         :on-click (fn [e] (rf/dispatch [::delete-image id]))}
         [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]])]))
 
 (defn- image-row [{:keys [uuid content]}]
