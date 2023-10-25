@@ -38,6 +38,10 @@
      ;; ... and return the new key
      db/get-generated-key)))
 
+(defn image-path [image]
+  (let [document-root (env :document-root)]
+    (fs/path document-root (:content image))))
+
 (defn delete-image
   "Delete an image given a `document-id` and an image `id`. Return the number of rows affected."
   [document-id id]
@@ -51,10 +55,6 @@
         (log/errorf "Attempting to delete non-existing image file %s" (image-path image)))
       deletions)
     0)) ;; since we could not find the image we'll return zero deletions
-
-(defn image-path [image]
-  (let [document-root (env :document-root)]
-    (fs/path document-root (:content image))))
 
 (prometheus/instrument! metrics/registry #'get-images)
 (prometheus/instrument! metrics/registry #'get-image)
