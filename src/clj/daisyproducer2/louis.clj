@@ -1,5 +1,6 @@
 (ns daisyproducer2.louis
-  (:import org.liblouis.Translator))
+  (:require [clojure.tools.logging :as log])
+  (:import (org.liblouis Translator)))
 
 (def base-tables ["sbs-wordsplit.dis" "sbs-de-core6.cti" "sbs-de-accents.cti",
                   "sbs-special.cti" "sbs-whitespace.mod" "sbs-de-letsign.mod"
@@ -29,4 +30,9 @@
         tables-string (apply str (interpose \, tables))
         inter-character-attributes (int-array (repeat (- length 1) 0))
         translator (Translator. ^String tables-string)]
-    (.getBraille (.translate translator word nil nil inter-character-attributes))))
+    (try
+      (.getBraille (.translate translator word nil nil inter-character-attributes))
+      ;; log the params that caused the exception and bubble it up
+      (catch Exception e
+        (log/errorf "Translation failed for word '%s' with tables %s: %s" word tables e)
+        (throw e)))))
