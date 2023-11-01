@@ -150,19 +150,7 @@
                           (let [deleted (global/delete-word word)]
                             (if (>= deleted 1)
                               (no-content)
-                              (not-found))))}}]
-
-    ["/:untranslated"
-     {:get {:summary "Get global words by untranslated"
-            :parameters {:path {:untranslated string?}
-                         :query {(spec/opt :limit) int?
-                                 (spec/opt :offset) int?}}
-            :handler (fn [{{{:keys [untranslated]} :path
-                            {:keys [limit offset]
-                             :or {limit default-limit offset 0}} :query} :parameters}]
-                       (if-let [words (not-empty (global/get-words {:untranslated untranslated :limit limit :offset offset}))]
-                         (ok words)
-                         (not-found)))}}]]
+                              (not-found))))}}]]
 
    ["/documents/:id"
 
