@@ -6,7 +6,10 @@
             [daisyproducer2.words :as words]
             [iapetos.collector.fn :as prometheus]))
 
-(defn get-words [{:keys [untranslated limit offset]}]
+(defn get-words [{:keys [limit offset]}]
+  (db/get-global-words {:limit limit :offset offset}))
+
+(defn find-words [{:keys [untranslated limit offset]}]
   (db/find-global-words {:untranslated (db/search-to-sql untranslated)
                          :limit limit :offset offset}))
 

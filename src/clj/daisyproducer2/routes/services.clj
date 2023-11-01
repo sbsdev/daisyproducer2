@@ -122,7 +122,9 @@
                                  (spec/opt :offset) int?}}
             :handler (fn [{{{:keys [untranslated limit offset]
                              :or {limit default-limit offset 0}} :query} :parameters}]
-                       (ok (global/get-words {:untranslated untranslated :limit limit :offset offset})))}
+                       (ok (if (blank? untranslated)
+                             (global/get-words {:limit limit :offset offset})
+                             (global/find-words {:untranslated untranslated :limit limit :offset offset}))))}
 
       :put {:summary "Update or create a global word"
             :middleware [wrap-restricted wrap-authorized]
