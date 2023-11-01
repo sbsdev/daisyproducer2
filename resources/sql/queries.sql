@@ -118,6 +118,13 @@ WHERE untranslated LIKE :untranslated
 ORDER BY untranslated
 LIMIT :limit OFFSET :offset
 
+-- :name get-global-words-with-braille :? :*
+-- :doc retrieve all global words where the column `braille` ("contracted" or "uncontracted") is not null optionally filtered by `types`
+SELECT untranslated, uncontracted, contracted, type, homograph_disambiguation
+FROM dictionary_globalword
+WHERE :i:braille IS NOT NULL
+--~ (when (:types params) "AND type IN (:v*:types)")
+
 -- :name insert-global-word :! :n
 -- :doc Insert or update a word in the global dictionary.
 INSERT INTO dictionary_globalword (untranslated, uncontracted, contracted, type, homograph_disambiguation)
