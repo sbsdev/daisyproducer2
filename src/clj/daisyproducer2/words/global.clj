@@ -9,8 +9,8 @@
 (defn get-words [{:keys [limit offset]}]
   (db/get-global-words {:limit limit :offset offset}))
 
-(defn find-words [{:keys [untranslated limit offset]}]
-  (db/find-global-words {:untranslated (db/search-to-sql untranslated)
+(defn find-words [{:keys [search limit offset]}]
+  (db/find-global-words {:search (db/search-to-sql search)
                          :limit limit :offset offset}))
 
 (def dictionary-keys [:untranslated :uncontracted :contracted :type :homograph-disambiguation])

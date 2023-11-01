@@ -116,15 +116,15 @@
     {:swagger {:tags ["Global Words"]}}
 
     [""
-     {:get {:summary "Get global words. Optionally filter the results by using `untranslated`, `limit` and `offset`."
-            :parameters {:query {(spec/opt :untranslated) string?
+     {:get {:summary "Get global words. Optionally filter the results by using `search`, `limit` and `offset`."
+            :parameters {:query {(spec/opt :search) string?
                                  (spec/opt :limit) int?
                                  (spec/opt :offset) int?}}
-            :handler (fn [{{{:keys [untranslated limit offset]
+            :handler (fn [{{{:keys [search limit offset]
                              :or {limit default-limit offset 0}} :query} :parameters}]
-                       (ok (if (blank? untranslated)
+                       (ok (if (blank? search)
                              (global/get-words {:limit limit :offset offset})
-                             (global/find-words {:untranslated untranslated :limit limit :offset offset}))))}
+                             (global/find-words {:search search :limit limit :offset offset}))))}
 
       :put {:summary "Update or create a global word"
             :middleware [wrap-restricted wrap-authorized]

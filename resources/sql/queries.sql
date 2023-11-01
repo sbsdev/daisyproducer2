@@ -110,10 +110,10 @@ FROM dictionary_globalword
 --~ (when (:types params) "WHERE type IN (:v*:types)")
 
 -- :name find-global-words :? :*
--- :doc retrieve all global words given a simple pattern for `untranslated`, a `limit` and an `offset`
+-- :doc retrieve all global words given a `search` term, a `limit` and an `offset`
 SELECT untranslated, uncontracted, contracted, type, homograph_disambiguation
 FROM dictionary_globalword
-WHERE untranslated LIKE :untranslated
+WHERE untranslated LIKE :search
 ORDER BY untranslated
 LIMIT :limit OFFSET :offset
 

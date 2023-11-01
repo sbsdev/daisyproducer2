@@ -19,7 +19,7 @@
       {:db (assoc-in db [:loading :global] true)
        :http-xhrio {:method          :get
                     :uri             "/api/words"
-                    :params          {:untranslated (if (nil? search) "" search)
+                    :params          {:search (if (nil? search) "" search)
                                       :offset offset
                                       :limit pagination/page-size}
                     :response-format (ajax/json-response-format {:keywords? true})

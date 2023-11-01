@@ -213,6 +213,15 @@ GET http://localhost:3000/api/documents/412/preview/epub
 # Words #
 #########
 
+# Get all global words
+GET http://localhost:3000/api/words?limit=2
+
+# Search a global word
+GET http://localhost:3000/api/words?search=steuerfahndung
+
+# Search a global word
+GET http://localhost:3000/api/words?search=^steuerfahndung
+
 # Add a global word
 PUT http://localhost:3000/api/words
 Authorization: :auth-token
