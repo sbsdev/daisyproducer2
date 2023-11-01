@@ -1,5 +1,6 @@
 (ns daisyproducer2.words.global
   (:require [ajax.core :as ajax]
+            [clojure.string :as string]
             [daisyproducer2.auth :as auth]
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.pagination :as pagination]
@@ -19,9 +20,9 @@
       {:db (assoc-in db [:loading :global] true)
        :http-xhrio {:method          :get
                     :uri             "/api/words"
-                    :params          {:search (if (nil? search) "" search)
-                                      :offset offset
-                                      :limit pagination/page-size}
+                    :params          (if (string/blank? search)
+                                       {:offset offset :limit pagination/page-size}
+                                       {:offset offset :limit pagination/page-size :search search})
                     :response-format (ajax/json-response-format {:keywords? true})
                     :on-success      [::fetch-words-success]
                     :on-failure      [::fetch-words-failure :fetch-global-words]}})))
