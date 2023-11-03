@@ -104,18 +104,19 @@ DELETE FROM documents_image WHERE id = :id
 ------------------
 
 -- :name get-global-words :? :*
--- :doc retrieve all global words optionally filtered by `types` and optionally limited by `limit` and `offset`
+-- :doc retrieve all global words optionally filtered by `type` and optionally limited by `limit` and `offset`
 SELECT untranslated, uncontracted, contracted, type, homograph_disambiguation
 FROM dictionary_globalword
---~ (when (:types params) "WHERE type IN (:v*:types)")
+--~ (when (:type params) "WHERE type = :type")
 --~ (when (:limit params) "LIMIT :limit")
 --~ (when (:offset params) "OFFSET :offset")
 
 -- :name find-global-words :? :*
--- :doc retrieve all global words given a `search` term, a `limit` and an `offset`
+-- :doc retrieve all global words given a `search` term, a `limit` and an `offset` and optionally filtered by `type`
 SELECT untranslated, uncontracted, contracted, type, homograph_disambiguation
 FROM dictionary_globalword
 WHERE untranslated LIKE :search
+--~ (when (:type params) "AND type = :type")
 ORDER BY untranslated
 LIMIT :limit OFFSET :offset
 

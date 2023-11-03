@@ -31,6 +31,7 @@
    [clojure.tools.logging :as log]))
 
 (s/def ::grade (s/and int? #(<= 0 % 2)))
+(s/def ::type (s/and int? #(<= 0 % 5)))
 (s/def ::spelling (s/and int? #{0 1}))
 (s/def ::braille (s/and string? validation/braille-valid?))
 (s/def ::hyphenation (s/and string? validation/hyphenation-valid?))
@@ -118,13 +119,14 @@
     [""
      {:get {:summary "Get global words. Optionally filter the results by using `search`, `limit` and `offset`."
             :parameters {:query {(spec/opt :search) string?
+                                 (spec/opt :type) ::type
                                  (spec/opt :limit) int?
                                  (spec/opt :offset) int?}}
-            :handler (fn [{{{:keys [search limit offset]
+            :handler (fn [{{{:keys [search type limit offset]
                              :or {limit default-limit offset 0}} :query} :parameters}]
                        (ok (if (blank? search)
-                             (global/get-words {:limit limit :offset offset})
-                             (global/find-words {:search search :limit limit :offset offset}))))}
+                             (global/get-words {:type type :limit limit :offset offset})
+                             (global/find-words {:search search :type type :limit limit :offset offset}))))}
 
       :put {:summary "Update or create a global word"
             :middleware [wrap-restricted wrap-authorized]

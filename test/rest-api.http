@@ -216,11 +216,17 @@ GET http://localhost:3000/api/documents/412/preview/epub
 # Get all global words
 GET http://localhost:3000/api/words?limit=2
 
+# Get all global words with type 3
+GET http://localhost:3000/api/words?type=3&limit=2
+
 # Search a global word
 GET http://localhost:3000/api/words?search=steuerfahndung
 
 # Search a global word
 GET http://localhost:3000/api/words?search=^steuerfahndung
+
+# Search a global word with type
+GET http://localhost:3000/api/words?search=aber&type=3
 
 # Add a global word
 PUT http://localhost:3000/api/words
