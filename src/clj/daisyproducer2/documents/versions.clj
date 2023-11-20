@@ -5,7 +5,9 @@
             [daisyproducer2.db.core :as db]
             [daisyproducer2.metrics :as metrics]
             [iapetos.collector.fn :as prometheus]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log])
+  ;; Universally Unique Lexicographically Sortable Identifiers (https://github.com/ulid/spec)
+  (:import [io.azam.ulidj ULID] ))
 
 (defn get-versions
   [document-id]
@@ -28,7 +30,7 @@
 (defn insert-version
   [document-id tempfile comment user]
   (let [document-root (env :document-root)
-        name (str (java.util.UUID/randomUUID) ".xml")
+        name (str (ULID/random) ".xml")
         path (fs/path (str document-id) "versions" name)
         absolute-path (fs/absolutize (fs/path document-root path))]
     ;; FIXME: validate tempfile
