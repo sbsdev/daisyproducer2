@@ -103,7 +103,7 @@
 (rf/reg-sub
  ::words-sorted
  :<- [::words]
- (fn [words] (->> words (sort-by (juxt :document-id :untranslated :type)))))
+ (fn [words] (->> words (sort-by (juxt :document-id :isignored :untranslated :type)))))
 
 (rf/reg-sub
  ::has-words?
