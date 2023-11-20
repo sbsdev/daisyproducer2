@@ -211,10 +211,8 @@
             :handler (fn [{{{:keys [id]} :path
                             {:keys [grade limit offset]
                              :or {limit default-limit offset 0}} :query} :parameters}]
-                       (let [content (-> (versions/get-latest id)
-                                         (versions/get-content))
-                             unknown (unknown/get-words content id grade limit offset)]
-                         (ok unknown)))}}]
+                       (let [unknown (unknown/get-words id grade limit offset)]
+                         (ok unknown)))}
 
     ["/preview"
      {:swagger {:tags ["Preview"]}}
@@ -308,6 +306,8 @@
                              {{uid :uid} :user} :identity}]
                          (let [new-key (versions/insert-version id tempfile comment uid)
                                new-url (format "/documents/%s/versions/%s" id new-key)]
+                           ;; update the unknown words list for this document
+                           (unknown/update-words tempfile id)
                            (created new-url)))}}]
 
      ["/:version-id"

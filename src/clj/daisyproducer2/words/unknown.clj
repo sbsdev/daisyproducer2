@@ -125,8 +125,8 @@
         tuples (map (fn [w] [w 0 "" document-id]) all-words)]
     tuples))
 
-(defn get-words
-  [xml document-id grade limit offset]
+(defn update-words
+  [xml document-id]
   (let [new-words (concat
                    (get-names xml document-id)
                    (get-places xml document-id)
@@ -137,17 +137,29 @@
       (conman/with-transaction [db/*db*]
         (db/delete-unknown-words {:document-id document-id})
         (db/insert-unknown-words {:words new-words})
-        (when (= offset 0)
-          (let [deleted (db/delete-non-existing-unknown-words-from-local-words
+        (let [deleted (db/delete-non-existing-unknown-words-from-local-words
                          {:document-id document-id})]
             (log/infof "Deleted %s local words that were not in unknown words for book %s"
-                       deleted document-id)))
-        (->>
-         (db/get-all-unknown-words
-          {:document-id document-id :grade grade :limit limit :offset offset})
-         (map words/islocal-to-boolean)
-         (map words/complement-braille)
-         (map words/complement-ellipsis-braille)
-         (map words/complement-hyphenation))))))
+                       deleted document-id))))))
 
+(defn- isignored-to-boolean
+  [{:keys [isignored] :as word}]
+  (cond-> word
+    (= isignored 1) (assoc :isignored true)
+    (= isignored 0) (assoc :isignored false)))
+
+(defn get-words
+  "Retrieve all unknown words for given document-id `id` and `grade`.
+  Limit the result set by `limit` and `offset`."
+  [document-id grade limit offset]
+  (->>
+   (db/get-all-unknown-words
+    {:document-id document-id :grade grade :limit limit :offset offset})
+   (map words/islocal-to-boolean)
+   (map isignored-to-boolean)
+   (map words/complement-braille)
+   (map words/complement-ellipsis-braille)
+   (map words/complement-hyphenation)))
+
+(prometheus/instrument! metrics/registry #'update-words)
 (prometheus/instrument! metrics/registry #'get-words)
