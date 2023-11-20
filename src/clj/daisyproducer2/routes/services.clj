@@ -213,6 +213,20 @@
                              :or {limit default-limit offset 0}} :query} :parameters}]
                        (let [unknown (unknown/get-words id grade limit offset)]
                          (ok unknown)))}
+      :put {:summary "Update an unknown word"
+            :middleware [wrap-restricted wrap-authorized]
+            :swagger {:security [{:apiAuth []}]}
+            :parameters {:body {:untranslated string?
+                                :type ::type
+                                :homograph-disambiguation string?
+                                :document-id int?
+                                :islocal boolean?
+                                :isignored boolean?}}
+           :handler (fn [{{word :body} :parameters}]
+                      (let [modified (unknown/put-word word)]
+                        (if (> modified 0)
+                          (no-content)
+                          (not-found))))}}]
 
     ["/preview"
      {:swagger {:tags ["Preview"]}}

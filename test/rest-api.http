@@ -250,3 +250,31 @@ GET http://localhost:3000/api/documents/105/unknown-words?grade=0
 # Get one unknown word
 GET http://localhost:3000/api/documents/105/unknown-words?grade=0&limit=1
 
+# Update an unknown word
+PUT http://localhost:3000/api/documents/105/unknown-words
+Authorization: :auth-token
+Content-Type: application/json
+{
+    	"untranslated": "langstreckenlesen",
+    	"type": 0,
+    	"homograph-disambiguation": "",
+    	"document-id": 105,
+    	"isignored": true,
+    	"islocal": false
+}
+
+# Update a non-existing unknown word
+PUT http://localhost:3000/api/documents/105/unknown-words
+Authorization: :auth-token
+Content-Type: application/json
+{
+    	"untranslated": "not-existing",
+    	"type": 0,
+    	"homograph-disambiguation": "",
+    	"document-id": 105,
+    	"isignored": true,
+    	"islocal": false
+}
+
+
+

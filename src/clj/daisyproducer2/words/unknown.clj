@@ -161,5 +161,13 @@
    (map words/complement-ellipsis-braille)
    (map words/complement-hyphenation)))
 
+(defn put-word
+  "Update the unknown `word` in the db. Returns the number of updates."
+  [word]
+  (log/debug "Update unknown word" word)
+  (let [dictionary-keys (conj words/dictionary-keys :isignored)]
+    (db/update-unknown-word (words/to-db word dictionary-keys words/dictionary-mapping))))
+
 (prometheus/instrument! metrics/registry #'update-words)
 (prometheus/instrument! metrics/registry #'get-words)
+(prometheus/instrument! metrics/registry #'put-word)

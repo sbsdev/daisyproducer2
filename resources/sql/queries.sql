@@ -245,6 +245,15 @@ WHERE document_id = :document-id
 INSERT INTO dictionary_unknownword (untranslated, type, homograph_disambiguation, document_id)
 VALUES :tuple*:words
 
+-- :name update-unknown-word :! :n
+-- :doc update the `isIgnored` field of an unknown `word`
+UPDATE dictionary_unknownword
+SET isIgnored = :isignored, isLocal = :islocal
+WHERE untranslated = :untranslated
+AND type = :type
+AND homograph_disambiguation = :homograph_disambiguation
+AND document_id = :document_id
+
 -- :name delete-non-existing-unknown-words-from-local-words :! :n
 -- :doc delete words that are not in the list of unknown words from the local words for given `:document-id`
 DELETE l
