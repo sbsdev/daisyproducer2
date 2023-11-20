@@ -236,8 +236,9 @@ AND document_id = :document_id
 -------------------
 
 -- :name delete-unknown-words :! :n
--- :doc empty the "temporary" table containing words from a new document
+-- :doc empty the "temporary" table containing words from a new document for given `:document-id`
 DELETE FROM dictionary_unknownword
+WHERE document_id = :document-id
 
 -- :name insert-unknown-words :! :n
 -- :doc insert a list of new `words` into a "temporary" table. This later used to join with the already known words to query the unknown words
@@ -271,6 +272,7 @@ LEFT JOIN hyphenation_words AS hyphenation
 	  FROM  documents_document
 	  WHERE id = :document-id)
 WHERE unknown.type = 0
+AND unknown.document_id = :document-id
 AND g.untranslated IS NULL
 AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.uncontracted IS NULL))
 )
@@ -290,6 +292,7 @@ LEFT JOIN hyphenation_words AS hyphenation
 	  FROM  documents_document
 	  WHERE id = :document-id)
 WHERE unknown.type = 2
+AND unknown.document_id = :document-id
 AND g.untranslated IS NULL
 AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.uncontracted IS NULL))
 )
@@ -309,6 +312,7 @@ LEFT JOIN hyphenation_words AS hyphenation
 	  FROM  documents_document
 	  WHERE id = :document-id)
 WHERE unknown.type = 4
+AND unknown.document_id = :document-id
 AND g.untranslated IS NULL
 AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.uncontracted IS NULL))
 )
@@ -328,6 +332,7 @@ LEFT JOIN hyphenation_words AS hyphenation
 	  FROM  documents_document
 	  WHERE id = :document-id)
 WHERE unknown.type = 5
+AND unknown.document_id = :document-id
 AND g.untranslated IS NULL
 AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.uncontracted IS NULL))
 )

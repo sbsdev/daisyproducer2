@@ -135,7 +135,7 @@
     (if (empty? new-words)
       [] ; if there are no new words there are no unknown words
       (conman/with-transaction [db/*db*]
-        (db/delete-unknown-words)
+        (db/delete-unknown-words {:document-id document-id})
         (db/insert-unknown-words {:words new-words})
         (when (= offset 0)
           (let [deleted (db/delete-non-existing-unknown-words-from-local-words
