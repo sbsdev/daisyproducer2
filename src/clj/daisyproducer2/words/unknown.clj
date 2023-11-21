@@ -142,12 +142,6 @@
             (log/infof "Deleted %s local words that were not in unknown words for book %s"
                        deleted document-id))))))
 
-(defn- isignored-to-boolean
-  [{:keys [isignored] :as word}]
-  (cond-> word
-    (= isignored 1) (assoc :isignored true)
-    (= isignored 0) (assoc :isignored false)))
-
 (defn get-words
   "Retrieve all unknown words for given document-id `id` and `grade`.
   Limit the result set by `limit` and `offset`."
@@ -155,8 +149,7 @@
   (->>
    (db/get-all-unknown-words
     {:document-id document-id :grade grade :limit limit :offset offset})
-   (map words/islocal-to-boolean)
-   (map isignored-to-boolean)
+   (map words/int-fields-to-boolean)
    (map words/complement-braille)
    (map words/complement-ellipsis-braille)
    (map words/complement-hyphenation)))

@@ -104,10 +104,22 @@
       (select-keys keys)
       (rename-keys mapping)))
 
-(defn islocal-to-boolean
+(defn- value-to-boolean [v]
+  (case v
+    1 true
+    0 false
+    v))
+
+(defn- keys-to-boolean
+  "Convert all 0 and 1 values in `word` to boolean values for all keys in `keys`"
+  [word keys]
+  (let [replaced (-> word
+                     (select-keys keys)
+                     (update-vals value-to-boolean))]
+    (merge word replaced)))
+
+(defn int-fields-to-boolean
   ;; MySQL doesn't always seem to return the right type for boolean
   ;; values. This function should fix that problem.
-  [{:keys [islocal] :as word}]
-  (cond-> word
-    (= islocal 1) (assoc :islocal true)
-    (= islocal 0) (assoc :islocal false)))
+  [word]
+  (keys-to-boolean word [:islocal :isignored :isconfirmed]))

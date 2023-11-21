@@ -276,5 +276,10 @@ Content-Type: application/json
     	"islocal": false
 }
 
+#####################
+# Confirmable words #
+#####################
 
+# Confirmable words
+GET http://localhost:3000/api/confirmable
 

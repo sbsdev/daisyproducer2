@@ -25,7 +25,7 @@
                  (not (string/blank? search)) (assoc :search (db/search-to-sql search)))
         words (db/get-local-words params)]
     (->> words
-         (map words/islocal-to-boolean)
+         (map words/int-fields-to-boolean)
          ;; there are local words where we have only either contracted
          ;; or uncontracted. Despite all my efforts the db will return
          ;; a NULL value for those fields in that case.
