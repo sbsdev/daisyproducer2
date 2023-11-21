@@ -126,6 +126,8 @@
     tuples))
 
 (defn update-words
+  "Update the list of unknown words in the \"temporary\" table for
+  given `document-id` and the new content in `xml`"
   [xml document-id]
   (let [new-words (concat
                    (get-names xml document-id)
