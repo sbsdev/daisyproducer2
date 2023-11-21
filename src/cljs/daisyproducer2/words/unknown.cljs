@@ -90,10 +90,36 @@
                                             (get response :status-text)))
        (notifications/clear-button-state id request-type))))
 
-(rf/reg-event-db
+(rf/reg-event-fx
   ::ignore-word
-  (fn [db [_ uuid]]
-    (update-in db [:words :unknown] dissoc uuid)))
+  (fn [{:keys [db]} [_ uuid]]
+    (let [word (get-in db [:words :unknown uuid])
+          cleaned (-> word
+                      (select-keys [:untranslated :type :homograph-disambiguation
+                                    :document-id :islocal :isignored])
+                      (assoc :isignored true))
+          document-id (:document-id word)]
+      {:db (notifications/set-button-state db uuid :ignore)
+       :http-xhrio {:method          :put
+                    :format          (ajax/json-request-format)
+                    :headers 	     (auth/auth-header db)
+                    :uri             (str "/api/documents/" document-id "/unknown-words")
+                    :params          cleaned
+                    :response-format (ajax/json-response-format {:keywords? true})
+                    :on-success      [::ack-ignore uuid document-id]
+                    :on-failure      [::ack-failure uuid :ignore]
+                    }})))
+
+(rf/reg-event-fx
+  ::ack-ignore
+  (fn [{:keys [db]} [_ uuid document-id]]
+    (let [db (-> db
+                 (update-in [:words :unknown] dissoc uuid)
+                 (notifications/clear-button-state uuid :ignore))
+          empty? (-> db (get-in [:words :unknown]) count (< 1))]
+      (if empty?
+        {:db db :dispatch [::fetch-words document-id]}
+        {:db db}))))
 
 (rf/reg-sub
  ::words
