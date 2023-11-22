@@ -322,7 +322,7 @@
                                new-url (format "/documents/%s/versions/%s" id new-key)]
                            ;; update the unknown words list for this document
                            (unknown/update-words tempfile id)
-                           (created new-url)))}}]
+                           (created new-url {})))}}] ;; add an empty body
 
      ["/:version-id"
       {:get {:summary "Get a version"
