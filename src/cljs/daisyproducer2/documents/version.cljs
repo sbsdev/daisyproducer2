@@ -10,6 +10,8 @@
             [daisyproducer2.words.notifications :as notifications]
             [re-frame.core :as rf]))
 
+(defn- get-search [db document-id] (get-in db [:search :versions document-id]))
+
 (rf/reg-event-fx
   ::fetch-versions
   (fn [{:keys [db]} [_ document-id]]
@@ -101,22 +103,24 @@
         reset!    #(rf/dispatch [::set-version-comment ""])
         save!     #(rf/dispatch [::set-version-comment %])
         comment @(rf/subscribe [::version-comment])]
-    [:p.control
-        [:input.input
-         {:type "text"
-          :placeholder (tr [:comment])
-          :aria-label (tr [:comment])
-          :value comment
-          :on-change #(save! (get-value %))
-          :on-key-down #(when (= (.-which %) 27) (reset!))
-          }]]))
+    [:div.field
+     [:label.label (tr [:comment])]
+     [:input.input
+      {:type "text"
+       :placeholder (tr [:comment])
+       :aria-label (tr [:comment])
+       :value comment
+       :on-change #(save! (get-value %))
+       :on-key-down #(when (= (.-which %) 27) (reset!))
+       }]]))
 
 (defn- version-file []
   (let [get-value (fn [e] (-> e .-target .-files (aget 0)))
         save!     #(rf/dispatch [::set-version-file %])
         file      @(rf/subscribe [::version-file])]
-    [:p.control
-     [:div.file.has-name.is-fullwidth
+    [:div.field
+     [:label.label (tr [:file])]
+     [:div.file.has-name
       [:label.file-label
        [:input.file-input
         {:type "file"
@@ -128,7 +132,7 @@
         [:span.file-label (tr [:choose-file])]]
        [:span.file-name (if file (.-name file) (tr [:no-file]))]]]]))
 
-(defn upload [id]
+(defn upload [document]
   (let [file @(rf/subscribe [::version-file])
         comment @(rf/subscribe [::version-comment])
         authenticated? @(rf/subscribe [::auth/authenticated?])
@@ -136,16 +140,56 @@
         errors? @(rf/subscribe [::notifications/errors?])]
     (if errors?
       [notifications/error-notification]
-      [:div.field.is-grouped
+      [:div.field
        [version-file]
        [version-comment]
-       [:p.control
+       [:div.control
         [:button.button.is-success
          {:disabled (or (string/blank? comment) (nil? file) (not authenticated?))
           :class klass
-          :on-click (fn [e] (rf/dispatch [::add-version id file comment]))}
+          :on-click (fn [e] (rf/dispatch [::add-version (:id document) file comment]))}
          [:span.icon {:aria-hidden true} [:i.mi.mi-backup]]
          [:span (tr [:upload])]]]])))
+
+(rf/reg-sub ::search (fn [db [_ document-id]] (get-search db document-id) ))
+
+(rf/reg-event-fx
+   ::set-search
+   (fn [{:keys [db]} [_ document-id new-search-value]]
+     {:db (assoc-in db [:search :versions document-id] new-search-value)
+      :dispatch-n (list
+                   ;; when searching for a new version reset the pagination
+                   [::pagination/reset :versions]
+                   [::fetch-versions document-id])}))
+
+(defn version-search [document-id]
+  (let [get-value (fn [e] (-> e .-target .-value))
+        reset!    #(rf/dispatch [::set-search document-id ""])
+        save!     #(rf/dispatch [::set-search document-id %])]
+    [:div.field
+     [:div.control
+      [:input.input {:type "text"
+                     :placeholder (tr [:search])
+                     :aria-label (tr [:search])
+                     :value @(rf/subscribe [::search document-id])
+                     :on-change #(save! (get-value %))
+                     :on-key-down #(when (= (.-which %) 27) (reset!))}]]]))
+
+(defn version-upload [document-id]
+  [:a.button.is-primary
+   {:href (str "#/documents/" document-id "/versions/upload")}
+   [:span.icon {:aria-hidden true}
+    [:i.mi {:class "mi-upload"}]]
+   [:span (tr [:new-version])]])
+
+(defn version-filter [document-id]
+  [:div.field.is-horizontal
+   [:div.field-body
+    [:div.field.is-grouped
+     [:div.control.is-expanded
+      [version-search document-id]]
+     [:div.control
+      [version-upload document-id]]]]])
 
 (defn- version-row [{:keys [content created-at created-by comment]}]
   [:tr
@@ -154,18 +198,20 @@
    [:td created-by]
    [:td (when created-at (tf/unparse (tf/formatters :date) created-at))]])
 
-(defn versions [id]
+(defn versions [document]
   (let [errors? @(rf/subscribe [::notifications/errors?])
         versions @(rf/subscribe [::versions-sorted])]
-    (if errors?
-      [notifications/error-notification]
-      [:table.table.is-striped
-       [:thead
-        [:tr
-         [:th (tr [:version])]
-         [:th (tr [:comment])]
-         [:th (tr [:author])]
-         [:th (tr [:created-at])]]]
-       [:tbody
-        (for [{:keys [uuid] :as version} versions]
-          ^{:key uuid} [version-row version])]])))
+    [:<>
+     [version-filter (:id document)]
+     (if errors?
+       [notifications/error-notification]
+       [:table.table.is-striped
+        [:thead
+         [:tr
+          [:th (tr [:version])]
+          [:th (tr [:comment])]
+          [:th (tr [:author])]
+          [:th (tr [:created-at])]]]
+        [:tbody
+         (for [{:keys [uuid] :as version} versions]
+           ^{:key uuid} [version-row version])]])]))

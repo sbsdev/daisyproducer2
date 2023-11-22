@@ -110,6 +110,8 @@
                    :controllers [{:parameters {:path [:id]}}]}]
       ["/versions" {:name :document-versions :view #'document/versions
                     :controllers [{:parameters {:path [:id]}}]}]
+      ["/versions/upload" {:name :document-versions-upload :view #'document/versions-upload
+                           :controllers [{:parameters {:path [:id]}}]}]
       ["/images" {:name :document-images :view #'document/images
                   :controllers [{:parameters {:path [:id]}}]}]]
      ["/hyphenations" {:name :hyphenations
