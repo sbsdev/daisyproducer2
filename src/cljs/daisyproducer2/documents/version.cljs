@@ -56,7 +56,7 @@
 
 (rf/reg-event-fx
   ::add-version
-  (fn [{:keys [db]} [_ id js-file-value comment]]
+  (fn [{:keys [db]} [_ document js-file-value comment]]
     (let [form-data (doto (js/FormData.)
                       (.append "comment" comment)
                       (.append "file" js-file-value "filename.txt"))]
@@ -64,15 +64,16 @@
        :http-xhrio (as-transit
                     {:method          :post
                      :headers 	     (auth/auth-header db)
-                     :uri             (str "/api/documents/" id "/versions")
+                     :uri             (str "/api/documents/" (:id document) "/versions")
                      :body            form-data
-                     :on-success      [::ack-add-version]
+                     :on-success      [::ack-add-version document]
                      :on-failure      [::ack-failure]})})))
 
-(rf/reg-event-db
+(rf/reg-event-fx
   ::ack-add-version
-  (fn [db [_]]
-    (-> db (notifications/clear-button-state :version :save))))
+  (fn [{:keys [db]} [_ document]]
+    {:db (-> db (notifications/clear-button-state :version :save))
+     :dispatch [:common/navigate! :document-versions document]}))
 
 (rf/reg-event-db
  ::ack-failure
@@ -147,7 +148,7 @@
         [:button.button.is-success
          {:disabled (or (string/blank? comment) (nil? file) (not authenticated?))
           :class klass
-          :on-click (fn [e] (rf/dispatch [::add-version (:id document) file comment]))}
+          :on-click (fn [e] (rf/dispatch [::add-version document file comment]))}
          [:span.icon {:aria-hidden true} [:i.mi.mi-backup]]
          [:span (tr [:upload])]]]])))
 
