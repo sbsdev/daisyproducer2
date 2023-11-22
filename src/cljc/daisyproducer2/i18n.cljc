@@ -39,6 +39,8 @@
                     :images "Images"
                     :version "Version"
                     :versions "Versions"
+                    :new-version "New Version"
+                    :new-image "New Image"
                     ;;
                     :documents "Documents"
                     :confirm "Confirm"
@@ -139,6 +141,8 @@
                     :images "Bilder"
                     :version "Version"
                     :versions "Versionen"
+                    :new-version "Neue Version"
+                    :new-image "Neues Bild"
                     ;;
                     :documents "Dokumente"
                     :confirm "Bestätigen"

@@ -106,7 +106,7 @@
   [:button.button.is-primary
    [:span.icon {:aria-hidden true}
     [:i.mi {:class "mi-upload"}]]
-   [:span (tr [:upload])]])
+   [:span (tr [:new-image])]])
 
 (defn image-filter [document-id]
   [:div.field.is-horizontal
