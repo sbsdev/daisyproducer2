@@ -59,15 +59,13 @@
                       (.append "comment" comment)
                       (.append "file" js-file-value "filename.txt"))]
       {:db (notifications/set-button-state db :version :save)
-       :http-xhrio {:method          :post
-                    :format          (ajax/json-request-format)
-                    :headers 	     (auth/auth-header db)
-                    :uri             (str "/api/documents/" id "/versions")
-                    :body            form-data
-                    :response-format (ajax/raw-response-format)
-                    :on-success      [::ack-add-version]
-                    :on-failure      [::ack-failure]
-                    }})))
+       :http-xhrio (as-transit
+                    {:method          :post
+                     :headers 	     (auth/auth-header db)
+                     :uri             (str "/api/documents/" id "/versions")
+                     :body            form-data
+                     :on-success      [::ack-add-version]
+                     :on-failure      [::ack-failure]})})))
 
 (rf/reg-event-db
   ::ack-add-version
