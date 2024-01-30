@@ -196,6 +196,17 @@
      [:div.control
       [version-upload document-id]]]]])
 
+(rf/reg-sub ::cleanup-versions (fn [db [_ document-id]] ))
+
+(defn cleanup-button [document-id]
+  (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
+    [:div.buttons.has-addons.is-right
+     [:button.button.is-danger
+      {:disabled (not authenticated?)
+       :on-click (fn [e] (rf/dispatch [::cleanup-versions document-id]))}
+      [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]
+      [:span (tr [:cleanup-versions])]]]))
+
 (defn- version-row [{:keys [created-at created-by comment]}]
   [:tr
    [:td comment]
@@ -219,3 +230,4 @@
          [:tbody
           (for [{:keys [uuid] :as version} versions]
             ^{:key uuid} [version-row version])]]
+        [cleanup-button (:id document)]])]))

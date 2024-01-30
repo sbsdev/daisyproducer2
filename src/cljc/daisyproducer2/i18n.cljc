@@ -42,6 +42,7 @@
                     :versions "Versions"
                     :new-version "New Version"
                     :new-image "New Image"
+                    :cleanup-versions "Clean up"
                     ;;
                     :documents "Documents"
                     :confirm "Confirm"
@@ -145,6 +146,7 @@
                     :versions "Versionen"
                     :new-version "Neue Version"
                     :new-image "Neues Bild"
+                    :cleanup-versions "Alte Versionen löschen"
                     ;;
                     :documents "Dokumente"
                     :confirm "Bestätigen"
