@@ -116,7 +116,7 @@
     [:div.field.is-grouped
      [:p.control.is-expanded
       [image-search document-id]]
-     #_[:p.control
+     [:p.control
       [image-upload document-id]]]]])
 
 (rf/reg-sub
