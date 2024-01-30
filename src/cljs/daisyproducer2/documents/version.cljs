@@ -196,12 +196,11 @@
      [:div.control
       [version-upload document-id]]]]])
 
-(defn- version-row [{:keys [content created-at created-by comment]}]
+(defn- version-row [{:keys [created-at created-by comment]}]
   [:tr
-   [:td (last (string/split content #"/"))]
    [:td comment]
    [:td created-by]
-   [:td (when created-at (tf/unparse (tf/formatters :date) created-at))]])
+   [:td (when created-at (tf/unparse (tf/formatter "yyyy-MM-dd HH:mm") created-at))]])
 
 (defn versions [document]
   (let [errors? @(rf/subscribe [::notifications/errors?])
@@ -210,13 +209,13 @@
      [version-filter (:id document)]
      (if errors?
        [notifications/error-notification]
-       [:table.table.is-striped
-        [:thead
-         [:tr
-          [:th (tr [:version])]
-          [:th (tr [:comment])]
-          [:th (tr [:author])]
-          [:th (tr [:created-at])]]]
-        [:tbody
-         (for [{:keys [uuid] :as version} versions]
-           ^{:key uuid} [version-row version])]])]))
+       [:<>
+        [:table.table.is-striped
+         [:thead
+          [:tr
+           [:th (tr [:comment])]
+           [:th (tr [:author])]
+           [:th (tr [:created-at])]]]
+         [:tbody
+          (for [{:keys [uuid] :as version} versions]
+            ^{:key uuid} [version-row version])]]
