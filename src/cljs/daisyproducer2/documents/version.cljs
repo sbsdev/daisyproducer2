@@ -52,7 +52,7 @@
 (rf/reg-sub
  ::versions-sorted
  :<- [::versions]
- (fn [versions] (->> versions (sort-by (comp tc/to-epoch :created-at)))))
+ (fn [versions] (->> versions (sort-by (comp tc/to-epoch :created-at) >))))
 
 (rf/reg-event-fx
   ::add-version
