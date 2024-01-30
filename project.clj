@@ -15,7 +15,8 @@
                  [clj-commons/iapetos "0.1.13" :exclusions [javax.xml.bind/jaxb-api]]
                  [clj-http "3.12.3" :exclusions [commons-io]] ;; to talk to the DAISY Pipeline2
                  [cljs-ajax "0.8.4"]
-                 [clojure.java-time "1.4.2"]
+                 [clojure.java-time "1.4.2"] ;; to create a timestamp when talking to pipeline2
+                 [com.andrewmcveigh/cljs-time "0.5.2"]
                  [com.cognitect/transit-clj "1.0.333"]
                  [com.cognitect/transit-cljs "0.8.280"]
                  [com.google.javascript/closure-compiler-unshaded "v20230411"]
