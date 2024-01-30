@@ -177,11 +177,13 @@
                      :on-key-down #(when (= (.-which %) 27) (reset!))}]]]))
 
 (defn version-upload [document-id]
-  [:a.button.is-primary
-   {:href (str "#/documents/" document-id "/versions/upload")}
-   [:span.icon {:aria-hidden true}
-    [:i.mi {:class "mi-upload"}]]
-   [:span (tr [:new-version])]])
+  (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
+    [:a.button.is-primary
+     {:href (str "#/documents/" document-id "/versions/upload")
+      :disabled (not authenticated?)}
+     [:span.icon {:aria-hidden true}
+      [:i.mi {:class "mi-upload"}]]
+     [:span (tr [:new-version])]]))
 
 (defn version-filter [document-id]
   [:div.field.is-horizontal

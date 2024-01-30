@@ -103,10 +103,12 @@
                      :on-key-down #(when (= (.-which %) 27) (reset!))}]]]))
 
 (defn image-upload [document-id]
-  [:button.button.is-primary
-   [:span.icon {:aria-hidden true}
-    [:i.mi {:class "mi-upload"}]]
-   [:span (tr [:new-image])]])
+  (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
+    [:button.button.is-primary
+     {:disabled (not authenticated?)}
+     [:span.icon {:aria-hidden true}
+      [:i.mi {:class "mi-upload"}]]
+     [:span (tr [:new-image])]]))
 
 (defn image-filter [document-id]
   [:div.field.is-horizontal
