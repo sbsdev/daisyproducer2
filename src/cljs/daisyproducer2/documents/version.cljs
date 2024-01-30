@@ -73,7 +73,9 @@
   ::ack-add-version
   (fn [{:keys [db]} [_ document]]
     {:db (-> db (notifications/clear-button-state :version :save))
-     :dispatch [:common/navigate! :document-versions document]}))
+     :dispatch-n (list
+                  [::fetch-versions (:id document)]
+                  [:common/navigate! :document-versions document])}))
 
 (rf/reg-event-db
  ::ack-failure
