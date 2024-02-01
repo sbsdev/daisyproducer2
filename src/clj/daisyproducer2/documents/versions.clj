@@ -4,6 +4,7 @@
             [daisyproducer2.config :refer [env]]
             [daisyproducer2.db.core :as db]
             [daisyproducer2.metrics :as metrics]
+            [daisyproducer2.documents.schema-validation :as schema-validation]
             [daisyproducer2.documents.metadata-validation :as metadata-validation]
             [iapetos.collector.fn :as prometheus]
             [clojure.tools.logging :as log]
@@ -28,6 +29,8 @@
   (let [document-root (env :document-root)
         path (:content version)]
     (io/file document-root path)))
+
+(def ^:private schema "schema/dtbook-2005-3-sbs.rng")
 
 (defn validate-version [file document]
   (concat

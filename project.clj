@@ -23,6 +23,7 @@
                  ;; [com.fasterxml.jackson.core/jackson-core "2.12.5"]
                  ;; [com.fasterxml.jackson.core/jackson-databind "2.12.5"]
                  [com.google.protobuf/protobuf-java "3.23.3"]
+                 [com.thaiopensource/jing "20091111" :exclusions [xml-apis]] ;; for schema validation
                  [com.taoensso/tempura "1.5.3"]
                  [conman "0.9.6"]
                  [cprop "0.1.19"]
