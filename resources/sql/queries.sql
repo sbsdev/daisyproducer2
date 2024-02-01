@@ -54,8 +54,8 @@ AND created_at = (SELECT MAX(created_at) FROM documents_version WHERE document_i
 
 -- :name insert-version :insert :raw
 -- :doc Insert a new version for a given `document_id` with given `comment`, `content` and `user`.
-INSERT INTO documents_version (comment, document_id, content, created_by_id)
-VALUES (:comment, :document_id, :content, (SELECT id FROM auth_user WHERE username = :user))
+INSERT INTO documents_version (comment, document_id, content, created_by)
+VALUES (:comment, :document_id, :content, :user)
 
 -- :name delete-version :! :n
 -- :doc Delete a version.
