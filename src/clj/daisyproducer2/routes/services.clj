@@ -318,11 +318,18 @@
                                        :comment string?}}
               :handler (fn [{{{:keys [id]} :path {{tempfile :tempfile} :file comment :comment} :multipart} :parameters
                              {{uid :uid} :user} :identity}]
-                         (let [new-key (versions/insert-version id tempfile comment uid)
-                               new-url (format "/documents/%s/versions/%s" id new-key)]
-                           ;; update the unknown words list for this document
-                           (unknown/update-words tempfile id)
-                           (created new-url {})))}}] ;; add an empty body
+                         (try
+                           (let [new-key (versions/insert-version id tempfile comment uid)
+                                 new-url (format "/documents/%s/versions/%s" id new-key)]
+                             ;; update the unknown words list for this document
+                             (unknown/update-words tempfile id)
+                             (created new-url {})) ;; add an empty body
+                           (catch clojure.lang.ExceptionInfo e
+                             (let [{:keys [error-id errors]} (ex-data e)
+                                   message (ex-message e)]
+                               (log/warn message error-id errors)
+                               (bad-request {:status-text (ex-message e) :errors errors})))
+                           ))}}]
 
      ["/:version-id"
       {:get {:summary "Get a version"

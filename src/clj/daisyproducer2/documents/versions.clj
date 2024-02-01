@@ -4,8 +4,10 @@
             [daisyproducer2.config :refer [env]]
             [daisyproducer2.db.core :as db]
             [daisyproducer2.metrics :as metrics]
+            [daisyproducer2.documents.metadata-validation :as metadata-validation]
             [iapetos.collector.fn :as prometheus]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [daisyproducer2.pipeline1 :as pipeline1])
   ;; Universally Unique Lexicographically Sortable Identifiers (https://github.com/ulid/spec)
   (:import [io.azam.ulidj ULID] ))
 
@@ -27,13 +29,25 @@
         path (:content version)]
     (io/file document-root path)))
 
+(defn validate-version [file document]
+  (concat
+   ;;(schema-validation/validation-errors file schema)
+   (metadata-validation/validate-metadata file document)
+   (pipeline1/validate file :dtbook)))
+
 (defn insert-version
   [document-id tempfile comment user]
   (let [document-root (env :document-root)
         name (str (ULID/random) ".xml")
         path (fs/path (str document-id) "versions" name)
-        absolute-path (fs/absolutize (fs/path document-root path))]
-    ;; FIXME: validate tempfile
+        absolute-path (fs/absolutize (fs/path document-root path))
+        document (db/get-document {:id document-id})]
+    ;; validate tempfile
+    (let [validation-errors (validate-version tempfile document)]
+      (log/debugf "Vaidating %s" tempfile)
+      (when (seq validation-errors)
+        (throw (ex-info "Failed to validate XML"
+                        {:error-id :invalid-dtbook :errors validation-errors}))))
     ;; make sure path exists
     (fs/create-dirs (fs/parent absolute-path))
     ;; copy the contents into the archive
