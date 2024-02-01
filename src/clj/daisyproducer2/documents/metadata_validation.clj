@@ -34,9 +34,9 @@
    :source_edition [(get-metadata-path "dtb:sourceEdition")]
    :source_publisher [(get-metadata-path "dtb:sourcePublisher")]
    :source_rights [(get-metadata-path "dtb:sourceRights")]
-   ;; :source_title [(get-metadata-path "dtb:sourceTitle")]
-   ;; :multimedia_type [(get-metadata-path "dtb:multimediaType")]
-   ;; :multimedia_content [(get-metadata-path "dtb:multimediaContent")]
+   :production_series [(get-metadata-path "prod:series")]
+   :production_series_number [(get-metadata-path "prod:seriesNumber")]
+   :production_source [(get-metadata-path "prod:source")]
    })
 
 (defn get-path [loc path]
