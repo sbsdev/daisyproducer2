@@ -39,6 +39,17 @@ WHERE document_id = :document_id
 -- :doc retrieve all versions of a document given a `document_id`
 SELECT * FROM documents_version
 WHERE document_id = :document_id
+ORDER BY created_at DESC
+--~ (when (:limit params) "LIMIT :limit")
+--~ (when (:offset params) "OFFSET :offset")
+
+-- :name find-versions :? :*
+-- :doc retrieve all versions given a `search` term, a `limit` and an `offset`
+SELECT * FROM documents_version
+WHERE document_id = :document_id
+AND LOWER(comment) LIKE LOWER(:search)
+ORDER BY created_at DESC
+LIMIT :limit OFFSET :offset
 
 -- :name get-version :? :1
 -- :doc retrieve a version for given `id`

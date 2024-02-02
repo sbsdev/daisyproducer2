@@ -116,6 +116,9 @@ GET http://localhost:3000/api/documents/105/versions
 
 GET http://localhost:3000/api/documents/105/versions?latest=false
 
+# Search a version for a document
+GET http://localhost:3000/api/documents/105/versions?search=hallo
+
 # Get a specific version
 GET http://localhost:3000/api/documents/105/versions/8212
 

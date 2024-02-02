@@ -298,18 +298,23 @@
      {:swagger {:tags ["Versions"]}}
 
      [""
-      {:get {:summary "Get all versions of a given document. If `latest` is true, return only the latest version"
+      {:get {:summary "Get all versions of a given document. If `latest` is true, return only the latest version. Optionally limit the result set using a `search` term, a `limit` and an `offset`."
              :parameters {:path {:id int?}
-                          :query {(spec/opt :latest) boolean?}}
+                          :query {(spec/opt :latest) boolean?
+                                  (spec/opt :search) string?
+                                  (spec/opt :limit) int?
+                                  (spec/opt :offset) int?}}
              :handler (fn [{{{:keys [id]} :path
-                             {:keys [latest] :or {latest false}} :query} :parameters}]
+                             {:keys [limit offset search latest]
+                              :or {limit default-limit offset 0 latest false}} :query} :parameters}]
                         (if latest
                           (if-let [latest (versions/get-latest id)]
                             (ok latest)
                             (not-found))
-                          (if-let [versions (not-empty (versions/get-versions id))]
-                            (ok versions)
-                            (not-found))))}
+                          (let [versions (if (blank? search)
+                                           (versions/get-versions id limit offset)
+                                           (versions/find-versions  id limit offset (db/search-to-sql search)))]
+                            (ok versions))))}
        :post {:summary "Create a new version for a given document"
               :middleware [wrap-restricted]
               :swagger {:security [{:apiAuth []}]}

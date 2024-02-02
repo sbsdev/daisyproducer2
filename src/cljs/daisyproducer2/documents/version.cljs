@@ -15,13 +15,15 @@
 (rf/reg-event-fx
   ::fetch-versions
   (fn [{:keys [db]} [_ document-id]]
-    (let [offset (pagination/offset db :versions)]
+    (let [offset (pagination/offset db :versions)
+          search (get-search db document-id)]
       {:db (assoc-in db [:loading :versions] true)
        :http-xhrio (as-transit
                     {:method          :get
                      :uri             (str "/api/documents/" document-id "/versions")
-                     :params          {:offset offset
-                                       :limit pagination/page-size}
+                     :params          (cond-> {:offset offset
+                                               :limit pagination/page-size}
+                                        (not (string/blank? search)) (assoc :search search))
                      :on-success      [::fetch-versions-success]
                      :on-failure      [::fetch-versions-failure]})})))
 

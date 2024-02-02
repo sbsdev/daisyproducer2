@@ -13,8 +13,14 @@
   (:import [io.azam.ulidj ULID] ))
 
 (defn get-versions
-  [document-id]
-  (db/get-versions {:document_id document-id}))
+  ([document-id]
+   (db/get-versions {:document_id document-id}))
+  ([document-id limit offset]
+   (db/get-versions {:document_id document-id :limit limit :offset offset})))
+
+(defn find-versions
+  [document-id limit offset search]
+  (db/find-versions {:document_id document-id :limit limit :offset offset :search search}))
 
 (defn get-version
   [document-id id]
