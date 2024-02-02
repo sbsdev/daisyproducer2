@@ -43,25 +43,18 @@
         ;; claims that smil files are valid against the vubis bulk
         ;; import schema.
         factory "com.thaiopensource.relaxng.jaxp.XMLSyntaxSchemaFactory"
-        schema-stream (io/input-stream (io/resource schema))
+        schema-url (io/as-url (io/resource schema))
         validator (doto (.newValidator
                          (.newSchema
                           (SchemaFactory/newInstance language factory nil)
-                          (StreamSource. schema-stream)))
-                    (.setErrorHandler error-handler)
-                    ;; maybe we need to set the
-                    ;; org.daisy.util.xml.catalog.CatalogEntityResolver
-                    ;; here, so that other schemasa that the root
-                    ;; schema is trying to include, are found
-                    ;; (.setResourceResolver(CatalogEntityResolver/getInstance)
-                    )]
+                          schema-url))
+                    (.setErrorHandler error-handler))]
     (try
       (.validate validator (StreamSource. file))
       @errors
       (catch SAXException e
         (log/error (.getMessage e))
-        @errors)
-      (finally (.close schema-stream)))))
+        @errors))))
 
 (defn valid?
   "Check if a `file` is valid against given `schema`"
