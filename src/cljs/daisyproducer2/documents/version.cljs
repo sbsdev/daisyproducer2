@@ -232,4 +232,5 @@
          [:tbody
           (for [{:keys [uuid] :as version} versions]
             ^{:key uuid} [version-row version])]]
+        [pagination/pagination [:versions] [::fetch-versions (:id document)]]
         [cleanup-button (:id document)]])]))
