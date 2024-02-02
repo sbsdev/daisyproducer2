@@ -34,7 +34,7 @@
 
 (defn validate-version [file document]
   (concat
-   ;;(schema-validation/validation-errors file schema)
+   (schema-validation/validation-errors file schema)
    (metadata-validation/validate-metadata file document)
    (pipeline1/validate file :dtbook)))
 
