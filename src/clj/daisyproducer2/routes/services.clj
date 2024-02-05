@@ -376,7 +376,7 @@
                              {{uid :uid} :user} :identity}]
                          (let [new-key (images/insert-image id filename tempfile)
                                new-url (format "/documents/%s/images/%s" id new-key)]
-                           (created new-url)))}}]
+                           (created new-url {})))}}]
      ["/:image-id"
       {:get {:summary "Get an image"
              :parameters {:path {:id int? :image-id int?}}
