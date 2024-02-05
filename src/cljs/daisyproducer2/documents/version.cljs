@@ -82,10 +82,12 @@
 (rf/reg-event-db
  ::ack-failure
  (fn [db [_ response]]
-   (-> db
-       (assoc-in [:errors :version] (or (get-in response [:response :status-text])
-                                        (get response :status-text)))
-       (notifications/clear-button-state :version :save))))
+   (let [message (or (get-in response [:response :status-text])
+                     (get response :status-text))
+         errors (get-in response [:response :errors])]
+     (-> db
+         (notifications/set-errors :version message errors)
+         (notifications/clear-button-state :version :save)))))
 
 (rf/reg-sub
  ::version-file

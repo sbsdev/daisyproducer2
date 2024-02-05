@@ -75,4 +75,8 @@
          [:div.notification.is-danger
           [:button.delete
            {:on-click (fn [e] (rf/dispatch [::ack-error k]))}]
-          [:strong (str k ":")] (str " " v)])]))) ; FIXME: Translation?
+          [:p [:strong (:message v)]]
+          (when (seq (:errors v))
+            [:ul
+             (for [e (:errors v)]
+               [:li (str e)])])])])))
