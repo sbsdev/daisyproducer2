@@ -45,6 +45,15 @@
        (notifications/set-errors :fetch-images (get response :status-text))
        (assoc-in [:loading :images] false))))
 
+(rf/reg-sub
+  ::images
+  (fn [db _] (->> db :images vals)))
+
+(rf/reg-sub
+ ::images-sorted
+ :<- [::images]
+ (fn [images] (->> images (sort-by :content))))
+
 (rf/reg-event-fx
  ::delete-image
  (fn [{:keys [db]} [_ uuid]]
@@ -118,15 +127,6 @@
       [image-search document-id]]
      [:p.control
       [image-upload document-id]]]]])
-
-(rf/reg-sub
-  ::images
-  (fn [db _] (->> db :images vals)))
-
-(rf/reg-sub
- ::images-sorted
- :<- [::images]
- (fn [images] (->> images (sort-by :content))))
 
 ;; see https://www.dotkam.com/2012/11/23/convert-html5-filelist-to-clojure-vector/
 (defn toArray [js-col]
