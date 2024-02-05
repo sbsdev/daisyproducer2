@@ -79,4 +79,5 @@
           (when (seq (:errors v))
             [:ul
              (for [e (:errors v)]
+               ^{:key e}
                [:li (str e)])])])])))
