@@ -141,33 +141,45 @@
 
 (rf/reg-event-fx
   ::add-image
-  (fn [{:keys [db]} [_ id js-file-value]]
+  (fn [{:keys [db]} [_ document js-file-value]]
     (let [name (.-name js-file-value)
           form-data (doto (js/FormData.)
                       (.append "file" js-file-value name))]
-      {:http-xhrio {:method          :post
-                    :format          (ajax/json-request-format)
-                    :headers 	     (auth/auth-header db)
-                    :uri             (str "/api/documents/" id "/images")
-                    :body            form-data
-                    :response-format (ajax/raw-response-format)
-                    :on-success      [::ack-add-image id name]
-                    :on-failure      [::ack-failure id name]
-                    }})))
+      {:http-xhrio (as-transit
+                    {:method          :post
+                     :headers 	     (auth/auth-header db)
+                     :uri             (str "/api/documents/" (:id document) "/images")
+                     :body            form-data
+                     :on-success      [::ack-add-image document name]
+                     :on-failure      [::ack-failure-image document name]})})))
 
 (rf/reg-event-fx
  ::add-all-images
- (fn [{:keys [db]} [_ id images]]
-   {:db (notifications/set-upload-state db id (set (extract-filenames images)))
+ (fn [{:keys [db]} [_ document images]]
+   {:db (notifications/set-upload-state db (:id document) (set (extract-filenames images)))
     ;; FIXME: :dispatch-n should be replaced with
     ;; :fx (mapv (fn [img] [:dispatch [::add-image id img]]) images)
-    :dispatch-n (map (fn [img] [::add-image id img]) images)
+    :dispatch-n (concat
+                 (map (fn [img] [::add-image document img]) images)
+                 ;; FIXME: the fetch and the navigate should happen
+                 ;; only when all images have been uploaded
+                 (list
+                  [::fetch-images (:id document)]
+                  [:common/navigate! :document-images document]))
     }))
 
 (rf/reg-event-db
  ::ack-add-image
- (fn [db [_ id name]]
-   (notifications/clear-upload-state db id name)))
+ (fn [db [_ document name]]
+   (notifications/clear-upload-state db (:id document) name)))
+
+(rf/reg-event-db
+ ::ack-failure-image
+ (fn [db [_ document name response]]
+   (-> db
+       (assoc-in [:errors :save] (or (get-in response [:response :status-text])
+                                            (get response :status-text)))
+       (notifications/clear-upload-state (:id document) name))))
 
 (rf/reg-sub
  ::image-files
@@ -201,10 +213,10 @@
         [:span.file-label (tr [:choose-images])]]
        [:span.file-name (if files names (tr [:no-file]))]]]]))
 
-(defn upload [id]
+(defn upload [document]
   (let [files @(rf/subscribe [::image-files])
         authenticated? @(rf/subscribe [::auth/authenticated?])
-        klass (when @(rf/subscribe [::notifications/files-uploading? id]) "is-loading")
+        klass (when @(rf/subscribe [::notifications/files-uploading? (:id document)]) "is-loading")
         errors? @(rf/subscribe [::notifications/errors?])]
     (if errors?
       [notifications/error-notification]
@@ -214,7 +226,7 @@
         [:button.button.is-success
          {:disabled (or (nil? files) (not authenticated?))
           :class klass
-          :on-click (fn [e] (rf/dispatch [::add-all-images id files]))}
+          :on-click (fn [e] (rf/dispatch [::add-all-images document files]))}
          [:span.icon {:aria-hidden true} [:i.mi.mi-backup]]
          [:span (tr [:upload])]]]])))
 
