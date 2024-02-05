@@ -132,3 +132,10 @@
      [summary document]
      [tabs document]
      [image/images document]]))
+
+(defn images-upload []
+  (let [document @(rf/subscribe [::current])]
+    [:section.section>div.container>div.content
+     [summary document]
+     [tabs document]
+     [image/upload document]]))

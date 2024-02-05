@@ -113,7 +113,9 @@
       ["/versions/upload" {:name :document-versions-upload :view #'document/versions-upload
                            :controllers [{:parameters {:path [:id]}}]}]
       ["/images" {:name :document-images :view #'document/images
-                  :controllers [{:parameters {:path [:id]}}]}]]
+                  :controllers [{:parameters {:path [:id]}}]}]
+      ["/images/upload" {:name :document-images-upload :view #'document/images-upload
+                         :controllers [{:parameters {:path [:id]}}]}]]
      ["/hyphenations" {:name :hyphenations
                        :view #'hyphenations/add-page}]
      ["/hyphenations/edit" {:name :hyphenations-edit
