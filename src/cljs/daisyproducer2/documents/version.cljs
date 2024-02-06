@@ -158,6 +158,17 @@
          [:span.icon {:aria-hidden true} [:i.mi.mi-backup]]
          [:span (tr [:upload])]]]])))
 
+(rf/reg-sub ::cleanup-versions (fn [db [_ document-id]] ))
+
+(defn cleanup-button [document-id]
+  (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
+    [:div.buttons.has-addons.is-right
+     [:button.button.is-danger
+      {:disabled (not authenticated?)
+       :on-click (fn [e] (rf/dispatch [::cleanup-versions document-id]))}
+      [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]
+      [:span (tr [:cleanup-versions])]]]))
+
 (rf/reg-sub ::search (fn [db [_ document-id]] (get-search db document-id) ))
 
 (rf/reg-event-fx
@@ -198,18 +209,9 @@
      [:div.control.is-expanded
       [version-search document-id]]
      [:div.control
-      [version-upload document-id]]]]])
-
-(rf/reg-sub ::cleanup-versions (fn [db [_ document-id]] ))
-
-(defn cleanup-button [document-id]
-  (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
-    [:div.buttons.has-addons.is-right
-     [:button.button.is-danger
-      {:disabled (not authenticated?)
-       :on-click (fn [e] (rf/dispatch [::cleanup-versions document-id]))}
-      [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]
-      [:span (tr [:cleanup-versions])]]]))
+      [version-upload document-id]]
+     [:div.control
+      [cleanup-button document-id]]]]])
 
 (defn- version-row [{:keys [id document-id created-at created-by comment]}]
   [:tr
@@ -235,5 +237,4 @@
          [:tbody
           (for [{:keys [uuid] :as version} versions]
             ^{:key uuid} [version-row version])]]
-        [pagination/pagination [:versions] [::fetch-versions (:id document)]]
-        [cleanup-button (:id document)]])]))
+        [pagination/pagination [:versions] [::fetch-versions (:id document)]]])]))
