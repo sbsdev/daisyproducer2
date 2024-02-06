@@ -337,21 +337,39 @@
                            ))}}]
 
      ["/:version-id"
-      {:get {:summary "Get a version"
-             :parameters {:path {:id int? :version-id int?}}
-             :handler (fn [{{{:keys [id version-id]} :path} :parameters}]
-                        (if-let [version (versions/get-version id version-id)]
-                          (ok version)
-                          (not-found)))}
-       :delete {:summary "Delete a version"
-                :middleware [wrap-restricted]
-                :swagger {:security [{:apiAuth []}]}
-                :parameters {:path {:id int? :version-id int?}}
-                :handler (fn [{{{:keys [id version-id]} :path} :parameters}]
-                           (let [deleted (versions/delete-version id version-id)]
-                             (if (> deleted 0)
-                              (no-content) ; we found something and deleted it
-                              (not-found))))}}]]
+      [""
+       {:get {:summary "Get a version"
+              :parameters {:path {:id int? :version-id int?}}
+              :handler (fn [{{{:keys [id version-id]} :path} :parameters}]
+                         (if-let [version (versions/get-version id version-id)]
+                           (ok version)
+                           (not-found)))}
+        :delete {:summary "Delete a version"
+                 :middleware [wrap-restricted]
+                 :swagger {:security [{:apiAuth []}]}
+                 :parameters {:path {:id int? :version-id int?}}
+                 :handler (fn [{{{:keys [id version-id]} :path} :parameters}]
+                            (let [deleted (versions/delete-version id version-id)]
+                              (if (> deleted 0)
+                                (no-content) ; we found something and deleted it
+                                (not-found))))}}
+       ["/xml"
+        {:get {:summary "Get the DTBook XML for a version"
+               :parameters {:path {:id int? :version-id int?}}
+               :handler (fn [{{{:keys [id version-id]} :path} :parameters}]
+                          (if-let [version (versions/get-version id version-id)]
+                            (let [content (-> version versions/get-content)]
+                              (if (fs/exists? content)
+                                (-> content
+                                    fs/path
+                                    str
+                                    file-response
+                                    (content-type "text/xml")
+                                    (charset "UTF-8"))
+                                (let [msg (format "Version xml %s not found" (fs/path content))]
+                                  (log/error msg)
+                                  (internal-server-error {:status-text msg}))))
+                            (not-found)))}}]]]]
 
     ["/images"
      {:swagger {:tags ["Images"]}}

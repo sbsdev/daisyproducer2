@@ -128,6 +128,9 @@ GET http://localhost:3000/api/documents/105/versions/0
 # Get the latest version
 GET http://localhost:3000/api/documents/105/versions?latest=true
 
+# Get xml for a version
+GET http://localhost:3000/api/documents/105/versions/8532/xml
+
 # Add a version
 :version := (with-temp-buffer (insert-file-contents "~/tmp/6304.xml") (buffer-string))
 
