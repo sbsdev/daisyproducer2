@@ -218,7 +218,7 @@
    [:td [:a {:href (str"/api/documents/" document-id "/versions/" id "/xml")
              :target "_blank"} comment]]
    [:td created-by]
-   [:td (when created-at (tf/unparse (tf/formatter "yyyy-MM-dd HH:mm") created-at))]])
+   [:td {:width "12%"} (when created-at (tf/unparse (tf/formatter "yyyy-MM-dd HH:mm") created-at))]])
 
 (defn versions [document]
   (let [errors? @(rf/subscribe [::notifications/errors?])
