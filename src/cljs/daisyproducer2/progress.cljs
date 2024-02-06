@@ -1,5 +1,6 @@
 (ns daisyproducer2.progress
-  (:require [re-frame.core :as rf]))
+  (:require [daisyproducer2.i18n :refer [tr]]
+            [re-frame.core :as rf]))
 
 (rf/reg-sub
  ::progress
@@ -22,9 +23,9 @@
         {value :value max :max} progress]
     (when (and progress (< value max))
       [:<>
-         [:label.label {:for (name id)} "Uploading Files"]
-         [:progress.progress
-          {:id (name id)
-           :value value
-           :max max}
-          (str (* 100 (/ value max)) "%")]])))
+       [:label.label {:for (name id)} (tr [:upload-images])]
+       [:progress.progress
+        {:id (name id)
+         :value value
+         :max max}
+        (str (* 100 (/ value max)) "%")]])))

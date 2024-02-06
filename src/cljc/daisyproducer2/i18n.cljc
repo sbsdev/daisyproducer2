@@ -42,6 +42,7 @@
                     :versions "Versions"
                     :new-version "New Version"
                     :new-image "New Image"
+                    :upload-images "Upload Images"
                     :cleanup-versions "Clean up"
                     ;;
                     :documents "Documents"
@@ -146,6 +147,7 @@
                     :versions "Versionen"
                     :new-version "Neue Version"
                     :new-image "Neues Bild"
+                    :upload-images "Bilder hochladen"
                     :cleanup-versions "Alte Versionen löschen"
                     ;;
                     :documents "Dokumente"
