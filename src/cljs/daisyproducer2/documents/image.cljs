@@ -6,6 +6,7 @@
             [daisyproducer2.ajax :refer [as-transit]]
             [daisyproducer2.pagination :as pagination]
             [daisyproducer2.words.notifications :as notifications]
+            [daisyproducer2.progress :as progress]
             [re-frame.core :as rf]))
 
 (defn- get-search [db document-id] (get-in db [:search :images document-id]))
@@ -156,30 +157,28 @@
 (rf/reg-event-fx
  ::add-all-images
  (fn [{:keys [db]} [_ document images]]
-   {:db (notifications/set-upload-state db (:id document) (set (extract-filenames images)))
-    ;; FIXME: :dispatch-n should be replaced with
-    ;; :fx (mapv (fn [img] [:dispatch [::add-image id img]]) images)
-    :dispatch-n (concat
-                 (map (fn [img] [::add-image document img]) images)
-                 ;; FIXME: the fetch and the navigate should happen
-                 ;; only when all images have been uploaded
-                 (list
-                  [::fetch-images (:id document)]
-                  [:common/navigate! :document-images document]))
-    }))
+   {:db (progress/init-progress db :upload (count images))
+    :fx (mapv (fn [img] [:dispatch [::add-image document img]]) images)}))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  ::ack-add-image
- (fn [db [_ document name]]
-   (notifications/clear-upload-state db (:id document) name)))
+ (fn [{:keys [db]} [_ document name]]
+   (let [db (progress/update-progress db :upload)
+         {:keys [value max]} (-> db (get-in [:progress :upload]))
+         done? (>= value max)]
+     (if done?
+       {:db db
+        :fx [[:dispatch [::fetch-images (:id document)]]
+             [:dispatch [:common/navigate! :document-images document]]]}
+       {:db db}))))
 
 (rf/reg-event-db
  ::ack-failure-image
  (fn [db [_ document name response]]
    (-> db
        (assoc-in [:errors :save] (or (get-in response [:response :status-text])
-                                            (get response :status-text)))
-       (notifications/clear-upload-state (:id document) name))))
+                                     (get response :status-text)))
+       (progress/update-progress :upload))))
 
 (rf/reg-sub
  ::image-files
@@ -216,19 +215,21 @@
 (defn upload [document]
   (let [files @(rf/subscribe [::image-files])
         authenticated? @(rf/subscribe [::auth/authenticated?])
-        klass (when @(rf/subscribe [::notifications/files-uploading? (:id document)]) "is-loading")
+        klass (when @(rf/subscribe [::progress/in-progress? :upload]) "is-loading")
         errors? @(rf/subscribe [::notifications/errors?])]
     (if errors?
       [notifications/error-notification]
-      [:div.field.is-grouped
-       [image-files]
-       [:p.control
-        [:button.button.is-success
-         {:disabled (or (nil? files) (not authenticated?))
-          :class klass
-          :on-click (fn [e] (rf/dispatch [::add-all-images document files]))}
-         [:span.icon {:aria-hidden true} [:i.mi.mi-backup]]
-         [:span (tr [:upload])]]]])))
+      [:<>
+       [progress/progress-bar :upload]
+       [:div.field.is-grouped-multiline
+        [image-files]
+        [:p.control
+         [:button.button.is-success
+          {:disabled (or (nil? files) (not authenticated?))
+           :class klass
+           :on-click (fn [e] (rf/dispatch [::add-all-images document files]))}
+          [:span.icon {:aria-hidden true} [:i.mi.mi-backup]]
+          [:span (tr [:upload])]]]]])))
 
 (defn buttons [id]
   (let [authenticated? @(rf/subscribe [::auth/authenticated?])]

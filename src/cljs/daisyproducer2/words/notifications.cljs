@@ -12,16 +12,6 @@
   (fn [db [_ id which]]
     (-> db :loading :buttons (get id) which)))
 
-(rf/reg-sub
- ::upload-files
- (fn [db [_ id]]
-   (-> db :loading :files (get id))))
-
-(rf/reg-sub
- ::files-uploading?
- (fn [[_ id]] (rf/subscribe [::upload-files id]))
- (fn [files] (seq files)))
-
 (rf/reg-event-db
  ::ack-error
  (fn [db [_ error-id]]
@@ -42,15 +32,6 @@
 
 (defn clear-button-state [db id which]
   (update-in db [:loading :buttons id] dissoc which))
-
-(defn set-upload-state [db id files]
-  (assoc-in db [:loading :files id] files))
-
-(defn clear-upload-state [db id file]
-  (let [new-db (update-in db [:loading :files id] disj file)]
-    (if (empty? (get-in new-db [:loading :files id]))
-      (update-in new-db [:loading :files] dissoc id)
-      new-db)))
 
 (defn loading-spinner []
   [:div.block
