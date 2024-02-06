@@ -211,9 +211,10 @@
       [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]
       [:span (tr [:cleanup-versions])]]]))
 
-(defn- version-row [{:keys [created-at created-by comment]}]
+(defn- version-row [{:keys [id document-id created-at created-by comment]}]
   [:tr
-   [:td comment]
+   [:td [:a {:href (str"/api/documents/" document-id "/versions/" id "/xml")
+             :target "_blank"} comment]]
    [:td created-by]
    [:td (when created-at (tf/unparse (tf/formatter "yyyy-MM-dd HH:mm") created-at))]])
 
