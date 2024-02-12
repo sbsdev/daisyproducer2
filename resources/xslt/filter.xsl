@@ -58,7 +58,7 @@
   </xsl:template>
   
   <!-- Drop foreign and downgraded words -->
-  <xsl:template match="*[not(lang('de'))]"/>
+  <xsl:template match="*[not(lang('de') or lang('gsw'))]"/>
   <xsl:template match="*[@brl:grade and number(@brl:grade) &lt; $contraction]"/>
 
   <!-- Copy all other nodes and attributes -->
