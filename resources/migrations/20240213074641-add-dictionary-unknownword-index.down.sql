@@ -1,0 +1,1 @@
+DROP INDEX dictionary_unknownword_index ON dictionary_unknownword;
