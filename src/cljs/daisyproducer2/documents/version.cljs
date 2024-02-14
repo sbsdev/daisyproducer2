@@ -6,7 +6,6 @@
             [daisyproducer2.auth :as auth]
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.ajax :refer [as-transit]]
-            [daisyproducer2.pagination :as pagination]
             [daisyproducer2.words.notifications :as notifications]
             [re-frame.core :as rf]))
 
@@ -15,27 +14,21 @@
 (rf/reg-event-fx
   ::fetch-versions
   (fn [{:keys [db]} [_ document-id]]
-    (let [offset (pagination/offset db :versions)
-          search (get-search db document-id)]
+    (let [search (get-search db document-id)]
       {:db (assoc-in db [:loading :versions] true)
        :http-xhrio (as-transit
                     {:method          :get
                      :uri             (str "/api/documents/" document-id "/versions")
-                     :params          (cond-> {:offset offset
-                                               :limit pagination/page-size}
-                                        (not (string/blank? search)) (assoc :search search))
+                     :params          (if (string/blank? search) {} {:search search})
                      :on-success      [::fetch-versions-success]
                      :on-failure      [::fetch-versions-failure]})})))
 
 (rf/reg-event-db
  ::fetch-versions-success
  (fn [db [_ versions]]
-   (let [versions (->> versions
-                       (map #(assoc % :uuid (str (random-uuid)))))
-         next? (-> versions count (= pagination/page-size))]
+   (let [versions (map #(assoc % :uuid (str (random-uuid))) versions)]
      (-> db
          (assoc-in [:versions] (zipmap (map :uuid versions) versions))
-         (pagination/update-next :versions next?)
          (assoc-in [:loading :versions] false)
          ;; clear all button loading states
          (update-in [:loading] dissoc :buttons)))))
@@ -179,10 +172,7 @@
    ::set-search
    (fn [{:keys [db]} [_ document-id new-search-value]]
      {:db (assoc-in db [:search :versions document-id] new-search-value)
-      :dispatch-n (list
-                   ;; when searching for a new version reset the pagination
-                   [::pagination/reset :versions]
-                   [::fetch-versions document-id])}))
+      :dispatch [::fetch-versions document-id]}))
 
 (defn version-search [document-id]
   (let [get-value (fn [e] (-> e .-target .-value))
@@ -241,5 +231,4 @@
            [:th (tr [:created-at])]]]
          [:tbody
           (for [{:keys [uuid] :as version} versions]
-            ^{:key uuid} [version-row version])]]
-        [pagination/pagination [:versions] [::fetch-versions (:id document)]]])]))
+            ^{:key uuid} [version-row version])]]])]))
