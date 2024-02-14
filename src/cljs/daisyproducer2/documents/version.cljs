@@ -49,6 +49,11 @@
  :<- [::versions]
  (fn [versions] (->> versions (sort-by (comp tc/to-epoch :created-at) >))))
 
+(rf/reg-sub
+ ::multiple-versions?
+ :<- [::versions]
+ (fn [versions] (-> versions count (> 1))))
+
 (rf/reg-event-fx
   ::add-version
   (fn [{:keys [db]} [_ document js-file-value comment]]
@@ -152,15 +157,40 @@
          [:span (tr [:upload])]]]])))
 
 (rf/reg-event-fx
-   ::delete-old-versions
-   (fn [{:keys [db]} [_ document-id]]
-     {:dispatch [::fetch-versions document-id]}))
+  ::delete-old-versions
+  (fn [{:keys [db]} [_ document-id]]
+    {:db (-> db
+             (assoc-in [:loading :versions] true)
+             (notifications/set-button-state :all-versions :delete))
+     :http-xhrio (as-transit
+                  {:method          :delete
+                   :headers 	    (auth/auth-header db)
+                   :uri             (str "/api/documents/" document-id "/versions")
+                   :on-success      [::delete-versions-success document-id]
+                   :on-failure      [::delete-versions-failure]})}))
+
+(rf/reg-event-fx
+ ::delete-versions-success
+ (fn [{:keys [db]} [_ document-id]]
+   {:db (-> db
+            (assoc-in [:loading :versions] false)
+            (notifications/clear-button-state :all-versions :delete))
+    :dispatch [::fetch-versions document-id]}))
+
+(rf/reg-event-db
+ ::delete-versions-failure
+ (fn [db [_ response]]
+   (-> db
+       (notifications/set-errors :delete-old-versions (get response :status-text))
+       (assoc-in [:loading :versions] false)
+       (notifications/clear-button-state :all-versions :delete))))
 
 (defn delete-old-versions-button [document-id]
-  (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
+  (let [authenticated? @(rf/subscribe [::auth/authenticated?])
+        has-multiple-versions? @(rf/subscribe [::multiple-versions?])]
     [:div.buttons.has-addons.is-right
      [:button.button.is-danger.has-tooltip-arrow
-      {:disabled (not authenticated?)
+      {:disabled (not (and authenticated? has-multiple-versions?))
        :data-tooltip (tr [:delete-old-versions])
        :aria-label (tr [:delete-old-versions])
        :on-click (fn [e] (rf/dispatch [::delete-old-versions document-id]))}
