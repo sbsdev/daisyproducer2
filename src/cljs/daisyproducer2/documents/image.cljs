@@ -68,7 +68,7 @@
                     :on-failure      [::ack-failure uuid :delete]})})))
 
 (rf/reg-event-fx
- ::cleanup-images
+ ::delete-all-images
  (fn [{:keys [db]} [_]]
    (let [uuids (-> db :images keys)]
      {:fx (mapv (fn [uuid] [:dispatch [::delete-image uuid]]) uuids)})))
@@ -92,14 +92,14 @@
                                             (get response :status-text)))
        (notifications/clear-button-state uuid request-type))))
 
-(defn cleanup-button [document-id]
+(defn delete-all-images-button [document-id]
   (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
     [:div.buttons.has-addons.is-right
      [:button.button.is-danger.has-tooltip-arrow
       {:disabled (not authenticated?)
-       :data-tooltip (tr [:cleanup-images])
-       :aria-label (tr [:cleanup-images])
-       :on-click (fn [e] (rf/dispatch [::cleanup-images]))}
+       :data-tooltip (tr [:delete-all-images])
+       :aria-label (tr [:delete-all-images])
+       :on-click (fn [e] (rf/dispatch [::delete-all-images]))}
       [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]]]))
 
 (rf/reg-sub ::search (fn [db [_ document-id]] (get-search db document-id) ))
@@ -145,7 +145,7 @@
      [:p.control
       [image-upload document-id]]
      [:div.control
-      [cleanup-button document-id]]]]])
+      [delete-all-images-button document-id]]]]])
 
 ;; see https://www.dotkam.com/2012/11/23/convert-html5-filelist-to-clojure-vector/
 (defn toArray [js-col]

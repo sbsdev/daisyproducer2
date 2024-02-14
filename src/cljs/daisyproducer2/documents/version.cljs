@@ -158,16 +158,19 @@
          [:span.icon {:aria-hidden true} [:i.mi.mi-backup]]
          [:span (tr [:upload])]]]])))
 
-(rf/reg-sub ::cleanup-versions (fn [db [_ document-id]] ))
+(rf/reg-event-fx
+   ::delete-old-versions
+   (fn [{:keys [db]} [_ document-id]]
+     {:dispatch [::fetch-versions document-id]}))
 
-(defn cleanup-button [document-id]
+(defn delete-old-versions-button [document-id]
   (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
     [:div.buttons.has-addons.is-right
      [:button.button.is-danger.has-tooltip-arrow
       {:disabled (not authenticated?)
-       :data-tooltip (tr [:cleanup-versions])
-       :aria-label (tr [:cleanup-versions])
-       :on-click (fn [e] (rf/dispatch [::cleanup-versions document-id]))}
+       :data-tooltip (tr [:delete-old-versions])
+       :aria-label (tr [:delete-old-versions])
+       :on-click (fn [e] (rf/dispatch [::delete-old-versions document-id]))}
       [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]]]))
 
 (rf/reg-sub ::search (fn [db [_ document-id]] (get-search db document-id) ))
@@ -213,7 +216,7 @@
      [:div.control
       [version-upload document-id]]
      [:div.control
-      [cleanup-button document-id]]]]])
+      [delete-old-versions-button document-id]]]]])
 
 (defn- version-row [{:keys [id document-id created-at created-by comment]}]
   [:tr
