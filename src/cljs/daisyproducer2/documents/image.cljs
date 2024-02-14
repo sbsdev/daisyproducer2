@@ -75,13 +75,12 @@
     :dispatch [::fetch-images document-id]}))
 
 (rf/reg-event-db
- ::ack-failure-delete
+ ::delete-images-failure
  (fn [db [_ response]]
    (-> db
        (notifications/set-errors :delete-all-images (get response :status-text))
        (assoc-in [:loading :images] false)
        (notifications/clear-button-state :all-images :delete))))
-
 
 (rf/reg-event-fx
  ::delete-image
