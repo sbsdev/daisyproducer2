@@ -59,8 +59,8 @@
 (defn delete-all-images
   "Delete all images for a given `document-id`. Return the number of rows affected."
   [document-id]
-  ;; we need to fetch the image first to know the path to the image file, which we will have to
-  ;; delete also
+  ;; we need to fetch the images first to know the path to the image file, which we
+  ;; will have to delete also
   (let [images (db/get-images {:document_id document-id})]
     (if (seq images)
       (do (doseq [image images]
