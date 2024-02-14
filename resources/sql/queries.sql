@@ -72,6 +72,20 @@ VALUES (:comment, :document_id, :content, :user)
 -- :doc Delete a version.
 DELETE FROM documents_version WHERE id = :id
 
+-- :name delete-old-versions :! :n
+-- :doc Delete all but the latest versions for given `document_id`.
+-- FIXME: really this should be DELETE FROM documents_version WHERE document_id = :document_id AND id NOT IN (SELECT id FROM documents_version WHERE document_id = :document_id ORDER BY created_at desc LIMIT 1)
+-- but this is apparently not supported yet by the version of mariadb that we have
+DELETE FROM documents_version
+WHERE document_id = :document_id
+AND id <> (
+    SELECT * FROM (
+    	   SELECT id FROM documents_version
+	   WHERE document_id = :document_id
+	   ORDER BY created_at DESC
+	   LIMIT 1)
+    AS dt)
+
 ------------
 -- Images --
 ------------
