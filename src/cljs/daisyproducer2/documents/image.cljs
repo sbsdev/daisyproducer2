@@ -4,7 +4,6 @@
             [daisyproducer2.auth :as auth]
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.ajax :refer [as-transit]]
-            [daisyproducer2.pagination :as pagination]
             [daisyproducer2.words.notifications :as notifications]
             [daisyproducer2.progress :as progress]
             [re-frame.core :as rf]))
@@ -14,27 +13,21 @@
 (rf/reg-event-fx
   ::fetch-images
   (fn [{:keys [db]} [_ document-id]]
-    (let [offset (pagination/offset db :images)
-          search (get-search db document-id)]
+    (let [search (get-search db document-id)]
       {:db (assoc-in db [:loading :images] true)
        :http-xhrio (as-transit
                     {:method          :get
                      :uri             (str "/api/documents/" document-id "/images")
-                     :params          (cond-> {:offset offset
-                                               :limit pagination/page-size}
-                                        (not (string/blank? search)) (assoc :search search))
+                     :params          (if (string/blank? search) {} {:search search})
                      :on-success      [::fetch-images-success]
                      :on-failure      [::fetch-images-failure]})})))
 
 (rf/reg-event-db
  ::fetch-images-success
  (fn [db [_ images]]
-   (let [images (->> images
-                     (map #(assoc % :uuid (str (random-uuid)))))
-         next? (-> images count (= pagination/page-size))]
+   (let [images (map #(assoc % :uuid (str (random-uuid))) images)]
      (-> db
          (assoc-in [:images] (zipmap (map :uuid images) images))
-         (pagination/update-next :images next?)
          (assoc-in [:loading :images] false)
          ;; clear all button loading states
          (update-in [:loading] dissoc :buttons)))))
@@ -64,8 +57,8 @@
                    {:method          :delete
                     :headers 	     (auth/auth-header db)
                     :uri             (str "/api/documents/" document-id "/images/" id)
-                    :on-success      [::ack-delete uuid document-id]
-                    :on-failure      [::ack-failure uuid :delete]})})))
+                    :on-success      [::ack-delete uuid]
+                    :on-failure      [::ack-failure-delete uuid :delete]})})))
 
 (rf/reg-event-fx
  ::delete-all-images
@@ -73,23 +66,18 @@
    (let [uuids (-> db :images keys)]
      {:fx (mapv (fn [uuid] [:dispatch [::delete-image uuid]]) uuids)})))
 
-(rf/reg-event-fx
+(rf/reg-event-db
  ::ack-delete
- (fn [{:keys [db]} [_ uuid document-id]]
-   (let [db (-> db
-                (update-in [:images document-id] dissoc uuid)
-                (notifications/clear-button-state uuid :delete))
-         empty? (-> db (get-in [:images document-id]) count (< 1))]
-     (if empty?
-       {:db db :dispatch [::fetch-images document-id]}
-       {:db db}))))
+ (fn [db [_ uuid]]
+   (-> db
+       (update-in [:images] dissoc uuid)
+       (notifications/clear-button-state uuid :delete))))
 
 (rf/reg-event-db
- ::ack-failure
+ ::ack-failure-delete
  (fn [db [_ uuid request-type response]]
    (-> db
-       (assoc-in [:errors request-type] (or (get-in response [:response :status-text])
-                                            (get response :status-text)))
+       (notifications/set-errors :delete-image (get response :status-text))
        (notifications/clear-button-state uuid request-type))))
 
 (defn delete-all-images-button [document-id]
@@ -108,10 +96,7 @@
    ::set-search
    (fn [{:keys [db]} [_ document-id new-search-value]]
      {:db (assoc-in db [:search :images document-id] new-search-value)
-      :dispatch-n (list
-                   ;; when searching for a new image reset the pagination
-                   [::pagination/reset :images]
-                   [::fetch-images document-id])}))
+      :dispatch [::fetch-images document-id]}))
 
 (defn image-search [document-id]
   (let [get-value (fn [e] (-> e .-target .-value))
@@ -283,5 +268,4 @@
            [:th (tr [:action])]]]
          [:tbody
           (for [{:keys [uuid] :as image} @(rf/subscribe [::images-sorted])]
-            ^{:key uuid} [image-row image])]]
-        [pagination/pagination [:images] [::fetch-images (:id document)]]])]))
+            ^{:key uuid} [image-row image])]]])]))
