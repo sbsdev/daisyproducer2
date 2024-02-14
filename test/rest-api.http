@@ -201,6 +201,10 @@ Authorization: :auth-token
 DELETE http://localhost:3000/api/documents/644/images/6692
 Authorization: :auth-token
 
+# Delete all images
+DELETE http://localhost:3000/api/documents/105/images
+Authorization: :auth-token
+
 ###########
 # Metrics #
 ###########

@@ -110,6 +110,10 @@ document_id = VALUES(document_id)
 -- :doc Delete an image.
 DELETE FROM documents_image WHERE id = :id
 
+-- :name delete-all-images :! :n
+-- :doc Delete all image for a for a given `document_id`.
+DELETE FROM documents_image WHERE document_id = :document_id
+
 ------------------
 -- Global Words --
 ------------------

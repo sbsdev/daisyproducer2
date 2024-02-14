@@ -394,7 +394,17 @@
                              {{uid :uid} :user} :identity}]
                          (let [new-key (images/insert-image id filename tempfile)
                                new-url (format "/documents/%s/images/%s" id new-key)]
-                           (created new-url {})))}}]
+                           (created new-url {})))}
+       :delete {:summary "Delete all images of a given document"
+                :middleware [wrap-restricted]
+                :swagger {:security [{:apiAuth []}]}
+                :parameters {:path {:id int?}}
+                :handler (fn [{{{:keys [id]} :path} :parameters
+                               {{uid :uid} :user} :identity}]
+                           (let [deleted (images/delete-all-images id)]
+                             (if (> deleted 0)
+                              (ok {:deleted deleted}) ; we found something and deleted it
+                              (not-found))))}}]
      ["/:image-id"
       {:get {:summary "Get an image"
              :parameters {:path {:id int? :image-id int?}}

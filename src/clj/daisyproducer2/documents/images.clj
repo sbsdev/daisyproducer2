@@ -56,6 +56,21 @@
       deletions)
     0)) ;; since we could not find the image we'll return zero deletions
 
+(defn delete-all-images
+  "Delete all images for a given `document-id`. Return the number of rows affected."
+  [document-id]
+  ;; we need to fetch the image first to know the path to the image file, which we will have to
+  ;; delete also
+  (let [images (db/get-images {:document_id document-id})]
+    (if (seq images)
+      (do (doseq [image images]
+            (when-not (fs/delete-if-exists (image-path image))
+              ;; if an image file does not exist we simply log that fact, but do not raise an
+              ;; exception
+              (log/errorf "Attempting to delete non-existing image file %s" (image-path image))))
+          (db/delete-all-images {:document_id document-id}))
+      0)))
+
 (prometheus/instrument! metrics/registry #'get-images)
 (prometheus/instrument! metrics/registry #'get-image)
 (prometheus/instrument! metrics/registry #'insert-image)
