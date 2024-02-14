@@ -2,7 +2,7 @@
   (:require [daisyproducer2.i18n :refer [tr]]
             [re-frame.core :as rf]))
 
-(def page-size 20)
+(def page-size 15)
 
 (defn offset [db id]
   (get-in db [:pagination id :offset] 0))
