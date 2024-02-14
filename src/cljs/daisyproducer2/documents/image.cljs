@@ -48,6 +48,41 @@
  :<- [::images]
  (fn [images] (->> images (sort-by :content))))
 
+(rf/reg-sub
+ ::images?
+ :<- [::images]
+ (fn [images] (seq images)))
+
+(rf/reg-event-fx
+  ::delete-all-images
+  (fn [{:keys [db]} [_ document-id]]
+    {:db (-> db
+             (assoc-in [:loading :images] true)
+             (notifications/set-button-state :all-images :delete))
+     :http-xhrio (as-transit
+                  {:method          :delete
+                   :headers 	    (auth/auth-header db)
+                   :uri             (str "/api/documents/" document-id "/images")
+                   :on-success      [::delete-images-success document-id]
+                   :on-failure      [::delete-images-failure]})}))
+
+(rf/reg-event-fx
+ ::delete-images-success
+ (fn [{:keys [db]} [_ document-id]]
+   {:db (-> db
+            (assoc-in [:loading :images] false)
+            (notifications/clear-button-state :all-images :delete))
+    :dispatch [::fetch-images document-id]}))
+
+(rf/reg-event-db
+ ::ack-failure-delete
+ (fn [db [_ response]]
+   (-> db
+       (notifications/set-errors :delete-all-images (get response :status-text))
+       (assoc-in [:loading :images] false)
+       (notifications/clear-button-state :all-images :delete))))
+
+
 (rf/reg-event-fx
  ::delete-image
  (fn [{:keys [db]} [_ uuid]]
@@ -59,12 +94,6 @@
                     :uri             (str "/api/documents/" document-id "/images/" id)
                     :on-success      [::ack-delete uuid]
                     :on-failure      [::ack-failure-delete uuid :delete]})})))
-
-(rf/reg-event-fx
- ::delete-all-images
- (fn [{:keys [db]} [_]]
-   (let [uuids (-> db :images keys)]
-     {:fx (mapv (fn [uuid] [:dispatch [::delete-image uuid]]) uuids)})))
 
 (rf/reg-event-db
  ::ack-delete
@@ -81,13 +110,14 @@
        (notifications/clear-button-state uuid request-type))))
 
 (defn delete-all-images-button [document-id]
-  (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
+  (let [authenticated? @(rf/subscribe [::auth/authenticated?])
+        has-images? @(rf/subscribe [::images?])]
     [:div.buttons.has-addons.is-right
      [:button.button.is-danger.has-tooltip-arrow
-      {:disabled (not authenticated?)
+      {:disabled (not (and authenticated? has-images?))
        :data-tooltip (tr [:delete-all-images])
        :aria-label (tr [:delete-all-images])
-       :on-click (fn [e] (rf/dispatch [::delete-all-images]))}
+       :on-click (fn [e] (rf/dispatch [::delete-all-images document-id]))}
       [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]]]))
 
 (rf/reg-sub ::search (fn [db [_ document-id]] (get-search db document-id) ))
