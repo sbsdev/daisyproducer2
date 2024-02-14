@@ -44,6 +44,7 @@
                     :new-image "New Image"
                     :upload-images "Upload Images"
                     :cleanup-versions "Clean up"
+                    :cleanup-images "Remove all images"
                     ;;
                     :documents "Documents"
                     :confirm "Confirm"
@@ -149,6 +150,7 @@
                     :new-image "Neues Bild"
                     :upload-images "Bilder hochladen"
                     :cleanup-versions "Alte Versionen löschen"
+                    :cleanup-images "Alle Bilder löschen"
                     ;;
                     :documents "Dokumente"
                     :confirm "Bestätigen"

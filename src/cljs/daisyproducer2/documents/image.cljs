@@ -60,14 +60,18 @@
  (fn [{:keys [db]} [_ uuid]]
    (let [{:keys [id document-id]} (get-in db [:images uuid])]
      {:db (notifications/set-button-state db uuid :delete)
-      :http-xhrio {:method          :delete
-                   :format          (ajax/json-request-format)
-                   :headers 	     (auth/auth-header db)
-                   :uri             (str "/api/documents/" document-id "/images/" id)
-                   :response-format (ajax/json-response-format {:keywords? true})
-                   :on-success      [::ack-delete uuid document-id]
-                   :on-failure      [::ack-failure uuid :delete]
-                   }})))
+      :http-xhrio (as-transit
+                   {:method          :delete
+                    :headers 	     (auth/auth-header db)
+                    :uri             (str "/api/documents/" document-id "/images/" id)
+                    :on-success      [::ack-delete uuid document-id]
+                    :on-failure      [::ack-failure uuid :delete]})})))
+
+(rf/reg-event-fx
+ ::cleanup-images
+ (fn [{:keys [db]} [_]]
+   (let [uuids (-> db :images keys)]
+     {:fx (mapv (fn [uuid] [:dispatch [::delete-image uuid]]) uuids)})))
 
 (rf/reg-event-fx
  ::ack-delete
@@ -87,6 +91,16 @@
        (assoc-in [:errors request-type] (or (get-in response [:response :status-text])
                                             (get response :status-text)))
        (notifications/clear-button-state uuid request-type))))
+
+(defn cleanup-button [document-id]
+  (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
+    [:div.buttons.has-addons.is-right
+     [:button.button.is-danger.has-tooltip-arrow
+      {:disabled (not authenticated?)
+       :data-tooltip (tr [:cleanup-images])
+       :aria-label (tr [:cleanup-images])
+       :on-click (fn [e] (rf/dispatch [::cleanup-images]))}
+      [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]]]))
 
 (rf/reg-sub ::search (fn [db [_ document-id]] (get-search db document-id) ))
 
@@ -129,7 +143,9 @@
      [:p.control.is-expanded
       [image-search document-id]]
      [:p.control
-      [image-upload document-id]]]]])
+      [image-upload document-id]]
+     [:div.control
+      [cleanup-button document-id]]]]])
 
 ;; see https://www.dotkam.com/2012/11/23/convert-html5-filelist-to-clojure-vector/
 (defn toArray [js-col]
