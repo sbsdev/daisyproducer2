@@ -36,7 +36,7 @@
 (s/def ::braille (s/and string? validation/braille-valid?))
 (s/def ::hyphenation (s/and string? validation/hyphenation-valid?))
 
-(def default-limit 100)
+(def default-limit 200)
 
 (defn service-routes []
   ["/api"
