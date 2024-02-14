@@ -163,11 +163,12 @@
 (defn cleanup-button [document-id]
   (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
     [:div.buttons.has-addons.is-right
-     [:button.button.is-danger
+     [:button.button.is-danger.has-tooltip-arrow
       {:disabled (not authenticated?)
+       :data-tooltip (tr [:cleanup-versions])
+       :aria-label (tr [:cleanup-versions])
        :on-click (fn [e] (rf/dispatch [::cleanup-versions document-id]))}
-      [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]
-      [:span (tr [:cleanup-versions])]]]))
+      [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]]]))
 
 (rf/reg-sub ::search (fn [db [_ document-id]] (get-search db document-id) ))
 
@@ -195,12 +196,13 @@
 
 (defn version-upload [document-id]
   (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
-    [:a.button.is-primary
+    [:a.button.is-primary.has-tooltip-arrow
      {:href (str "#/documents/" document-id "/versions/upload")
+      :data-tooltip (tr [:new-version])
+      :aria-label (tr [:new-version])
       :disabled (not authenticated?)}
      [:span.icon {:aria-hidden true}
-      [:i.mi {:class "mi-upload"}]]
-     [:span (tr [:new-version])]]))
+      [:i.mi {:class "mi-upload"}]]]))
 
 (defn version-filter [document-id]
   [:div.field.is-horizontal

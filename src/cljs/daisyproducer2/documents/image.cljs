@@ -114,12 +114,13 @@
 
 (defn image-upload [document-id]
   (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
-    [:a.button.is-primary
+    [:a.button.is-primary.has-tooltip-arrow
      {:href (str "#/documents/" document-id "/images/upload")
+      :data-tooltip (tr [:new-image])
+      :aria-label (tr [:new-image])
       :disabled (not authenticated?)}
      [:span.icon {:aria-hidden true}
-      [:i.mi {:class "mi-upload"}]]
-     [:span (tr [:new-image])]]))
+      [:i.mi {:class "mi-upload"}]]]))
 
 (defn image-filter [document-id]
   [:div.field.is-horizontal
