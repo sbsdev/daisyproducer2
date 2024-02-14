@@ -75,3 +75,4 @@
 (prometheus/instrument! metrics/registry #'get-image)
 (prometheus/instrument! metrics/registry #'insert-image)
 (prometheus/instrument! metrics/registry #'delete-image)
+(prometheus/instrument! metrics/registry #'delete-all-images)
