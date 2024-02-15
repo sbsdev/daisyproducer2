@@ -43,6 +43,84 @@ https://stackoverflow.com/a/62328373
 
 ** Links
 
+* PROPOSED Cleanup of dictionary_unknownword table
+- Deciders :: CE
+- Date :: [2024-02-15 Do]
+
+The calculation of the unknown words is expensive. Previously they
+were calculated when the request came in. Now the extraction of
+unknown words from the XML is done when the XML is uploaded. But these
+words aren't removed from the table ever. Should they be removed?
+
+** Context and Problem Statement
+
+[Describe the context and problem statement, e.g., in free form using
+two to three sentences. You may want to articulate the problem in form
+of a question.]
+
+** Decision Drivers
+
+- [driver 1, e.g., a force, facing concern, ...]
+- [driver 2, e.g., a force, facing concern, ...]
+- ...
+
+** Considered Options
+
+- Do not remove them
+- remove them with a cron job
+- remove them when the status of the document is set to fninished
+
+** Decision Outcome
+
+Chosen option: "[option 1]", because [justification. e.g., only option,
+which meets k.o. criterion decision driver | which resolves force force
+| ... | comes out best (see below)].
+
+*** Positive Consequences
+
+- [e.g., improvement of quality attribute satisfaction, follow-up
+  decisions required, ...]
+- ...
+
+*** Negative Consequences
+
+- [e.g., compromising quality attribute, follow-up decisions required,
+  ...]
+- ...
+
+** Pros and Cons of the Options
+
+*** [option 1]
+
+[example | description | pointer to more information | ...]
+
+- Good, because [argument a]
+- Good, because [argument b]
+- Bad, because [argument c]
+- ...
+
+*** [option 2]
+
+[example | description | pointer to more information | ...]
+
+- Good, because [argument a]
+- Good, because [argument b]
+- Bad, because [argument c]
+- ...
+
+*** [option 3]
+
+[example | description | pointer to more information | ...]
+
+- Good, because [argument a]
+- Good, because [argument b]
+- Bad, because [argument c]
+- ...
+
+** Links
+
+- [Link type] [Link to ADR]
+- ...
 * ACCEPTED Pagination for versions and images
 CLOSED: [2024-02-15 Do 16:37]
 - Deciders :: CE
