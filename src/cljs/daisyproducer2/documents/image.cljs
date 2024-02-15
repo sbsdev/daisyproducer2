@@ -277,12 +277,12 @@
         [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]])]))
 
 (defn- image-row [{:keys [uuid content]}]
-  [:tr
-   [:td
-    (let [href (str "/archive/" content)
-          file-name (last (string/split content #"/"))]
-      [:a {:href href :target "_blank"} file-name])]
-   [:td {:width "5%"} [buttons uuid]]])
+  (let [href (str "/archive/" content)
+        file-name (last (string/split content #"/"))]
+    [:tr
+     [:td [:a {:href href :target "_blank"} file-name]]
+     [:td [:a {:href href :target "_blank"} [:figure.image.is-128x128 [:img {:src href}]]]]
+     [:td {:width "5%"} [buttons uuid]]]))
 
 (defn images [document]
   (let [loading? @(rf/subscribe [::notifications/loading? :images])
@@ -296,7 +296,8 @@
         [:table.table.is-striped
          [:thead
           [:tr
-           [:th (tr [:image])]
+           [:th (tr [:file])]
+           [:th ]
            [:th (tr [:action])]]]
          [:tbody
           (for [{:keys [uuid] :as image} @(rf/subscribe [::images-sorted])]
