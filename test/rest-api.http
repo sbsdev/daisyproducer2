@@ -297,3 +297,12 @@ Content-Type: application/json
 # Confirmable words
 GET http://localhost:3000/api/confirmable
 
+######################################
+# Manual tests for the static routes #
+######################################
+
+# Get the DTBook xml for a version
+GET http://localhost:3000/archive/105/versions/01HPP0222GAKKFVZA94WN5RFE8.xml
+
+# Get an image
+GET http://localhost:3000/archive/105/images/lambda.jpg

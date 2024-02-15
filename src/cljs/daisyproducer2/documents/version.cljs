@@ -238,10 +238,11 @@
      [:div.control
       [delete-old-versions-button document-id]]]]])
 
-(defn- version-row [{:keys [id document-id created-at created-by comment]}]
+(defn- version-row [{:keys [content created-at created-by comment]}]
   [:tr
-   [:td [:a {:href (str"/api/documents/" document-id "/versions/" id "/xml")
-             :target "_blank"} comment]]
+   [:td
+    (let [href (str "/archive/" content)]
+      [:a {:href href :target "_blank"} comment])]
    [:td created-by]
    [:td {:width "12%"} (when created-at (tf/unparse (tf/formatter "yyyy-MM-dd HH:mm") created-at))]])
 

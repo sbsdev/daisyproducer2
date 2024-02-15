@@ -278,7 +278,10 @@
 
 (defn- image-row [{:keys [uuid content]}]
   [:tr
-   [:td (last (string/split content #"/"))]
+   [:td
+    (let [href (str "/archive/" content)
+          file-name (last (string/split content #"/"))]
+      [:a {:href href :target "_blank"} file-name])]
    [:td {:width "5%"} [buttons uuid]]])
 
 (defn images [document]

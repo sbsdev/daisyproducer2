@@ -4,6 +4,7 @@
     [daisyproducer2.layout :refer [error-page]]
     [daisyproducer2.routes.home :refer [home-routes]]
     [daisyproducer2.routes.services :refer [service-routes]]
+    [daisyproducer2.routes.archive :refer [archive-routes]]
     [reitit.swagger-ui :as swagger-ui]
     [reitit.ring :as ring]
     [ring.middleware.content-type :refer [wrap-content-type]]
@@ -19,13 +20,13 @@
   ([_] nil)
   ([_ respond _] (respond nil)))
 
-
 (mount/defstate app-routes
   :start
   (ring/ring-handler
     (ring/router
       [(home-routes)
-       (service-routes)])
+       (service-routes)
+       (archive-routes)])
     (ring/routes
       (swagger-ui/create-swagger-ui-handler
         {:path   "/swagger-ui"
