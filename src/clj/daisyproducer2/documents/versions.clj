@@ -109,3 +109,4 @@
 (prometheus/instrument! metrics/registry #'get-content)
 (prometheus/instrument! metrics/registry #'insert-version)
 (prometheus/instrument! metrics/registry #'delete-version)
+(prometheus/instrument! metrics/registry #'delete-old-versions)
