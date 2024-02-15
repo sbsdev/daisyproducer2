@@ -1,0 +1,172 @@
+#+title: Architecture Decision Records
+#+date: <2024-02-15 Do>
+#+author: Christian Egli
+#+email: christian.egli@sbs.ch
+#+language: en
+
+#+TODO: PROPOSED | ACCEPTED REJECTED DEPRECATED SUPERSEDED
+
+* PROPOSED Show totals in paginated views
+- Deciders :: CE
+- Date :: [2024-02-15 Do]
+
+** Context and Problem Statement
+
+The query to get the unknown words is very complex and costly. It
+currently only returns a subset of the unknown words as they are
+paginated in the UI anyway. Now we would also like to see the total of
+the unknown words. How do we display the total without having to do
+the expensive query twice?
+
+** Decision Drivers
+
+** Considered Options
+
+- Using two selects, first using LIMIT and then a second one to get
+  the total
+- Using ~SQL_CALC_FOUND_ROWS~ as outlined in [[https://stackoverflow.com/q/818567][MySQL pagination without
+  double-querying?]]
+
+** Decision Outcome
+
+Chosen option: "two selects", because MySQL seems to favour that
+solution. ~SQL_CALC_FOUND_ROWS~ is deprecated as of 8.0.17, see
+https://stackoverflow.com/a/62328373
+
+*** Positive Consequences
+
+*** Negative Consequences
+
+- Most of the code for the second query (to get the total) is
+  duplicated from the first query. It is not quite the same though as
+  it can be kept simpler.
+
+** Links
+
+* ACCEPTED Pagination for versions and images
+CLOSED: [2024-02-15 Do 16:37]
+- Deciders :: CE
+- Date :: [2024-02-14 Mi]
+
+The unknown words do have pagination. To be orthogonal it seems
+logical that the list of versions and images also have pagination
+
+** Context and Problem Statement
+
+Pagination makes the version and image pages much more complicated
+especially in the light of deletion of single elements. With
+pagination we will have to do a re-fetch each time you delete an
+element, so we can have a full window of elements again.
+
+** Decision Drivers
+
+- the old UI did *not* have pagination
+- at least for versions we rarely have more than a handful of versions
+  - so pagination seems pointless
+- there is search on the page
+- I don't think the users want to paginate through images let alone
+  versions
+- the code is much more complicated
+
+** Considered Options
+
+- Dropping pagination for images and versions
+- Implementing pagination for images and versions
+
+** Decision Outcome
+
+Chosen option: "Dropping pagination", because the cost of maintaining
+it is too high compared with the user benefit.
+
+*** Positive Consequences
+
+- Code is much simpler
+- no weird re-draw effects when re-fetching the items
+
+*** Negative Consequences
+
+- The user cannot paginate.
+
+** Links
+
+- https://github.com/sbsdev/daisyproducer2/commit/fdb4de711de77f710fe6bd970c19c903772b41ca
+- https://github.com/sbsdev/daisyproducer2/commit/62609888ae0442daa7de40bf0cb79665f689543b
+
+* COMMENT [short title of solved problem and solution]                     :Template:
+- Status :: [proposed | rejected | accepted | deprecated | ... |
+  superseded by [[file:0005-example.md][ADR-0005]]]
+- Deciders :: [list everyone involved in the decision]
+- Date :: [YYYY-MM-DD when the decision was last updated]
+
+Technical Story: [description | ticket/issue URL]
+
+** Context and Problem Statement
+
+[Describe the context and problem statement, e.g., in free form using
+two to three sentences. You may want to articulate the problem in form
+of a question.]
+
+** Decision Drivers
+
+- [driver 1, e.g., a force, facing concern, ...]
+- [driver 2, e.g., a force, facing concern, ...]
+- ...
+
+** Considered Options
+
+- [option 1]
+- [option 2]
+- [option 3]
+- ...
+
+** Decision Outcome
+
+Chosen option: "[option 1]", because [justification. e.g., only option,
+which meets k.o. criterion decision driver | which resolves force force
+| ... | comes out best (see below)].
+
+*** Positive Consequences
+
+- [e.g., improvement of quality attribute satisfaction, follow-up
+  decisions required, ...]
+- ...
+
+*** Negative Consequences
+
+- [e.g., compromising quality attribute, follow-up decisions required,
+  ...]
+- ...
+
+** Pros and Cons of the Options
+
+*** [option 1]
+
+[example | description | pointer to more information | ...]
+
+- Good, because [argument a]
+- Good, because [argument b]
+- Bad, because [argument c]
+- ...
+
+*** [option 2]
+
+[example | description | pointer to more information | ...]
+
+- Good, because [argument a]
+- Good, because [argument b]
+- Bad, because [argument c]
+- ...
+
+*** [option 3]
+
+[example | description | pointer to more information | ...]
+
+- Good, because [argument a]
+- Good, because [argument b]
+- Bad, because [argument c]
+- ...
+
+** Links
+
+- [Link type] [Link to ADR]
+- ...
