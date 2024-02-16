@@ -1,6 +1,8 @@
 (ns daisyproducer2.core
   (:require
     [daisyproducer2.handler :as handler]
+    ;; cleanup is required so that the (cron) component is picked up and started
+    [daisyproducer2.documents.cleanup]
     [daisyproducer2.nrepl :as nrepl]
     [luminus.http-server :as http]
     [luminus-migrations.core :as migrations]
