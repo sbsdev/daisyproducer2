@@ -292,6 +292,16 @@ ON u.untranslated = l.untranslated AND u.type = l.type AND u.document_id = l.doc
 WHERE u.untranslated IS NULL
 AND l.document_id = :document-id
 
+-- :name delete-unknown-words-of-finished-documents :! :n
+-- :doc Remove all unknown words that belong to any document that is in "finished" state
+DELETE unknown
+FROM dictionary_unknownword unknown
+JOIN documents_document doc
+ON unknown.document_id = doc.id
+JOIN documents_state state
+ON doc.state_id = state.id
+WHERE state.name = "finished"
+
 -- :name get-all-unknown-words :? :*
 -- :doc given a `document-id` and a `:grade` retrieve all unknown words for it. If `:grade` is 0 then return words for both grade 1 and 2. Otherwise just return the unknown words for the given grade.This assumes that the new words contained in this document have been inserted into the `dictionary_unknownword` table.
 -- NOTE: This query assumes that there are only records for the current document-id in the dictionary_unknownword table.
