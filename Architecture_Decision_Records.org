@@ -4,9 +4,9 @@
 #+email: christian.egli@sbs.ch
 #+language: en
 
-#+TODO: PROPOSED | ACCEPTED REJECTED DEPRECATED SUPERSEDED
+#+TODO: DRAFT PROPOSED | ACCEPTED REJECTED DEPRECATED SUPERSEDED
 
-* PROPOSED Show totals in paginated views
+* DRAFT Show totals in paginated views
 - Deciders :: CE
 - Date :: [2024-02-15 Do]
 
@@ -20,16 +20,18 @@ the expensive query twice?
 
 ** Decision Drivers
 
+- The request to get the unknown words needs to be fast
+
 ** Considered Options
 
-- Using two selects, first using LIMIT and then a second one to get
-  the total
-- Using ~SQL_CALC_FOUND_ROWS~ as outlined in [[https://stackoverflow.com/q/818567][MySQL pagination without
-  double-querying?]]
+- Two selects :: Using two selects, first using LIMIT and then a
+  second one to get the total
+- ~SQL_CALC_FOUND_ROWS~ :: Using ~SQL_CALC_FOUND_ROWS~ as outlined in
+  [[https://stackoverflow.com/q/818567][MySQL pagination without double-querying?]]
 
 ** Decision Outcome
 
-Chosen option: "two selects", because MySQL seems to favour that
+Chosen option: "Two selects", because MySQL seems to favour that
 solution. ~SQL_CALC_FOUND_ROWS~ is deprecated as of 8.0.17, see
 https://stackoverflow.com/a/62328373
 
@@ -43,84 +45,87 @@ https://stackoverflow.com/a/62328373
 
 ** Links
 
-* PROPOSED Cleanup of dictionary_unknownword table
+* ACCEPTED Cleanup of dictionary_unknownword table
+CLOSED: [2024-02-16 Fr 09:24]
 - Deciders :: CE
 - Date :: [2024-02-15 Do]
+
+To calculate the unknown words there is some sort of a "temporary"
+table that holds the extracted words from a document. This table
+should probably be cleaned up once the document has been finished.
+
+** Context and Problem Statement
 
 The calculation of the unknown words is expensive. Previously they
 were calculated when the request came in. Now the extraction of
 unknown words from the XML is done when the XML is uploaded. But these
 words aren't removed from the table ever. Should they be removed?
 
-** Context and Problem Statement
-
-[Describe the context and problem statement, e.g., in free form using
-two to three sentences. You may want to articulate the problem in form
-of a question.]
-
 ** Decision Drivers
 
-- [driver 1, e.g., a force, facing concern, ...]
-- [driver 2, e.g., a force, facing concern, ...]
-- ...
+- many rows in the table make the very complex SQL query to find
+  unknown words slower
+- removing them when the status changes couples the two actions too
+  much, i.e. the state change and the cleanup
+- Potentially there could be many cleanup jobs
+  - cleanup unknown words
+  - remove images
+  - remove old versions
+- the user is not interested in the cleanup, i.e. this is just an
+  implementation detail
 
 ** Considered Options
 
-- Do not remove them
-- remove them with a cron job
-- remove them when the status of the document is set to fninished
+- Do not remove :: 
+- Asynchronously :: remove them with a cron job, kinda like garbage
+  collection
+- Synchronously :: remove them when the status of the document is set
+  to fninished
 
 ** Decision Outcome
 
-Chosen option: "[option 1]", because [justification. e.g., only option,
-which meets k.o. criterion decision driver | which resolves force force
-| ... | comes out best (see below)].
+Chosen option: "Asynchronously", because this keeps the two issues
+separate. The state is changed immediately but the garbage is cleaned
+up later/asynchronously.
 
 *** Positive Consequences
 
-- [e.g., improvement of quality attribute satisfaction, follow-up
-  decisions required, ...]
-- ...
+- The response to state change is fast, as the clean is done later
 
 *** Negative Consequences
 
-- [e.g., compromising quality attribute, follow-up decisions required,
-  ...]
-- ...
+- No user feedback that the cleanup is done
 
 ** Pros and Cons of the Options
 
-*** [option 1]
+*** Do not remove
 
-[example | description | pointer to more information | ...]
+- Good :: easy to implement
+- Good :: predictable
+- Bad :: waste of disc space
+- Bad :: unknown words query will get slower
 
-- Good, because [argument a]
-- Good, because [argument b]
-- Bad, because [argument c]
-- ...
+*** Asynchronously
 
-*** [option 2]
+The status is changed by the user but the cleanup is done
+independently sometime later.
 
-[example | description | pointer to more information | ...]
+- Good :: relatively simple to implement as they are independent parts
+  with no UI
+- Bad :: errors are only visible to the administrators
+  - but the users are not interested in these kinds of errors
 
-- Good, because [argument a]
-- Good, because [argument b]
-- Bad, because [argument c]
-- ...
+*** Synchronously
 
-*** [option 3]
+The status is changed by the user and the cleanup is part of it.
 
-[example | description | pointer to more information | ...]
-
-- Good, because [argument a]
-- Good, because [argument b]
-- Bad, because [argument c]
-- ...
+- Good :: predictable
+- Good :: feedback to the user if anything fails
+- Bad :: state change request takes a long time
+- Bad :: quite a bit of effort to implement
 
 ** Links
 
-- [Link type] [Link to ADR]
-- ...
 * ACCEPTED Pagination for versions and images
 CLOSED: [2024-02-15 Do 16:37]
 - Deciders :: CE
@@ -148,8 +153,8 @@ element, so we can have a full window of elements again.
 
 ** Considered Options
 
-- Dropping pagination for images and versions
-- Implementing pagination for images and versions
+- Dropping pagination :: for images and versions
+- Implementing pagination :: for images and versions
 
 ** Decision Outcome
 
