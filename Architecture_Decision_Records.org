@@ -127,6 +127,7 @@ The status is changed by the user and the cleanup is part of it.
 ** Links
 
 - [[https://github.com/sbsdev/daisyproducer2/blob/8fb6d4e4dd26e326be8050c6db2b98b9c4452fdd/src/clj/daisyproducer2/whitelists/async.clj#L60][See how cron jobs are handled for global white lists]]
+- https://github.com/sbsdev/daisyproducer2/commit/94974e90a2ec28e8d6786fc28b11ecaa254c925b
 
 * ACCEPTED Pagination for versions and images
 CLOSED: [2024-02-15 Do 16:37]
