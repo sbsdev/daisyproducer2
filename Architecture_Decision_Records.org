@@ -6,7 +6,8 @@
 
 #+TODO: DRAFT PROPOSED | ACCEPTED REJECTED DEPRECATED SUPERSEDED
 
-* DRAFT Show totals in paginated views
+* ACCEPTED Show totals in paginated views
+CLOSED: [2024-02-20 Di 11:26]
 - Deciders :: CE
 - Date :: [2024-02-15 Do]
 
@@ -26,14 +27,21 @@ the expensive query twice?
 
 - Two selects :: Using two selects, first using LIMIT and then a
   second one to get the total
+- Independent selects :: There are two selects as above and the client
+  asks for the information separately. I.e. the client determines when
+  it asks for the information and how much of it is cached and locally
+  maintained.
 - ~SQL_CALC_FOUND_ROWS~ :: Using ~SQL_CALC_FOUND_ROWS~ as outlined in
   [[https://stackoverflow.com/q/818567][MySQL pagination without double-querying?]]
 
 ** Decision Outcome
 
-Chosen option: "Two selects", because MySQL seems to favour that
-solution. ~SQL_CALC_FOUND_ROWS~ is deprecated as of 8.0.17, see
-https://stackoverflow.com/a/62328373
+Chosen option: "Independent selects", firstly because MySQL seems to
+shy away from the ~SQL_CALC_FOUND_ROWS~ solution. It is deprecated as
+of 8.0.17, see https://stackoverflow.com/a/62328373. Secondly leaving
+it up to the client when to fetch the totals information gives us more
+room for optimization, such as caching and/or just approximated
+totals.
 
 *** Positive Consequences
 
@@ -43,7 +51,44 @@ https://stackoverflow.com/a/62328373
   duplicated from the first query. It is not quite the same though as
   it can be kept simpler.
 
+** Pros and Cons of the Options
+
+*** Two selects
+
+There are two selects, but they could possibly be combined in one REST
+end point. This ties the two together at least from the POV of the
+client. This can make sense some time but probably most of the time
+the two concerns are separate.
+
+- Bad :: complects two mostly independent concerns
+
+*** Independent selects
+
+There are two concerns:
+
+1. get a possibly paginated set of words
+2. get the total number of words
+
+These two concerns can be nicely served be two requests. The first one
+is plain old REST call (~GET /api/collection~) to get the list of
+words. The second one is a bit special and the idea comes from this [[https://stackoverflow.com/q/1610862][SO
+question]] about "Getting a count of returns seen by a RESTful
+request". The basic idea is that you send a ~HEAD~ request to the
+collection and the response contains the count as meta data in the
+headers.
+
+- Good :: separates fetching the words from fetching the count
+- Good :: the count just returns meta data without a body
+
+*** ~SQL_CALC_FOUND_ROWS~
+
+Even MySQL is dropping it, so that one is out
+
+- Bad :: deprecated, see https://stackoverflow.com/a/62328373
+
 ** Links
+
+- https://stackoverflow.com/q/1610862
 
 * ACCEPTED Cleanup of dictionary_unknownword table
 CLOSED: [2024-02-16 Fr 09:24]
