@@ -1,5 +1,6 @@
 (ns daisyproducer2.words.unknown
   (:require [ajax.core :as ajax]
+            [ajax.protocols :as pr]
             [daisyproducer2.auth :as auth]
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.pagination :as pagination]
@@ -62,8 +63,7 @@
                     :params          cleaned
                     :response-format (ajax/json-response-format {:keywords? true})
                     :on-success      [::ack-save id document-id]
-                    :on-failure      [::ack-failure id :save]
-                    }})))
+                    :on-failure      [::ack-failure id :save]}})))
 
 (rf/reg-event-fx
   ::save-all-words
@@ -79,8 +79,9 @@
                  (notifications/clear-button-state id :save))
           empty? (-> db (get-in [:words :unknown]) count (< 1))]
       (if empty?
-        {:db db :dispatch [::fetch-words document-id]}
-        {:db db}))))
+        {:db db :dispatch-n [[::fetch-words document-id]
+                             [::decrement-words-total id]]}
+        {:db db :dispatch [::decrement-words-total id]}))))
 
 (rf/reg-event-db
  ::ack-failure
@@ -150,6 +151,43 @@
  ::valid?
  (fn [db [_ id]]
    (validation/word-valid? (get-in db [:words :unknown id]))))
+
+(rf/reg-event-fx
+  ::fetch-words-total
+  (fn [{:keys [db]} [_ id]]
+    (let [grade (grade/get-grade db)]
+      {:http-xhrio {:method          :head
+                    :format          (ajax/url-request-format)
+                    :uri             (str "/api/documents/" id "/unknown-words")
+                    :url-params      {:grade grade}
+                    ;; we are only interested in the headers of the response, not in the response
+                    ;; body itself. So we have to specify a special response format, see
+                    ;; https://github.com/JulianBirch/cljs-ajax/blob/master/docs/formats.md#non-standard-formats
+                    :response-format {:read (fn [resp] (pr/-get-response-header resp "x-result-count"))
+                                      :description "X-Result-Count header"}
+                    :on-success      [::fetch-words-total-success]
+                    :on-failure      [::fetch-words-total-failure :fetch-words]}})))
+
+(rf/reg-event-db
+ ::fetch-words-total-success
+ (fn [db [_ total]] (assoc-in db [:totals :unknown] total)))
+
+(rf/reg-event-db
+ ::fetch-words-total-failure
+ (fn [db [_ request-type response]]
+   (assoc-in db [:errors request-type] (get response :status-text))))
+
+(rf/reg-event-db
+ ::decrement-words-total
+ (fn [db [_]] (update-in db [:totals :unknown] dec)))
+
+(rf/reg-event-db
+ ::increment-words-total
+ (fn [db [_]] (update-in db [:totals :unknown] inc)))
+
+(rf/reg-sub
+ ::words-total
+ (fn [db _] (get-in db [:totals :unknown] 0)))
 
 (defn buttons [id]
   (let [valid? @(rf/subscribe [::valid? id])

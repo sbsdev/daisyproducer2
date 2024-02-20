@@ -9,6 +9,7 @@
             [daisyproducer2.words.grade :as grade]
             [daisyproducer2.words.input-fields :as fields]
             [daisyproducer2.words.notifications :as notifications]
+            [daisyproducer2.words.unknown :as unknown]
             [re-frame.core :as rf]))
 
 (defn- get-search [db document-id] (get-in db [:search :local document-id]))
@@ -85,8 +86,7 @@
                     :params          cleaned
                     :response-format (ajax/json-response-format {:keywords? true})
                     :on-success      [::ack-delete id document-id]
-                    :on-failure      [::ack-failure id :delete]
-                    }})))
+                    :on-failure      [::ack-failure id :delete]}})))
 
 (rf/reg-event-db
   ::ack-save
@@ -109,8 +109,9 @@
                  (notifications/clear-button-state id :delete))
           empty? (-> db (get-in [:words :local]) count (< 1))]
       (if empty?
-        {:db db :dispatch [::fetch-words document-id]}
-        {:db db}))))
+        {:db db :dispatch-n [[::fetch-words document-id]
+                             [::unknown/increment-words-total document-id]]}
+        {:db db :dispatch [::unknown/increment-words-total document-id]}))))
 
 (rf/reg-event-db
  ::ack-failure
