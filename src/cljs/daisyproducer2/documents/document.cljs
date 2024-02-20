@@ -41,6 +41,13 @@
     {:dispatch [::fetch-current id]}))
 
 
+(defn tab-link-with-total [uri title page on-click]
+  (let [total @(rf/subscribe [::unknown/words-total])
+        tag [:span.tag.is-rounded total]]
+    (if-let [is-active (= page @(rf/subscribe [:common/page-id]))]
+      [:li.is-active [:a title tag]]
+      [:li [:a {:href uri :on-click on-click} title tag]])))
+
 (defn tab-link [uri title page on-click]
   (if-let [is-active (= page @(rf/subscribe [:common/page-id]))]
     [:li.is-active [:a title]]
@@ -51,7 +58,8 @@
    [:div.tabs.is-boxed
     [:ul
      [tab-link (str "#/documents/" id) (tr [:details]) :document]
-     [tab-link (str "#/documents/" id "/unknown") (tr [:unknown-words]) :document-unknown (fn [_] (rf/dispatch [::unknown/fetch-words id]))]
+     [tab-link-with-total (str "#/documents/" id "/unknown") (tr [:unknown-words]) :document-unknown
+      (fn [_] (rf/dispatch [::unknown/fetch-words id]) (rf/dispatch [::unknown/fetch-words-total id]))]
      [tab-link (str "#/documents/" id "/local") (tr [:local-words]) :document-local (fn [_] (rf/dispatch [::local/fetch-words id]))]
      [tab-link (str "#/documents/" id "/versions") (tr [:versions]) :document-versions (fn [_] (rf/dispatch [::version/fetch-versions id]))]
      [tab-link (str "#/documents/" id "/images") (tr [:images]) :document-images (fn [_] (rf/dispatch [::image/fetch-images id]))]
