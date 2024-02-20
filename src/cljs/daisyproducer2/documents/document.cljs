@@ -38,7 +38,8 @@
 (rf/reg-event-fx
   ::init-current
   (fn [{:keys [db]} [_ id]]
-    {:dispatch [::fetch-current id]}))
+    {:dispatch-n [[::fetch-current id]
+                  [::unknown/fetch-words-total id]]}))
 
 
 (defn tab-link-with-total [uri title page on-click]
