@@ -170,7 +170,7 @@
 
 (rf/reg-event-db
  ::fetch-words-total-success
- (fn [db [_ total]] (assoc-in db [:totals :unknown] total)))
+ (fn [db [_ total]] (assoc-in db [:totals :unknown] (parse-long total))))
 
 (rf/reg-event-db
  ::fetch-words-total-failure
