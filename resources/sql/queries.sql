@@ -387,6 +387,74 @@ AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.un
 ORDER BY isIgnored, untranslated
 LIMIT :limit OFFSET :offset
 
+-- :name get-all-unknown-words-total :? :1
+-- :doc given a `document-id` and a `:grade` retrieve the total of all unknown words for it. If `:grade` is 0 then return words for both grade 1 and 2. Otherwise just return the unknown words for the given grade. This assumes that the new words contained in this document have been inserted into the `dictionary_unknownword` table.
+SELECT
+CAST(SUM(
+(SELECT COUNT(*)
+FROM dictionary_unknownword unknown
+LEFT JOIN dictionary_localword l ON l.untranslated = unknown.untranslated AND l.type IN (0,1,3) AND l.document_id = :document-id
+LEFT JOIN dictionary_globalword g ON g.untranslated = unknown.untranslated AND g.type IN (0,1,3)
+LEFT JOIN hyphenation_words AS hyphenation
+     ON unknown.untranslated = hyphenation.word
+     AND hyphenation.spelling =
+     	 (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END
+	  FROM  documents_document
+	  WHERE id = :document-id)
+WHERE unknown.type = 0
+AND unknown.document_id = :document-id
+AND g.untranslated IS NULL
+AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.uncontracted IS NULL))
+)
++
+(SELECT COUNT(*)
+FROM dictionary_unknownword unknown
+LEFT JOIN dictionary_localword l ON l.untranslated = unknown.untranslated AND l.type IN (1,2) AND l.document_id = :document-id
+LEFT JOIN dictionary_globalword g ON g.untranslated = unknown.untranslated AND g.type IN (1,2)
+LEFT JOIN hyphenation_words AS hyphenation
+     ON unknown.untranslated = hyphenation.word
+     AND hyphenation.spelling =
+     	 (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END
+	  FROM  documents_document
+	  WHERE id = :document-id)
+WHERE unknown.type = 2
+AND unknown.document_id = :document-id
+AND g.untranslated IS NULL
+AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.uncontracted IS NULL))
+)
++
+(SELECT COUNT(*)
+FROM dictionary_unknownword unknown
+LEFT JOIN dictionary_localword l ON l.untranslated = unknown.untranslated AND l.type IN (3,4) AND l.document_id = :document-id
+LEFT JOIN dictionary_globalword g ON g.untranslated = unknown.untranslated AND g.type IN (3,4)
+LEFT JOIN hyphenation_words AS hyphenation
+     ON unknown.untranslated = hyphenation.word
+     AND hyphenation.spelling =
+     	 (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END
+	  FROM  documents_document
+	  WHERE id = :document-id)
+WHERE unknown.type = 4
+AND unknown.document_id = :document-id
+AND g.untranslated IS NULL
+AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.uncontracted IS NULL))
+)
++
+(SELECT COUNT(*)
+FROM dictionary_unknownword unknown
+LEFT JOIN dictionary_localword l ON l.untranslated = unknown.untranslated AND l.type IN (5) AND l.document_id = :document-id
+LEFT JOIN dictionary_globalword g ON g.untranslated = unknown.untranslated AND g.type IN (5)
+LEFT JOIN hyphenation_words AS hyphenation
+     ON unknown.untranslated = hyphenation.word
+     AND hyphenation.spelling =
+     	 (SELECT CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END
+	  FROM  documents_document
+	  WHERE id = :document-id)
+WHERE unknown.type = 5
+AND unknown.document_id = :document-id
+AND g.untranslated IS NULL
+AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.uncontracted IS NULL))
+)) AS INT) AS total
+
 -----------------------
 -- Confirmable words --
 -----------------------
