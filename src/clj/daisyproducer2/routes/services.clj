@@ -213,6 +213,14 @@
                              :or {limit default-limit offset 0}} :query} :parameters}]
                        (let [unknown (unknown/get-words id grade limit offset)]
                          (ok unknown)))}
+      :head {:summary "Get the total number of unknown words for a given document. The total is returned as a special Response Header \"X-Result-Count\""
+            :parameters {:path {:id int?}
+                         :query {:grade ::grade}}
+            :handler (fn [{{{:keys [id]} :path
+                            {:keys [grade]} :query} :parameters}]
+                       (let [{total :total} (db/get-all-unknown-words-total {:document-id id :grade grade})]
+                         (-> {} ok (header "X-Result-Count" total))))}
+
       :put {:summary "Update an unknown word"
             :middleware [wrap-restricted wrap-authorized]
             :swagger {:security [{:apiAuth []}]}
