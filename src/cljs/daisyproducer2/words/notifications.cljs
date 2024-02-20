@@ -57,8 +57,9 @@
           [:button.delete
            {:on-click (fn [e] (rf/dispatch [::ack-error k]))}]
           [:p [:strong (:message v)]]
-          (when (seq (:errors v))
+          (if (seq (:errors v))
             [:ul
              (for [e (:errors v)]
                ^{:key e}
-               [:li (str e)])])])])))
+               [:li (str e)])]
+            [:p (str v)])])])))
