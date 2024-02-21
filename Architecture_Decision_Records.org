@@ -1,4 +1,4 @@
-#+options: tasks:t
+#+options: todo:t
 #+title: Architecture Decision Records
 #+date: <2024-02-15 Do>
 #+author: Christian Egli
