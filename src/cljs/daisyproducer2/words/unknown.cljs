@@ -92,13 +92,13 @@
        (notifications/clear-button-state id request-type))))
 
 (rf/reg-event-fx
-  ::ignore-word
+  ::toggle-ignore-word
   (fn [{:keys [db]} [_ uuid]]
     (let [word (get-in db [:words :unknown uuid])
           cleaned (-> word
                       (select-keys [:untranslated :type :homograph-disambiguation
                                     :document-id :islocal :isignored])
-                      (assoc :isignored true))
+                      (update :isignored not))
           document-id (:document-id word)]
       {:db (notifications/set-button-state db uuid :ignore)
        :http-xhrio {:method          :put
@@ -107,12 +107,12 @@
                     :uri             (str "/api/documents/" document-id "/unknown-words")
                     :params          cleaned
                     :response-format (ajax/json-response-format {:keywords? true})
-                    :on-success      [::ack-ignore uuid document-id]
+                    :on-success      [::ack-toggle-ignore uuid document-id]
                     :on-failure      [::ack-failure uuid :ignore]
                     }})))
 
 (rf/reg-event-fx
-  ::ack-ignore
+  ::ack-toggle-ignore
   (fn [{:keys [db]} [_ uuid document-id]]
     (let [db (-> db
                  (update-in [:words :unknown] dissoc uuid)
@@ -189,7 +189,7 @@
  ::words-total
  (fn [db _] (get-in db [:totals :unknown] 0)))
 
-(defn buttons [id]
+(defn buttons [id ignored?]
   (let [valid? @(rf/subscribe [::valid? id])
         authenticated? @(rf/subscribe [::auth/authenticated?])]
     [:div.buttons.has-addons
@@ -203,17 +203,19 @@
         [:span.icon {:aria-hidden true} [:i.mi.mi-done]]])
      (if @(rf/subscribe [::notifications/button-loading? id :ignore])
        [:button.button.is-success.is-loading]
-       [:button.button.is-danger.has-tooltip-arrow
-        {:disabled (not authenticated?)
-         :data-tooltip (tr [:ignore])
-         :aria-label (tr [:ignore])
-         :on-click (fn [e] (rf/dispatch [::ignore-word id]))}
-        [:span.icon {:aria-hidden true} [:i.mi.mi-cancel]]])]))
+       (let [label (tr [(if ignored? :look_at :ignore)])
+             icon (if ignored? :i.mi.mi-highlight-off :i.mi.mi-cancel )]
+         [:button.button.is-danger.has-tooltip-arrow
+          {:disabled (not authenticated?)
+           :data-tooltip label
+           :aria-label label
+           :on-click (fn [e] (rf/dispatch [::toggle-ignore-word id]))}
+          [:span.icon {:aria-hidden true} [icon]]]))]))
 
 (defn word [id]
   (let [grade @(rf/subscribe [::grade/grade])
         {:keys [uuid untranslated uncontracted contracted type homograph-disambiguation
-                hyphenated invalid-hyphenated]} @(rf/subscribe [::word id])]
+                hyphenated invalid-hyphenated isignored]} @(rf/subscribe [::word id])]
     [:tr
      [:td untranslated]
      (when (#{0 1} grade)
@@ -230,7 +232,7 @@
      [:td {:width "8%"} (get words/type-mapping type (tr [:unknown]))]
      [:td {:width "8%"} homograph-disambiguation]
      [:td [fields/local-field :unknown uuid]]
-     [:td {:width "8%"} [buttons uuid]]]))
+     [:td {:width "8%"} [buttons uuid isignored]]]))
 
 (defn unknown-words []
   (let [words @(rf/subscribe [::words-sorted])
