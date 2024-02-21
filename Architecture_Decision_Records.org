@@ -319,8 +319,8 @@ it is too high compared with the user benefit.
 - https://github.com/sbsdev/daisyproducer2/commit/62609888ae0442daa7de40bf0cb79665f689543b
 
 * COMMENT [short title of solved problem and solution]                     :Template:
-- Status :: [proposed | rejected | accepted | deprecated | ... |
-  superseded by [[file:0005-example.md][ADR-0005]]]
+# - Status :: [proposed | rejected | accepted | deprecated | ... |
+#   superseded by [[file:0005-example.md][ADR-0005]]]
 - Deciders :: [list everyone involved in the decision]
 - Date :: [YYYY-MM-DD when the decision was last updated]
 
