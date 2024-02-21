@@ -6,6 +6,101 @@
 
 #+TODO: DRAFT PROPOSED | ACCEPTED REJECTED DEPRECATED SUPERSEDED
 
+* DRAFT "Unignore" unknown words
+- Deciders :: CE, MK
+- Date :: [2024-02-21 Mi]
+
+Unknown words can be "ignored", i.e. marked as ignored and they will
+be put at the end of the list. In the paginated view of the unknown
+words an ignored word will simply show up on the last page once the
+transcriber has worked though all the non-ignored words.
+
+** Context and Problem Statement
+
+When an unknown word is confirmed an entry for this word is created in
+the table for local words. The entry in the table for unknown words is
+not changed. However the query for unknown words will no longer
+contain that word in the resultset, as it only returns unknown words
+that are not in the local words table.
+
+So when a local word is deleted the query for unknown words will
+return that word again in its resultset. So far all is fine.
+
+However, as the row for that word in the table for unknown words has
+not been touched, the unknown word will still be marked as ignored.
+Does that make sense? And in a broader sense: do we need a way to
+"unignore" an unknown word?
+
+** Decision Drivers
+
+- Make the UI as simple as possible
+- Make the UI as understandable as possible
+- Make the REST API as contrained as possible
+  - i.e. do not make the PUT end point of local words also reset the
+    ignored status of the same unknown word
+
+** Considered Options
+
+- Ignore the problem :: the usecase is so rare that the users will
+  almost never run into this situation
+- Disable ignore button for ignored words :: Basically the same as
+  ignoring the problem but make it visible that a words is ingored by
+  disabling the button. "Ignoring" an already ignored unknown word
+  indeed does not make much sense.
+- Add an "Unignore" button :: Make the "Ignore" button a toggle that
+  lets you ignore and "unignore" a word
+- Clear the ignored state on confirm :: When confirming an unknown
+  word set the ignored flag to false
+
+** Decision Outcome
+
+Chosen option: "[option 1]", because [justification. e.g., only option,
+which meets k.o. criterion decision driver | which resolves force force
+| ... | comes out best (see below)].
+
+*** Positive Consequences
+
+- [e.g., improvement of quality attribute satisfaction, follow-up
+  decisions required, ...]
+- ...
+
+*** Negative Consequences
+
+- [e.g., compromising quality attribute, follow-up decisions required,
+  ...]
+- ...
+
+** Pros and Cons of the Options
+
+*** [option 1]
+
+[example | description | pointer to more information | ...]
+
+- Good, because [argument a]
+- Good, because [argument b]
+- Bad, because [argument c]
+- ...
+
+*** [option 2]
+
+[example | description | pointer to more information | ...]
+
+- Good, because [argument a]
+- Good, because [argument b]
+- Bad, because [argument c]
+- ...
+
+*** [option 3]
+
+[example | description | pointer to more information | ...]
+
+- Good, because [argument a]
+- Good, because [argument b]
+- Bad, because [argument c]
+- ...
+
+** Links
+
 * ACCEPTED Show totals in paginated views
 CLOSED: [2024-02-20 Di 11:26]
 - Deciders :: CE
