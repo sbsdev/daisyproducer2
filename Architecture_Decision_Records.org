@@ -69,16 +69,13 @@ Chosen option: "TBD", because ...
 ** Pros and Cons of the Options
 
 *** Ignore the problem
-:PROPERTIES:
-:ID:       c944b181-327f-468c-8c4c-9f04bef03453
-:END:
 
 - Good :: already done :-)
 - Bad :: doesn't really solve the issue
 
 *** Disable ignore button for ignored words
 
-Basically the same as [[id:c944b181-327f-468c-8c4c-9f04bef03453][Ignore the problem]] but at least the button to
+Basically the same as [[*Ignore the problem][Ignore the problem]] but at least the button to
 ignore is disabled for ignored words.
 
 - Good :: The UI is more consistent
