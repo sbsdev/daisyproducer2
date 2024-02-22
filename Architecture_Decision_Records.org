@@ -39,6 +39,7 @@ Does that make sense? And in a broader sense: do we need a way to
 - Make the REST API as contrained as possible
   - i.e. do not make the PUT end point of local words also reset the
     ignored status of the same unknown word
+- Do not waste big engineering effort on small fish
 
 ** Considered Options
 
@@ -55,50 +56,55 @@ Does that make sense? And in a broader sense: do we need a way to
 
 ** Decision Outcome
 
-Chosen option: "[option 1]", because [justification. e.g., only option,
-which meets k.o. criterion decision driver | which resolves force force
-| ... | comes out best (see below)].
+Chosen option: "TBD", because ...
 
 *** Positive Consequences
 
-- [e.g., improvement of quality attribute satisfaction, follow-up
-  decisions required, ...]
-- ...
+- 
 
 *** Negative Consequences
 
-- [e.g., compromising quality attribute, follow-up decisions required,
-  ...]
-- ...
+- 
 
 ** Pros and Cons of the Options
 
-*** [option 1]
+*** Ignore the problem
 
-[example | description | pointer to more information | ...]
+- Good :: already done :-)
+- Bad :: doesn't really solve the issue
 
-- Good, because [argument a]
-- Good, because [argument b]
-- Bad, because [argument c]
-- ...
+*** Disable ignore button for ignored words
 
-*** [option 2]
+Basically the same as [[Ignore the problem]] but at least the button to
+ignore is disabled for ignored words.
 
-[example | description | pointer to more information | ...]
+- Good :: The UI is more consistent
+- Bad :: doesn't really solve the issue
 
-- Good, because [argument a]
-- Good, because [argument b]
-- Bad, because [argument c]
-- ...
+*** Add an "Unignore" button
 
-*** [option 3]
+The "Ignore" button is more like a toggle that lets the user toggle
+the isIgnored state. But then you get some weird UI issues where an
+unignored entry disappears (as it is sorted back where it originally
+was) where it should be back (as we are on the page it was
+originally).
 
-[example | description | pointer to more information | ...]
+- Good :: seems simple and orthogonal
+- Bad :: Weird UI isses with unignored words and pagination
+  - These are really confusing for the user
+  - and hard to fix properly
 
-- Good, because [argument a]
-- Good, because [argument b]
-- Bad, because [argument c]
-- ...
+*** Clear the ignored state on confirm
+
+When the word is confirmed, i.e. inserted into the local words table,
+the isIgnored flag in the unknown words table is cleared. The happy
+path seems quite sane, but what happens in the case of failure?
+
+- Good :: A clear and easy to understand solution for the user
+- Bad :: Where do you put the responsibility for this? In the UI? In
+  the REST API?
+- Bad :: Hard to implement the failure cases right
+
 
 ** Links
 
