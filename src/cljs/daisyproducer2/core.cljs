@@ -10,6 +10,7 @@
     [daisyproducer2.ajax :as ajax]
     [daisyproducer2.events]
     [daisyproducer2.auth :as auth]
+    [daisyproducer2.documents :as documents]
     [daisyproducer2.documents.document :as document]
     [daisyproducer2.documents.image :as image]
     [daisyproducer2.documents.version :as version]
@@ -51,35 +52,6 @@
          [:div.navbar-item
           (auth/user-buttons)]]]])))
 
-(defn documents-search []
-  (let [gettext (fn [e] (-> e .-target .-value))
-        emit    (fn [e] (rf/dispatch [:documents-search-change (gettext e)]))]
-    [:div.field
-     [:div.control
-      [:input.input {:type "text"
-                     :placeholder (tr [:search])
-                     :aria-label (tr [:search])
-                     :value @(rf/subscribe [:documents-search])
-                     :on-change emit}]]]))
-
-(defn document-link [{:keys [id title] :as document}]
-  [:a {:href (str "#/documents/" id)
-       :on-click (fn [_] (rf/dispatch [::document/set-current document]))}
-   title])
-
-(defn documents-page []
-  [:section.section>div.container>div.content
-   [documents-search]
-   [:table.table.is-striped
-    [:thead
-     [:tr
-      [:th (tr [:title])] [:th (tr [:author])] [:th (tr [:source-publisher])] [:th (tr [:state])]]]
-    [:tbody
-     (for [{:keys [id author source-publisher state-id] :as document} @(rf/subscribe [:documents])]
-       ^{:key id} [:tr
-                   [:td [document-link document]]
-                   [:td author] [:td source-publisher] [:td (state/mapping state-id state-id)]])]]])
-
 (defn page []
   (if-let [page @(rf/subscribe [:common/page])]
     [:div
@@ -92,8 +64,8 @@
 (def router
   (reitit/router
     [["/" {:name        :documents
-           :view        #'documents-page
-           :controllers [{:start (fn [_] (rf/dispatch [:init-documents]))}]}]
+           :view        #'documents/page
+           :controllers [{:start (fn [_] (rf/dispatch [::documents/init-documents]))}]}]
      ["/login" {:name :login
                 :view #'auth/login-page}]
      ["/documents/:id" {:controllers
