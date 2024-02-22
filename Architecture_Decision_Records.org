@@ -49,6 +49,9 @@ Does that make sense? And in a broader sense: do we need a way to
   ignoring the problem but make it visible that a words is ingored by
   disabling the button. "Ignoring" an already ignored unknown word
   indeed does not make much sense.
+- Separate tab :: Keep the ignored words in a separate tab. Since
+  switching to a tab causes a re-fetch, the problem of pagination with
+  re-fetch just goes away
 - Add an "Unignore" button :: Make the "Ignore" button a toggle that
   lets you ignore and "unignore" a word
 - Clear the ignored state on confirm :: When confirming an unknown
