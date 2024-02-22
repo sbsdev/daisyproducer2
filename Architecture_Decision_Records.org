@@ -69,13 +69,16 @@ Chosen option: "TBD", because ...
 ** Pros and Cons of the Options
 
 *** Ignore the problem
+:PROPERTIES:
+:CUSTOM_ID: ignore_the_problem
+:END:
 
 - Good :: already done :-)
 - Bad :: doesn't really solve the issue
 
 *** Disable ignore button for ignored words
 
-Basically the same as [[Ignore the problem]] but at least the button to
+Basically the same as [[#ignore_the_problem][Ignore the problem]] but at least the button to
 ignore is disabled for ignored words.
 
 - Good :: The UI is more consistent
