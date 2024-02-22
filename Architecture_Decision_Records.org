@@ -70,7 +70,7 @@ Chosen option: "TBD", because ...
 
 *** Ignore the problem
 :PROPERTIES:
-:CUSTOM_ID: ignore_the_problem
+:ID:       c944b181-327f-468c-8c4c-9f04bef03453
 :END:
 
 - Good :: already done :-)
@@ -78,7 +78,7 @@ Chosen option: "TBD", because ...
 
 *** Disable ignore button for ignored words
 
-Basically the same as [[#ignore_the_problem][Ignore the problem]] but at least the button to
+Basically the same as [[id:c944b181-327f-468c-8c4c-9f04bef03453][Ignore the problem]] but at least the button to
 ignore is disabled for ignored words.
 
 - Good :: The UI is more consistent
