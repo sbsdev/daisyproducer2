@@ -74,11 +74,11 @@ Chosen option: tbd
 
 Nothing is deployed before everything is migrated.
 
-- Bad :: It will be a long time before any new features can be brought
-  to the user
-- Bad :: The bigger the deployment the bigger the risk
-- Bad :: Big UI changes for the user, which means large training
-  efforts
+- Bad :: Takes a long time to deliver
+- Bad :: High risk (all or nothing)
+- Bad :: Potential user experience disruption
+- Bad :: Significant upfront investment
+- Bad :: Implement things that might not be needed
 
 *** Strangler
 
