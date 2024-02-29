@@ -68,14 +68,13 @@
      ]]])
 
 (defn summary [{:keys [title author source-publisher state-id]}]
-  (let [state (state/mapping state-id state-id)]
-    [:div.block
+  [:div.block
      [:table.table
       [:tbody
        [:tr [:th {:width 200} (tr [:title])] [:td title]]
        [:tr [:th (tr [:author])] [:td author]]
        [:tr [:th (tr [:source-publisher])] [:td source-publisher]]
-       [:tr [:th (tr [:state])] [:td state]]]]]))
+       [:tr [:th (tr [:state])] [:td [state/state state-id]]]]]])
 
 (defn details [document]
   [:div.block
