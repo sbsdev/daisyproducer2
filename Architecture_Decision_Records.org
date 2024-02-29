@@ -7,6 +7,110 @@
 
 #+TODO: DRAFT PROPOSED | ACCEPTED REJECTED DEPRECATED SUPERSEDED
 
+* DRAFT Deployment Scenarios
+- Deciders :: CE, MK, US, MM
+- Date :: [2024-02-29 Do]
+
+We have a legacy system, a Python2/Django application, that powers the
+production of books. The Django framework has enabled us to create the
+application quickly but limits us now as we need to have more advanced
+access to the database. That is why some of the newer functionality is
+written using Clojure and Clojurescript and React.
+
+The two web applications run side by side and provide more or less
+separate functionality.
+
+The goal is however to eventually replace all of the Python2/Django
+application with Clojure. As this is a lot of work and doesn't bring
+any user value, we'd like to do this gradually while implementing new
+features.
+
+** Context and Problem Statement
+
+When implementing the ignore feature for unknown words we had to move
+the file upload to the new application. So now there are two places
+where a user can upload a file. When using the old upload the unknown
+words will not work correctly. This is confusing to the user.
+
+However, the upload not just in the upload form, it is also contained
+in the inline editor where the user an edit the DTBook XML and save,
+aka upload, a new version.
+
+** Decision Drivers
+
+- we want to replace the Python2/Django application eventually,
+  probably not now though
+- there should be only one way to upload a file for the user
+- we would like the migration to be a gradual process, minimizing the
+  risk at each step
+- there should be as little change in the UI as possible to avoid
+  confusing the user
+
+** Considered Options
+
+- D-Day :: Only deploy once *everything* is migrated
+- Strangler :: Replace functionality piece by piece
+- Parallel :: Deploy new functionality without removing the old one
+
+** Decision Outcome
+
+Chosen option: tbd
+
+*** Positive Consequences
+
+- [e.g., improvement of quality attribute satisfaction, follow-up
+  decisions required, ...]
+- ...
+
+*** Negative Consequences
+
+- [e.g., compromising quality attribute, follow-up decisions required,
+  ...]
+- ...
+
+** Pros and Cons of the Options
+
+*** D-Day
+
+Nothing is deployed before everything is migrated.
+
+- Bad :: It will be a long time before any new features can be brought
+  to the user
+- Bad :: The bigger the deployment the bigger the risk
+- Bad :: Big UI changes for the user, which means large training
+  efforts
+
+*** Strangler
+
+As we migrate functionality from the old system to the new we will
+simply hide it in the old system. This is basically what we have been
+doing for the last year.
+
+The implication of this is that (since we migrated the file upload
+functionality) we will also have to migrate the markup editor since it
+essentially also does file upload. However this might be a lot of work
+that we did not plan to do at this time.
+
+As it turns out the markup editor is extremely simple: it is basically
+just a textarea inside a form. Maybe it would be that much work to
+migrate it.
+
+- Good :: the changes are incremental for the user
+- Bad :: more work than we had anticipated
+
+*** Parallel
+
+We leave both UIs as they are and let the user choose which one she
+will use.
+
+- Good :: no need to change the legacy app
+- Bad :: confusing for the user as there are two ways to upload a file
+  which behave slightly differently
+
+** Links
+
+- an article from Microsoft Learn about the [[https://learn.microsoft.com/en-us/azure/architecture/patterns/strangler-fig][Strangler Fig pattern]]
+
 * DRAFT "Unignore" unknown words
 - Deciders :: CE, MK
 - Date :: [2024-02-21 Mi]
