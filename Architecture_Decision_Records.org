@@ -110,6 +110,7 @@ will use.
 ** Links
 
 - an article from Microsoft Learn about the [[https://learn.microsoft.com/en-us/azure/architecture/patterns/strangler-fig][Strangler Fig pattern]]
+- [[https://medium.com/@josesousa8/the-strangler-pattern-kill-legacy-like-a-boss-db3db41564ed][The Strangler Pattern: Kill Legacy Like a Boss]]
 
 * DRAFT "Unignore" unknown words
 - Deciders :: CE, MK
