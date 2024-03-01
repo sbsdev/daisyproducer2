@@ -68,7 +68,6 @@
        [:div.field
         [:div.control
          [:textarea.textarea {:rows 20
-                              :auto-focus true
                               :value @(rf/subscribe [::markup id])
                               :aria-label (tr [:markup])
                               :on-change #(save! (get-value %))}]]]
