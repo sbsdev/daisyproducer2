@@ -1,6 +1,7 @@
 (ns daisyproducer2.documents.markup
   (:require [ajax.core :as ajax]
             [daisyproducer2.i18n :refer [tr]]
+            [daisyproducer2.auth :as auth]
             [daisyproducer2.ajax :refer [as-transit]]
             [daisyproducer2.words.notifications :as notifications]
             [re-frame.core :as rf]))
@@ -53,6 +54,7 @@
 (defn markup [{id :id}]
   (let [loading? @(rf/subscribe [::notifications/loading? :markup])
         errors? @(rf/subscribe [::notifications/errors?])
+        authenticated? @(rf/subscribe [::auth/authenticated?])
         get-value (fn [e] (-> e .-target .-value))
         ;; the dispatch needs to be sync, otherwise the cursor will
         ;; jump to the end, see
@@ -77,8 +79,11 @@
        
        [:div.field.is-grouped
         [:div.control
-         [:button.button.is-primary (tr [:save])]]
-        #_[:div.control
-           [:button.button.is-link.is-light (tr [:cancel])]]]])))
+         (if @(rf/subscribe [::notifications/button-loading? id :markup])
+           [:button.button.is-success.is-loading]
+           [:button.button.is-success.has-tooltip-arrow
+            {:disabled (not authenticated?)}
+            [:span.icon {:aria-hidden true} [:i.mi.mi-save]]
+            [:span (tr [:save])]])]]])))
 
 
