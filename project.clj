@@ -120,7 +120,8 @@
                                  [prone "2021-04-23"]
                                  [re-frisk "1.6.0"]
                                  [ring/ring-devel "1.11.0"]
-                                 [ring/ring-mock "0.4.0"]]
+                                 [ring/ring-mock "0.4.0"]
+                                 [io.github.noahtheduke/splint "1.10.1"]]
                   :plugins      [[com.jakemccrary/lein-test-refresh "0.25.0"]
                                  [jonase/eastwood "1.4.2"]
                                  [cider/cider-nrepl "0.45.0"]]
@@ -138,4 +139,5 @@
                   
                   }
    :profiles/dev {}
-   :profiles/test {}})
+   :profiles/test {}}
+  :aliases {"splint" ["run" "-m" "noahtheduke.splint"]})

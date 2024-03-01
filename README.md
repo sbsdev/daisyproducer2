@@ -48,6 +48,10 @@ You will need [Leiningen][7] 2.0 or above installed.
 
     lein uberjar
 
+### Linting
+
+    lein splint
+
 ## Running
 
 To start a web server for the application, run:
