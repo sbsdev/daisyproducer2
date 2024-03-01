@@ -54,7 +54,10 @@
   (let [loading? @(rf/subscribe [::notifications/loading? :markup])
         errors? @(rf/subscribe [::notifications/errors?])
         get-value (fn [e] (-> e .-target .-value))
-        save!     #(rf/dispatch [::set-markup id %])]
+        ;; the dispatch needs to be sync, otherwise the cursor will
+        ;; jump to the end, see
+        ;; https://dev.to/kwirke/solving-caret-jumping-in-react-inputs-36ic
+        save!     #(rf/dispatch-sync [::set-markup id %])]
     (cond
       errors? [notifications/error-notification]
       loading? [notifications/loading-spinner]
