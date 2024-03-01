@@ -7,23 +7,23 @@
 
 #+TODO: DRAFT PROPOSED | ACCEPTED REJECTED DEPRECATED SUPERSEDED
 
-* DRAFT Deployment Scenarios
+* PROPOSED Deployment Scenarios
 - Deciders :: CE, MK, US, MM
 - Date :: [2024-02-29 Do]
 
 We have a legacy system, a Python2/Django application, that powers the
 production of books. The Django framework has enabled us to create the
 application quickly but limits us now as we need to have more advanced
-access to the database. That is why some of the newer functionality is
-written using Clojure and Clojurescript and React.
+access to the database. That is why all of the newer functionality is
+written using Clojure, Clojurescript and React.
 
 The two web applications run side by side and provide more or less
 separate functionality.
 
 The goal is however to eventually replace all of the Python2/Django
 application with Clojure. As this is a lot of work and doesn't bring
-any user value, we'd like to do this gradually while implementing new
-features.
+any tangible user value, we'd like to do this gradually while
+implementing new features.
 
 ** Context and Problem Statement
 
@@ -38,12 +38,12 @@ aka upload, a new version.
 
 ** Decision Drivers
 
-- we want to replace the Python2/Django application eventually,
+- We want to replace the Python2/Django application eventually,
   probably not now though
-- there should be only one way to upload a file for the user
-- we would like the migration to be a gradual process, minimizing the
+- There should be only one way to upload a file for the user
+- We would like the migration to be a gradual process, minimizing the
   risk at each step
-- there should be as little change in the UI as possible to avoid
+- There should be as little change in the UI as possible to avoid
   confusing the user
 
 ** Considered Options
@@ -54,19 +54,21 @@ aka upload, a new version.
 
 ** Decision Outcome
 
-Chosen option: tbd
+Chosen option: Strangler, i.e. have both UIs in parallel and hide the
+upload functionality (version and image upload and the markup editor)
+in the old UI
 
 *** Positive Consequences
 
-- [e.g., improvement of quality attribute satisfaction, follow-up
-  decisions required, ...]
-- ...
+- There is only one way to upload
+- more functionality has been migrated from the legacy to the new
+  application
 
 *** Negative Consequences
 
-- [e.g., compromising quality attribute, follow-up decisions required,
-  ...]
-- ...
+- Iteration2 will take longer as we will also have to implement the
+  markup editor in the new UI
+- The old UI will look increasingly bare
 
 ** Pros and Cons of the Options
 
@@ -74,6 +76,7 @@ Chosen option: tbd
 
 Nothing is deployed before everything is migrated.
 
+- Good :: The UI is consistent
 - Bad :: Takes a long time to deliver
 - Bad :: High risk (all or nothing)
 - Bad :: Potential user experience disruption
@@ -95,16 +98,18 @@ As it turns out the markup editor is extremely simple: it is basically
 just a textarea inside a form. Maybe it would be that much work to
 migrate it.
 
-- Good :: the changes are incremental for the user
-- Bad :: more work than we had anticipated
+- Good :: The changes are incremental for the user
+- Bad :: More work than we had anticipated
+- Bad :: The old UI will look pretty bare and have very little
+  functionality
 
 *** Parallel
 
 We leave both UIs as they are and let the user choose which one she
 will use.
 
-- Good :: no need to change the legacy app
-- Bad :: confusing for the user as there are two ways to upload a file
+- Good :: No need to change the legacy app
+- Bad :: Confusing for the user as there are two ways to upload a file
   which behave slightly differently
 
 ** Links
