@@ -80,6 +80,8 @@
                  :controllers [{:parameters {:path [:id]}}]}]
       ["/preview" {:name :document-preview :view #'document/preview
                    :controllers [{:parameters {:path [:id]}}]}]
+      ["/markup" {:name :document-markup :view #'document/markup
+                   :controllers [{:parameters {:path [:id]}}]}]
       ["/versions" {:name :document-versions :view #'document/versions
                     :controllers [{:parameters {:path [:id]}}]}]
       ["/versions/upload" {:name :document-versions-upload :view #'document/versions-upload

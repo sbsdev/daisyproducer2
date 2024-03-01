@@ -5,6 +5,7 @@
             [daisyproducer2.documents.image :as image]
             [daisyproducer2.documents.version :as version]
             [daisyproducer2.documents.preview :as preview]
+            [daisyproducer2.documents.markup :as markup]
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.words :as words]
             [daisyproducer2.words.grade :as grade]
@@ -64,6 +65,7 @@
      [tab-link (str "#/documents/" id "/local") (tr [:local-words]) :document-local (fn [_] (rf/dispatch [::local/fetch-words id]))]
      [tab-link (str "#/documents/" id "/versions") (tr [:versions]) :document-versions (fn [_] (rf/dispatch [::version/fetch-versions id]))]
      [tab-link (str "#/documents/" id "/images") (tr [:images]) :document-images (fn [_] (rf/dispatch [::image/fetch-images id]))]
+     [tab-link (str "#/documents/" id "/markup") (tr [:markup]) :document-markup (fn [_] (rf/dispatch [::markup/fetch-latest-version id]))]
      [tab-link (str "#/documents/" id "/preview") (tr [:preview]) :document-preview]
      ]]])
 
@@ -119,6 +121,13 @@
      [summary document]
      [tabs document]
      [preview/preview-links document]]))
+
+(defn markup []
+  (let [document @(rf/subscribe [::current])]
+    [:section.section>div.container>div.content
+     [summary document]
+     [tabs document]
+     [markup/markup document]]))
 
 (defn versions []
   (let [document @(rf/subscribe [::current])]
