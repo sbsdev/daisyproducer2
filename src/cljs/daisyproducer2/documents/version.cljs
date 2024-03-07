@@ -89,19 +89,19 @@
 
 (rf/reg-sub
  ::version-file
- (fn [db _] (-> db :version-file)))
+ (fn [db _] (-> db :version-upload :file)))
 
 (rf/reg-event-db
   ::set-version-file
-  (fn [db [_ file]] (assoc db :version-file file)))
+  (fn [db [_ file]] (assoc-in db [:version-upload :file] file)))
 
 (rf/reg-sub
  ::version-comment
- (fn [db _] (-> db :version-comment)))
+ (fn [db _] (-> db :version-upload :comment)))
 
 (rf/reg-event-db
   ::set-version-comment
-  (fn [db [_ comment]] (assoc db :version-comment comment)))
+  (fn [db [_ comment]] (assoc-in db [:version-upload :comment] comment)))
 
 (defn- version-comment []
   (let [get-value (fn [e] (-> e .-target .-value))

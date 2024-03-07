@@ -215,7 +215,7 @@
 
 (rf/reg-sub
  ::image-files
- (fn [db _] (-> db :image-files)))
+ (fn [db _] (-> db :image-upload :files)))
 
 (rf/reg-sub
  ::image-file-names
@@ -224,7 +224,7 @@
 
 (rf/reg-event-db
   ::set-image-files
-  (fn [db [_ files]] (assoc db :image-files files)))
+  (fn [db [_ files]] (assoc-in db [:image-upload :files] files)))
 
 (defn- image-files []
   (let [get-value (fn [e] (-> e .-target .-files))
