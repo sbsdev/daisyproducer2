@@ -3,6 +3,7 @@
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.auth :as auth]
             [daisyproducer2.ajax :refer [as-transit]]
+            [daisyproducer2.documents.version :as version]
             [daisyproducer2.words.notifications :as notifications]
             [re-frame.core :as rf]))
 
@@ -32,7 +33,7 @@
  (fn [db [_ document-id markup]]
    (let [_ true]
      (-> db
-         (assoc-in [:markup document-id] markup)
+         (assoc-in [:markup :content] markup)
          (assoc-in [:loading :markup] false)))))
 
 (rf/reg-event-db
@@ -42,47 +43,113 @@
        (notifications/set-errors :fetch-markup (get response :status-text))
        (assoc-in [:loading :markup] false))))
 
+(rf/reg-event-fx
+  ::add-markup
+  (fn [{:keys [db]} [_ document]]
+    (let [markup (get-in db [:markup :content])
+          comment (get-in db [:markup :comment])
+          blob (js/Blob. [markup] {:type "plain/text"})
+          form-data (doto (js/FormData.)
+                      (.append "comment" comment)
+                      (.append "file" blob "not_a_real_file.xml"))]
+      {:db (notifications/set-button-state db :markup :save)
+       :http-xhrio (as-transit
+                    {:method          :post
+                     :headers 	     (auth/auth-header db)
+                     :uri             (str "/api/documents/" (:id document) "/versions")
+                     :body            form-data
+                     :on-success      [::ack-add-markup document]
+                     :on-failure      [::ack-failure]})})))
+
+(rf/reg-event-fx
+  ::ack-add-markup
+  (fn [{:keys [db]} [_ document]]
+    {:db (-> db (notifications/clear-button-state :markup :save))
+     :dispatch-n (list
+                  [::version/fetch-versions (:id document)]
+                  [:common/navigate! :document-versions document])}))
+
+(rf/reg-event-db
+ ::ack-failure
+ (fn [db [_ response]]
+   (let [message (or (get-in response [:response :status-text])
+                     (get response :status-text))
+         errors (get-in response [:response :errors])]
+     (-> db
+         (notifications/set-errors :markup message errors)
+         (notifications/clear-button-state :markup :save)))))
+
+
 (rf/reg-sub
   ::markup
-  (fn [db [_ document-id]] (get-in db [:markup document-id])))
+  (fn [db [_]] (get-in db [:markup :content])))
 
 (rf/reg-event-db
    ::set-markup
-   (fn [db [_ document-id new-value]]
-     (assoc-in db [:markup document-id] new-value)))
+   (fn [db [_ new-value]]
+     (assoc-in db [:markup :content] new-value)))
 
-(defn markup [{id :id}]
-  (let [loading? @(rf/subscribe [::notifications/loading? :markup])
-        errors? @(rf/subscribe [::notifications/errors?])
-        authenticated? @(rf/subscribe [::auth/authenticated?])
-        get-value (fn [e] (-> e .-target .-value))
+(rf/reg-sub
+ ::markup-comment
+ (fn [db _] (-> db :markup :comment)))
+
+(rf/reg-event-db
+  ::set-markup-comment
+  (fn [db [_ comment]] (assoc-in db [:markup :comment] comment)))
+
+(defn- markup-comment []
+  (let [get-value (fn [e] (-> e .-target .-value))
+        reset!    #(rf/dispatch [::set-markup-comment ""])
+        save!     #(rf/dispatch [::set-markup-comment %])
+        comment @(rf/subscribe [::markup-comment])]
+    [:div.field
+     [:label.label (tr [:comment])]
+     [:div.control
+      [:input.input
+       {:type "text"
+        :placeholder (tr [:comment])
+        :aria-label (tr [:comment])
+        :value comment
+        :on-change #(save! (get-value %))
+        :on-key-down #(when (= (.-which %) 27) (reset!))}]]]))
+
+(defn- markup-textarea []
+  (let [get-value (fn [e] (-> e .-target .-value))
+        klass (when @(rf/subscribe [::notifications/errors?]) "is-danger")
         ;; the dispatch needs to be sync, otherwise the cursor will
         ;; jump to the end, see
         ;; https://dev.to/kwirke/solving-caret-jumping-in-react-inputs-36ic
-        save!     #(rf/dispatch-sync [::set-markup id %])]
+        save!     #(rf/dispatch-sync [::set-markup %])
+        content   @(rf/subscribe [::markup])]
+    [:div.field
+     [:div.control
+      [:textarea.textarea
+       {:class klass
+        :rows 30
+        :value content
+        :aria-label (tr [:markup])
+        :on-change #(save! (get-value %))}]]]))
+
+(defn markup [{id :id :as document}]
+  (let [loading? @(rf/subscribe [::notifications/loading? :markup])
+        errors? @(rf/subscribe [::notifications/errors?])
+        authenticated? @(rf/subscribe [::auth/authenticated?])
+        klass (when @(rf/subscribe [::notifications/button-loading? :markup :save]) "is-loading")]
     (cond
-      errors? [notifications/error-notification]
+      ;;errors? [notifications/error-notification]
       loading? [notifications/loading-spinner]
       :else
       [:div.block
-       [:div.field
-        [:div.control
-         [:textarea.textarea {:rows 20
-                              :value @(rf/subscribe [::markup id])
-                              :aria-label (tr [:markup])
-                              :on-change #(save! (get-value %))}]]]
-       [:div.field
-        [:label.label (tr [:comment])]
-        [:div.control
-         [:input.input {:type "text" :placeholder (tr [:comment])}]]]
-       
+       [markup-textarea]
+       [notifications/error-notification]
+       [markup-comment]
        [:div.field.is-grouped
         [:div.control
-         (if @(rf/subscribe [::notifications/button-loading? id :markup])
-           [:button.button.is-success.is-loading]
-           [:button.button.is-success.has-tooltip-arrow
-            {:disabled (not authenticated?)}
-            [:span.icon {:aria-hidden true} [:i.mi.mi-save]]
-            [:span (tr [:save])]])]]])))
+         [:button.button.is-success.has-tooltip-arrow
+          {:disabled (or errors? (not authenticated?))
+           :class klass
+           :on-click (fn [e] (rf/dispatch [::add-markup document]))}
+          [:span.icon {:aria-hidden true} [:i.mi.mi-save]]
+          [:span (tr [:save])]]]]])))
 
 
