@@ -19,7 +19,7 @@
 
 (def ^:private param-mapping
   {:title [(get-metadata-path "dc:Title")]
-   :creator [(get-metadata-path "dc:Creator")]
+   :author [(get-metadata-path "dc:Creator")]
    :subject [(get-metadata-path "dc:Subject")]
    :description [(get-metadata-path "dc:Description")]
    :publisher [(get-metadata-path "dc:Publisher")]
@@ -30,13 +30,13 @@
    :language [[:head :meta (attr= :name "dc:Language") (attr :content)]
               [(attr :xml:lang)]]
    :rights [(get-metadata-path "dc:Rights")]
-   :source_date [(get-metadata-path "dtb:sourceDate")]
-   :source_edition [(get-metadata-path "dtb:sourceEdition")]
-   :source_publisher [(get-metadata-path "dtb:sourcePublisher")]
-   :source_rights [(get-metadata-path "dtb:sourceRights")]
-   :production_series [(get-metadata-path "prod:series")]
-   :production_series_number [(get-metadata-path "prod:seriesNumber")]
-   :production_source [(get-metadata-path "prod:source")]
+   :source-date [(get-metadata-path "dtb:sourceDate")]
+   :source-edition [(get-metadata-path "dtb:sourceEdition")]
+   :source-publisher [(get-metadata-path "dtb:sourcePublisher")]
+   :source-rights [(get-metadata-path "dtb:sourceRights")]
+   :production-series [(get-metadata-path "prod:series")]
+   :production-series-number [(get-metadata-path "prod:seriesNumber")]
+   :production-source [(get-metadata-path "prod:source")]
    })
 
 (defn get-path [loc path]
