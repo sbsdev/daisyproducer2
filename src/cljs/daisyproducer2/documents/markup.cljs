@@ -76,10 +76,16 @@
  (fn [db [_ response]]
    (let [message (or (get-in response [:response :status-text])
                      (get response :status-text))
-         errors (get-in response [:response :errors])]
+         errors (get-in response [:response :errors])
+         status (get response :status)]
      (-> db
-         (notifications/set-errors :markup message errors)
-         (notifications/clear-button-state :markup :save)))))
+         (notifications/clear-button-state :markup :save)
+         (cond-> (= status 400)
+           ;; presumably a validation problem
+           (assoc-in [:markup :validation] {:message message :errors errors}))
+         (cond-> (not= status 400)
+           ;; some other problem
+           (notifications/set-errors :markup message errors))))))
 
 
 (rf/reg-sub
@@ -104,6 +110,20 @@
   ::set-markup-comment
   (fn [db [_ comment]] (assoc-in db [:markup :comment] comment)))
 
+(rf/reg-event-db
+ ::ack-validation
+ (fn [db [_]]
+   (update db :markup dissoc :validation)))
+
+(rf/reg-sub
+  ::markup-validation
+  (fn [db [_]] (get-in db [:markup :validation])))
+
+(rf/reg-sub
+ ::markup-valid?
+ :<- [::markup-validation]
+ (fn [validation] (empty? validation)))
+
 (defn- markup-comment []
   (let [get-value (fn [e] (-> e .-target .-value))
         reset!    #(rf/dispatch [::set-markup-comment ""])
@@ -122,7 +142,7 @@
 
 (defn- markup-textarea []
   (let [get-value (fn [e] (-> e .-target .-value))
-        klass (when @(rf/subscribe [::notifications/errors?]) "is-danger")
+        klass (when-not @(rf/subscribe [::markup-valid?]) "is-danger")
         ;; the dispatch needs to be sync, otherwise the cursor will
         ;; jump to the end, see
         ;; https://dev.to/kwirke/solving-caret-jumping-in-react-inputs-36ic
@@ -137,24 +157,41 @@
         :aria-label (tr [:markup])
         :on-change #(save! (get-value %))}]]]))
 
+(defn markup-notification []
+  (let [problems @(rf/subscribe [::markup-validation])]
+    (when problems
+      (let [{:keys [message errors]} problems]
+        [:div.block
+         [:div.notification.is-danger
+          [:button.delete
+           {:on-click (fn [e] (rf/dispatch [::ack-validation]))}]
+          [:p [:strong message]]
+          (if (seq errors)
+            [:ul
+             (for [e errors]
+               ^{:key e}
+               [:li (str e)])]
+            [:p (str errors)])]]))))
+
 (defn markup [{id :id :as document}]
   (let [loading? @(rf/subscribe [::notifications/loading? :markup])
         errors? @(rf/subscribe [::notifications/errors?])
         authenticated? @(rf/subscribe [::auth/authenticated?])
+        valid? @(rf/subscribe [::markup-valid?])
         comment? @(rf/subscribe [::markup-comment?])
         klass (when @(rf/subscribe [::notifications/button-loading? :markup :save]) "is-loading")]
     (cond
-      ;;errors? [notifications/error-notification]
+      errors? [notifications/error-notification]
       loading? [notifications/loading-spinner]
       :else
       [:div.block
        [markup-textarea]
-       [notifications/error-notification]
+       [markup-notification]
        [markup-comment]
        [:div.field.is-grouped
         [:div.control
          [:button.button.is-success.has-tooltip-arrow
-          {:disabled (or errors? (not comment?) (not authenticated?))
+          {:disabled (or errors? (not valid?) (not comment?) (not authenticated?))
            :class klass
            :on-click (fn [e] (rf/dispatch [::add-markup document]))}
           [:span.icon {:aria-hidden true} [:i.mi.mi-save]]
