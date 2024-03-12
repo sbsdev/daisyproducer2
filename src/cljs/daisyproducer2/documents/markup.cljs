@@ -33,7 +33,7 @@
  (fn [db [_ document-id markup]]
    (let [_ true]
      (-> db
-         (assoc-in [:markup :content] markup)
+         (assoc :markup {:content markup :comment ""})
          (assoc-in [:loading :markup] false)))))
 
 (rf/reg-event-db
