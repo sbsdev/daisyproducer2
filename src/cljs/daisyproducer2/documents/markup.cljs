@@ -41,6 +41,7 @@
  (fn [db [_ response]]
    (-> db
        (notifications/set-errors :fetch-markup (get response :status-text))
+       (dissoc :markup) ; drop contents that might remain from other documents
        (assoc-in [:loading :markup] false))))
 
 (rf/reg-event-fx
