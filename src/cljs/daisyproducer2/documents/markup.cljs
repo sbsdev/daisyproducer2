@@ -1,5 +1,6 @@
 (ns daisyproducer2.documents.markup
   (:require [ajax.core :as ajax]
+            [clojure.string :as str]
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.auth :as auth]
             [daisyproducer2.ajax :refer [as-transit]]
@@ -94,6 +95,11 @@
  ::markup-comment
  (fn [db _] (-> db :markup :comment)))
 
+(rf/reg-sub
+ ::markup-comment?
+ :<- [::markup-comment]
+ (fn [comment] (not (str/blank? comment))))
+
 (rf/reg-event-db
   ::set-markup-comment
   (fn [db [_ comment]] (assoc-in db [:markup :comment] comment)))
@@ -135,6 +141,7 @@
   (let [loading? @(rf/subscribe [::notifications/loading? :markup])
         errors? @(rf/subscribe [::notifications/errors?])
         authenticated? @(rf/subscribe [::auth/authenticated?])
+        comment? @(rf/subscribe [::markup-comment?])
         klass (when @(rf/subscribe [::notifications/button-loading? :markup :save]) "is-loading")]
     (cond
       ;;errors? [notifications/error-notification]
@@ -147,7 +154,7 @@
        [:div.field.is-grouped
         [:div.control
          [:button.button.is-success.has-tooltip-arrow
-          {:disabled (or errors? (not authenticated?))
+          {:disabled (or errors? (not comment?) (not authenticated?))
            :class klass
            :on-click (fn [e] (rf/dispatch [::add-markup document]))}
           [:span.icon {:aria-hidden true} [:i.mi.mi-save]]
