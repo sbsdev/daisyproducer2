@@ -152,6 +152,11 @@
  (fn [db [_ id]]
    (validation/word-valid? (get-in db [:words :unknown id]))))
 
+(rf/reg-sub
+ ::ignored?
+ (fn [db [_ id]]
+   (get-in db [:words :unknown id :isignored])))
+
 (rf/reg-event-fx
   ::fetch-words-total
   (fn [{:keys [db]} [_ id]]
@@ -191,7 +196,8 @@
 
 (defn buttons [id]
   (let [valid? @(rf/subscribe [::valid? id])
-        authenticated? @(rf/subscribe [::auth/authenticated?])]
+        authenticated? @(rf/subscribe [::auth/authenticated?])
+        ignored? @(rf/subscribe [::ignored? id])]
     [:div.buttons.has-addons
      (if @(rf/subscribe [::notifications/button-loading? id :save])
        [:button.button.is-success.is-loading]
@@ -204,7 +210,7 @@
      (if @(rf/subscribe [::notifications/button-loading? id :ignore])
        [:button.button.is-success.is-loading]
        [:button.button.is-danger.has-tooltip-arrow
-        {:disabled (not authenticated?)
+        {:disabled (or ignored? (not authenticated?))
          :data-tooltip (tr [:ignore])
          :aria-label (tr [:ignore])
          :on-click (fn [e] (rf/dispatch [::ignore-word id]))}

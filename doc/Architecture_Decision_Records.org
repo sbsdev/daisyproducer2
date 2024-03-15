@@ -117,7 +117,7 @@ will use.
 - an article from Microsoft Learn about the [[https://learn.microsoft.com/en-us/azure/architecture/patterns/strangler-fig][Strangler Fig pattern]]
 - [[https://medium.com/@josesousa8/the-strangler-pattern-kill-legacy-like-a-boss-db3db41564ed][The Strangler Pattern: Kill Legacy Like a Boss]]
 
-* DRAFT "Unignore" unknown words
+* PROPOSED "Unignore" unknown words
 - Deciders :: CE, MK
 - Date :: [2024-02-21 Mi]
 
@@ -142,21 +142,28 @@ not been touched, the unknown word will still be marked as ignored.
 Does that make sense? And in a broader sense: do we need a way to
 "unignore" an unknown word?
 
+Another UI problem is that when a word is ignored it is updated in the
+db and dropped from the current pagination window. There is no
+re-fetch of the current pagination window. This can cause problems
+when the ignored word should show up in the same window again (maybe
+there is only one window left). But does a user really ignore a word
+when they are in the last window?
+
 ** Decision Drivers
 
 - Make the UI as simple as possible
 - Make the UI as understandable as possible
-- Make the REST API as contrained as possible
+- Make the REST API as constrained as possible
   - i.e. do not make the PUT end point of local words also reset the
     ignored status of the same unknown word
 - Do not waste big engineering effort on small fish
 
 ** Considered Options
 
-- Ignore the problem :: the usecase is so rare that the users will
+- Ignore the problem :: the use case is so rare that the users will
   almost never run into this situation
 - Disable ignore button for ignored words :: Basically the same as
-  ignoring the problem but make it visible that a words is ingored by
+  ignoring the problem but make it visible that a word is ignored by
   disabling the button. "Ignoring" an already ignored unknown word
   indeed does not make much sense.
 - Separate tab :: Keep the ignored words in a separate tab. Since
@@ -169,15 +176,21 @@ Does that make sense? And in a broader sense: do we need a way to
 
 ** Decision Outcome
 
-Chosen option: "TBD", because ...
+Chosen option: "Disable ignore button for ignored words", because the
+problem is so rare that it does not warrant a complication of the
+day-to-day user interface. The chosen option is to basically ignore
+the problem but make it slightly more visible to the user that a word
+is ignored.
 
 *** Positive Consequences
 
-- 
+- The UI stays simple
 
 *** Negative Consequences
 
-- 
+- There are slight inconsistencies around ignored words when you are
+  on the last page or when you delete a formerly ignored word from the
+  list of local words.
 
 ** Pros and Cons of the Options
 
@@ -194,6 +207,16 @@ ignore is disabled for ignored words.
 - Good :: The UI is more consistent
 - Bad :: doesn't really solve the issue
 
+*** Separate tab
+
+Add a separate tab for ignored words. Because switching to the tab
+causes a refresh, we will not have the weird problems with pagination.
+However the UI is getting cluttered up with another rarely used tab.
+
+- Good :: The pagination of ignored words is more consistent
+- Bad :: Clutter in the UI to solve a minuscule problem
+- Bad :: A solution in search of a problem
+
 *** Add an "Unignore" button
 
 The "Ignore" button is more like a toggle that lets the user toggle
@@ -203,7 +226,7 @@ was) where it should be back (as we are on the page it was
 originally).
 
 - Good :: seems simple and orthogonal
-- Bad :: Weird UI isses with unignored words and pagination
+- Bad :: Weird UI issues with unignored words and pagination
   - These are really confusing for the user
   - and hard to fix properly
 
@@ -340,7 +363,7 @@ words aren't removed from the table ever. Should they be removed?
 - Asynchronously :: remove them with a cron job, kinda like garbage
   collection
 - Synchronously :: remove them when the status of the document is set
-  to fninished
+  to finished
 
 ** Decision Outcome
 
