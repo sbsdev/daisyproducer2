@@ -341,8 +341,8 @@
                              (let [{:keys [error-id errors]} (ex-data e)
                                    message (ex-message e)]
                                (log/warn message error-id errors)
-                               (bad-request {:status-text (ex-message e) :errors errors})))
-                           ))}
+                               (bad-request {:status-text (ex-message e) :errors errors})))))}
+
        :delete {:summary "Delete all but the latest versions of a given document"
                 :middleware [wrap-restricted]
                 :swagger {:security [{:apiAuth []}]}
