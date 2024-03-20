@@ -54,21 +54,26 @@ aka upload, a new version.
 
 ** Decision Outcome
 
-Chosen option: Strangler, i.e. have both UIs in parallel and hide the
-upload functionality (version and image upload and the markup editor)
-in the old UI
+Chosen option: *D-Day*. Initially we prefered the Strangler option for
+its reduced risk and the incremental approach. However when looking at
+the two UIs we realized that this is too confusing for the user to
+have two seemingly unrelated UIs. We think that it is not that much
+more effort to port everything to the new UI at which point we will
+have a disruption in the UI but it is consistent and there is only one
+disruption (instead of several smaller ones)
 
 *** Positive Consequences
 
 - There is only one way to upload
-- more functionality has been migrated from the legacy to the new
+- The UI is consistent
+- Everything will have been migrated from the legacy to the new
   application
 
 *** Negative Consequences
 
-- Iteration2 will take longer as we will also have to implement the
-  markup editor in the new UI
-- The old UI will look increasingly bare
+- Iteration2 will take longer as we will also have to implement
+  - download of end products
+  - state switching
 
 ** Pros and Cons of the Options
 
@@ -95,13 +100,16 @@ essentially also does file upload. However this might be a lot of work
 that we did not plan to do at this time.
 
 As it turns out the markup editor is extremely simple: it is basically
-just a textarea inside a form. Maybe it would be that much work to
+just a textarea inside a form. Maybe it would not be that much work to
 migrate it.
 
 - Good :: The changes are incremental for the user
 - Bad :: More work than we had anticipated
 - Bad :: The old UI will look pretty bare and have very little
   functionality
+- Bad :: The old UI has very little functionality now. It is very
+  confusing for the user to have those two UIs that have to be
+  switched between
 
 *** Parallel
 
