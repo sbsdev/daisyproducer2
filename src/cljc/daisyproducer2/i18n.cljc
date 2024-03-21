@@ -352,7 +352,7 @@
                     :math
                     {:asciimath "AsciiMath"
                      :mathml "MathML"
-                     :both "Both"
+                     :both "Beide"
                      }
                     :image-inclusion
                     {:drop "Ohne"
