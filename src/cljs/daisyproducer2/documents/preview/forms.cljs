@@ -1,7 +1,46 @@
 (ns daisyproducer2.documents.preview.forms
   (:require [daisyproducer2.i18n :refer [tr]]
+            [daisyproducer2.ajax :refer [as-transit]]
             [fork.re-frame :as fork]
             [re-frame.core :as rf]))
+
+(rf/reg-event-fx
+ ::success
+ (fn [{db :db} [_ path format]]
+   {:db (-> db
+            (fork/set-submitting path false)
+            (fork/set-server-message path (str "Fetching " (name format) " successful!")))}))
+
+(rf/reg-event-fx
+ ::failure
+ (fn [{db :db} [_ path format response]]
+   {:db (-> db
+            (fork/set-submitting path false)
+            (fork/set-server-message path (str "Fetching " (name format) " failed!")))}))
+
+(rf/reg-event-fx
+ ::submit-handler
+ (fn [{db :db} [_ format id {:keys [values path]}]]
+   {:db (fork/set-submitting db path true)
+    :http-xhrio
+    (as-transit
+     {:method :get
+      :uri (str "/api/documents/" id "/preview/" (name format))
+      :params values
+      :timeout 2000
+      :on-success [::success path format]
+      :on-failure [::failure path format]})}))
+
+(rf/reg-event-db
+ ::ack-error
+ (fn [db [_ path]]
+   (fork/set-server-message db path false)))
+
+(defn error-notification [message path]
+  [:div.notification.is-danger
+   [:button.delete
+    {:on-click (fn [e] (rf/dispatch [::ack-error path]))}]
+   [:p [:strong message]]])
 
 (defn input
   [{:keys [values handle-change handle-blur disabled?]}
@@ -93,7 +132,7 @@
               :path [:form :braille]
               :prevent-default? true
               :clean-on-unmount? true
-              :on-submit #(rf/dispatch [::preview-braille id %])
+              :on-submit #(rf/dispatch [::submit-handler :braille id %])
               :keywordize-keys true
               }
    (fn [{:keys [path
@@ -102,7 +141,7 @@
 		on-submit-server-message
                 handle-submit] :as props}]
      (if on-submit-server-message
-       [] ; [forms/error-notification on-submit-server-message path]
+       [error-notification on-submit-server-message path]
        [:form {:id form-id :on-submit handle-submit}
         (input props {:name :cells-per-line :label (tr [:forms/cells-per-line]) :type "text"})
         (input props {:name :lines-per-page :label (tr [:forms/lines-per-page]) :type "text"})
