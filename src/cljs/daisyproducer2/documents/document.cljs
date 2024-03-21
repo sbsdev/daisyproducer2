@@ -5,6 +5,7 @@
             [daisyproducer2.documents.image :as image]
             [daisyproducer2.documents.version :as version]
             [daisyproducer2.documents.preview :as preview]
+            [daisyproducer2.documents.preview.forms :as forms]
             [daisyproducer2.documents.markup :as markup]
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.words :as words]
@@ -121,6 +122,34 @@
      [summary document]
      [tabs document]
      [preview/preview-links document]]))
+
+(defn preview-braille []
+  (let [document @(rf/subscribe [::current])]
+    [:section.section>div.container>div.content
+     [summary document]
+     [tabs document]
+     [forms/braille document]]))
+
+(defn preview-large-print-sale []
+  (let [document @(rf/subscribe [::current])]
+    [:section.section>div.container>div.content
+     [summary document]
+     [tabs document]
+     [forms/large-print-sale document]]))
+
+(defn preview-large-print-configurable []
+  (let [document @(rf/subscribe [::current])]
+    [:section.section>div.container>div.content
+     [summary document]
+     [tabs document]
+     [forms/large-print-configurable document]]))
+
+(defn preview-open-document []
+  (let [document @(rf/subscribe [::current])]
+    [:section.section>div.container>div.content
+     [summary document]
+     [tabs document]
+     [forms/open-document document]]))
 
 (defn markup []
   (let [document @(rf/subscribe [::current])]

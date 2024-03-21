@@ -80,6 +80,14 @@
                  :controllers [{:parameters {:path [:id]}}]}]
       ["/preview" {:name :document-preview :view #'document/preview
                    :controllers [{:parameters {:path [:id]}}]}]
+      ["/preview/braille" {:name :document-preview-braille :view #'document/preview-braille
+                           :controllers [{:parameters {:path [:id]}}]}]
+      ["/preview/large-print-sale" {:name :document-preview-large-print-sale :view #'document/preview-large-print-sale
+                                    :controllers [{:parameters {:path [:id]}}]}]
+      ["/preview/large-print-configurable" {:name :document-preview-large-print-configurable :view #'document/preview-large-print-configurable
+                                            :controllers [{:parameters {:path [:id]}}]}]
+      ["/preview/open-document" {:name :document-preview-open-document :view #'document/preview-open-document
+                                 :controllers [{:parameters {:path [:id]}}]}]
       ["/markup" {:name :document-markup :view #'document/markup
                    :controllers [{:parameters {:path [:id]}}]}]
       ["/versions" {:name :document-versions :view #'document/versions

@@ -105,8 +105,97 @@
                     ;;
                     :braille "Braille"
                     :large-print "Large Print"
+                    :large-print-library "Library"
+                    :large-print-sale "Sale"
+                    :large-print-configurable "Configurable"
                     :epub3 "EPUB3"
                     :online-player "Online Player"
+                    :open-document "Open Document"
+                    ;; Download Forms
+                    :grade
+                    {:g0 "Uncontracted"
+                     :g1 "Grade 1"
+                     :g2 "Grade 2"}
+                    :accented-chars
+                    {:basic "All Accents Reduced"
+                     :swiss "Swiss Accents Detailed"}
+                    :footnote-placement
+                    {:standard "Standard"
+                     :end-vol "At end of volume"
+                     :level1 "At end of level1"
+                     :level2 "At end of level2"
+                     :level3 "At end of level3"
+                     :level4 "At end of level4"}
+                    :page-style
+                    {:plain "Plain"
+                     :with-page-nums "With Page Numbers"
+                     :spacious "Spacious"
+                     :scientific "Scientific"
+                     }
+                    :alignment
+                    {:left "Left"
+                     :justified "Justified"
+                     }
+                    :stock-size
+                    {:a3paper "A3"
+                     :a4paper "A4"
+                     }
+                    :line-spacing
+                    {:singlespacing "Single spacing"
+                     :onehalfspacing "One-and-a-half spacing"
+                     :doublespacing "Double spacing"
+                     }
+                    :end-notes
+                    {:none "Plain footnotes"
+                     :document "Document Endnotes"
+                     :chapter "Chapter Endnotes"
+                     }
+                    :image-visibility
+                    {:show "Show Images"
+                     :ignore "Hide Images"
+                     }
+                    :math
+                    {:asciimath "AsciiMath"
+                     :mathml "MathML"
+                     :both "Both"
+                     }
+                    :image-inclusion
+                    {:drop "None"
+                     :link "Linked"
+                     :embed "Embedded"
+                     }
+                    :forms
+                    {
+                     :cells-per-line "Cells per Line"
+                     :lines-per-page "Lines per Page"
+                     :contraction "Contraction"
+                     :hyphenation "Hyphenation"
+                     :depth-of-toc "Depth of table of contents"
+                     :footer-up-to-level "Footer up to level"
+                     :include-sbsform-macros "Include SBSForm macros"
+                     :show-page-numbers "Show original page numbers"
+                     :show-vforms "Show V-Forms"
+                     :downshift.ordinals "Downshift Ordinals"
+                     :enable-capitalization "Enable Capitalization"
+                     :accented-chars "Accented Characters"
+                     :footnote-placement "Placement of Footnotes"
+                     :font-size "Font Size"
+                     :font "Font"
+                     :page-style "Page Style"
+                     :alignment "Alignment"
+                     :stock-size "Stock Size"
+                     :line-spacing "Line Spacing"
+                     :replace-em-with-quote "Replace italics with quote"
+                     :end-notes "End Notes"
+                     :image-visibility "Image Visibility"
+                     :math "Math"
+                     :phonetics "Phonetics"
+                     :image-inclusion "Images"
+                     :line-numbers "Line numbers"
+                     :page-numbers "Page numbers"
+                     :floating-page-numbers "Floating page numbers"
+                     :answer-markup "Answer markup"
+                     }
                     }
                    :de
                    {:missing "Fehlende Übersetzung"
@@ -211,8 +300,95 @@
                     ;;
                     :braille "Braille"
                     :large-print "Grossdruck"
+                    :large-print-library "Ausleih"
+                    :large-print-sale "Verkauf"
+                    :large-print-configurable "Konfigurierbar"
                     :epub3 "EPUB3"
                     :online-player "Online Player"
+                    :open-document "Open Document"
+                    ;; Download Forms
+                    :grade
+                    {:g0 "Vollschrift"
+                     :g1 "Basisschrift"
+                     :g2 "Kurzschrift"}
+                    :accented-chars
+                    {:basic "Alle nur mit Grundbuchstaben"
+                     :swiss "Schweizer Akzente ausführlich"}
+                    :footnote-placement
+                    {:standard "Standard"
+                     :end-vol "Am Bandende"
+                     :level1 "Am Ende von level1"
+                     :level2 "Am Ende von level2"
+                     :level3 "Am Ende von level3"
+                     :level4 "Am Ende von level4"}
+                    :page-style
+                    {:plain "Einfach"
+                     :with-page-nums "Mit Original-Seitenzahlen"
+                     :spacious "Level2 in bodymatter immer auf neuer Seite"
+                     :scientific "Wissenschaftlich"
+                     }
+                    :alignment
+                    {:left "Linksbündig"
+                     :justified "Blocksatz"
+                     }
+                    :stock-size
+                    {:a3paper "A3"
+                     :a4paper "A4"
+                     }
+                    :line-spacing
+                    {:singlespacing "Single spacing"
+                     :onehalfspacing "One-and-a-half spacing"
+                     :doublespacing "Double spacing"
+                     }
+                    :end-notes
+                    {:none "Normale Fussnoten"
+                     :document "Endnotes am Ende des Dokuments"
+                     :chapter "Endnotes am Ende des Kapitels"
+                     }
+                    :image-visibility
+                    {:show "Show Images"
+                     :ignore "Hide Images"
+                     }
+                    :math
+                    {:asciimath "AsciiMath"
+                     :mathml "MathML"
+                     :both "Both"
+                     }
+                    :image-inclusion
+                    {:drop "Ohne"
+                     :link "Linked"
+                     :embed "Embedded"
+                     }
+                    :forms
+                    {:cells-per-line "Zellen pro Zeile"
+                     :lines-per-page "Zeilen pro Seite"
+                     :contraction "Kürzungsgrad"
+                     :hyphenation "Silbentrennung"
+                     :depth-of-toc "Angezeigte Ebenen im Inhaltsverzeichnis"
+                     :footer-up-to-level "Angezeigte Ebenen im Laufindex"
+                     :include-sbsform-macros "SBSForm-Makros mitliefern"
+                     :show-page-numbers "Schwarzschrift-Seitenzahlen anzeigen"
+                     :show-vforms "Höflichkeitsformen anzeigen"
+                     :downshift-ordinals "Ordnungszahlen herabsetzen"
+                     :enable-capitalization "Grossschreibung einschalten"
+                     :accented-chars "Akzentbuchstaben"
+                     :footnote-placement "Anordnung der Fussnoten"
+                     :font-size "Fontgrösse"
+                     :font "Font"
+                     :page-style "Seitenstil"
+                     :alignment "Alignment"
+                     :stock-size "Papiergrösse"
+                     :line-spacing "Zeilenabstabstand"
+                     :replace-em-with-quote "Kursiv mit Apostrophe ersetzen"
+                     :end-notes "End Notes"
+                     :image-visibility "Bilder"
+                     :math "Math"
+                     :phonetics "Phonetics"
+                     :image-inclusion "Images"
+                     :line-numbers "Line numbers"
+                     :page-numbers "Page numbers"
+                     :floating-page-numbers "Floating page numbers"
+                     :answer-markup "Antwort Markup"}
                     }
                    })
 

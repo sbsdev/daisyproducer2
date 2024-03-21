@@ -31,6 +31,7 @@
                  [day8.re-frame/http-fx "0.2.4"]
                  [expound "0.9.0"]
                  [funcool/struct "1.4.0"]
+                 [fork "2.4.3"] ;; Form Library for re-frame
                  [io.azam.ulidj/ulidj "1.0.4"] ;; for ulid generation
                  [io.prometheus/simpleclient_hotspot "0.12.0"]
                  [jarohen/chime "0.3.3"]
