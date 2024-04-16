@@ -7,7 +7,9 @@
             [daisyproducer2.db.core :as db]
             [daisyproducer2.metrics :as metrics]
             [iapetos.collector.fn :as prometheus]
-            [mount.core :refer [defstate]])
+            [mount.core :refer [defstate]]
+            [daisyproducer2.documents.images :as images]
+            [daisyproducer2.documents.versions :as versions])
   (:import
    (java.time LocalTime Period ZonedDateTime ZoneId)))
 
@@ -15,9 +17,19 @@
   (->> (db/delete-unknown-words-of-finished-documents)
        (log/debugf "Removed %s unknown words of finished documents")))
 
+(defn- cleanup-images []
+  (->> (images/delete-images-of-finished-documents)
+       (log/debugf "Removed %s images of finished documents")))
+
+(defn- cleanup-old-versions []
+  (->> (versions/delete-old-versions-of-finished-documents)
+       (log/debugf "Removed %s versions of finished documents")))
+
 (defn- cleanup []
   ;; cleanup old versions
+  (cleanup-old-versions)
   ;; remove images
+  (cleanup-images)
   ;; clean up unknown words
   (cleanup-unknown-words))
 

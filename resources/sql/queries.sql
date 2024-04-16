@@ -74,17 +74,40 @@ DELETE FROM documents_version WHERE id = :id
 
 -- :name delete-old-versions :! :n
 -- :doc Delete all but the latest versions for given `document_id`.
--- FIXME: really this should be DELETE FROM documents_version WHERE document_id = :document_id AND id NOT IN (SELECT id FROM documents_version WHERE document_id = :document_id ORDER BY created_at desc LIMIT 1)
--- but this is apparently not supported yet by the version of mariadb that we have
 DELETE FROM documents_version
 WHERE document_id = :document_id
-AND id <> (
+AND id NOT IN (
+    -- the nested select is needed to avoid a mysql error, see https://stackoverflow.com/a/43171707
     SELECT * FROM (
-    	   SELECT id FROM documents_version
-	   WHERE document_id = :document_id
-	   ORDER BY created_at DESC
-	   LIMIT 1)
-    AS dt)
+    SELECT MAX(id) FROM documents_version
+    GROUP BY document_id) t)
+
+-- :name get-old-versions-of-finished-documents :? :*
+-- :doc Get old versions that belong to any document that is in "finished" state
+SELECT * FROM documents_version version
+JOIN documents_document doc
+ON version.document_id = doc.id
+JOIN documents_state state
+ON doc.state_id = state.id
+WHERE state.name = "finished"
+AND version.id NOT IN (
+    SELECT MAX(id) FROM documents_version
+    GROUP BY document_id)
+
+-- :name delete-old-versions-of-finished-documents :! :n
+-- :doc Remove old versions that belong to any document that is in "finished" state
+DELETE version
+FROM documents_version version
+JOIN documents_document doc
+ON version.document_id = doc.id
+JOIN documents_state state
+ON doc.state_id = state.id
+WHERE state.name = "finished"
+AND version.id NOT IN (
+    -- the nested select is needed to avoid a mysql error, see https://stackoverflow.com/a/43171707
+    SELECT * FROM (
+    SELECT MAX(id) FROM documents_version
+    GROUP BY document_id) t)
 
 ------------
 -- Images --
@@ -127,6 +150,25 @@ DELETE FROM documents_image WHERE id = :id
 -- :name delete-all-images :! :n
 -- :doc Delete all image for a for a given `document_id`.
 DELETE FROM documents_image WHERE document_id = :document_id
+
+-- :name get-images-of-finished-documents :? :*
+-- :doc Get all images that belong to any document that is in "finished" state
+SELECT * FROM documents_image image
+JOIN documents_document doc
+ON image.document_id = doc.id
+JOIN documents_state state
+ON doc.state_id = state.id
+WHERE state.name = "finished"
+
+-- :name delete-images-of-finished-documents :! :n
+-- :doc Delete all images that belong to any document that is in "finished" state
+DELETE image
+FROM documents_image image
+JOIN documents_document doc
+ON image.document_id = doc.id
+JOIN documents_state state
+ON doc.state_id = state.id
+WHERE state.name = "finished"
 
 ------------------
 -- Global Words --
