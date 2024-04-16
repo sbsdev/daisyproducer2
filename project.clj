@@ -4,7 +4,7 @@
   :url "https://github.com/sbsdev/daisyproducer2"
 
   :dependencies [[babashka/fs "0.5.20"]
-                 [babashka/process "0.5.21"]
+                 [babashka/process "0.5.22"]
                  [buddy/buddy-auth "3.0.323"]
                  [buddy/buddy-core "1.11.423"]
                  [buddy/buddy-hashers "2.0.167"]
@@ -47,7 +47,7 @@
                  [metosin/ring-http-response "0.9.3"]
                  [mount "0.1.17"]
                  [mysql/mysql-connector-java "8.0.33"]
-                 [nrepl "1.1.0"]
+                 [nrepl "1.1.1"]
                  [org.clojars.pntblnk/clj-ldap "0.0.17"]
                  [org.clojure/clojure "1.11.1"]
                  [org.clojure/clojurescript "1.11.60" :scope "provided"]
@@ -122,10 +122,10 @@
                                  [re-frisk "1.6.0"]
                                  [ring/ring-devel "1.11.0"]
                                  [ring/ring-mock "0.4.0"]
-                                 [io.github.noahtheduke/splint "1.10.1"]]
+                                 [io.github.noahtheduke/splint "1.14.0"]]
                   :plugins      [[com.jakemccrary/lein-test-refresh "0.25.0"]
                                  [jonase/eastwood "1.4.2"]
-                                 [cider/cider-nrepl "0.45.0"]]
+                                 [cider/cider-nrepl "0.47.1"]]
                   
                   
                   :source-paths ["env/dev/clj"  "env/dev/cljs" "test/cljs" ]
