@@ -235,7 +235,7 @@
       [version-search document-id]]
      [:div.control
       [version-upload document-id]]
-     [:div.control
+     #_[:div.control
       [delete-old-versions-button document-id]]]]])
 
 (defn- version-row [{:keys [content created-at created-by comment]}]
