@@ -55,6 +55,8 @@
                     :old "Old"
                     :in-production "In Production"
                     :finished "Finished"
+                    :close "Close"
+                    :reopen "Reopen"
                     ;;
                     :title "Title"
                     :author "Author"
@@ -250,6 +252,8 @@
                     :new "Neu"
                     :in-production "In Produktion"
                     :finished "Fertig"
+                    :close "Abschliessen"
+                    :reopen "Wiedereröffnen"
                     ;;
                     :title "Titel"
                     :author "Autor"

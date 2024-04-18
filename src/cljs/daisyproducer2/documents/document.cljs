@@ -70,14 +70,18 @@
      [tab-link (str "#/documents/" id "/preview") (tr [:preview]) :document-preview]
      ]]])
 
-(defn summary [{:keys [title author source-publisher state-id]}]
-  [:div.block
+(defn summary [{:keys [title author source-publisher state-id] :as document}]
+  [:div.columns
+   [:div.column
+    [:div.block
      [:table.table
       [:tbody
        [:tr [:th {:width 200} (tr [:title])] [:td title]]
        [:tr [:th (tr [:author])] [:td author]]
        [:tr [:th (tr [:source-publisher])] [:td source-publisher]]
-       [:tr [:th (tr [:state])] [:td [state/state state-id]]]]]])
+       [:tr [:th (tr [:state])] [:td [state/state state-id]]]]]]]
+   [:div.column.is-narrow
+    [state/button document]]])
 
 (defn details [document]
   [:div.block
@@ -89,9 +93,7 @@
                      (get document k))]
            :when (not (string/blank? v))]
        ^{:key k}
-       [:tr [:th (tr [k])] [:td v]])]]
-   #_[:button.button.is-success
-    (tr [:transitions-state] [(-> document :state-id state/next-mapping state/mapping)])]])
+       [:tr [:th (tr [k])] [:td v]])]]])
 
 (defn page []
   (let [document @(rf/subscribe [::current])]
