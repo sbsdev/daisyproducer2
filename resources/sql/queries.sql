@@ -21,6 +21,12 @@ SELECT *, (CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END) A
 FROM documents_document
 WHERE id = :id
 
+-- :name update-document-state :! :n
+-- :doc update the `state-id` field of a document with given `id`
+UPDATE documents_document
+SET state_id = :state-id
+WHERE id = :id
+
 --------------
 -- Products --
 --------------

@@ -14,6 +14,7 @@
    [daisyproducer2.middleware :refer [wrap-authorized wrap-restricted]]
    [daisyproducer2.middleware.exception :as exception]
    [daisyproducer2.middleware.formats :as formats]
+   [daisyproducer2.state-utils :as state]
    [daisyproducer2.validation :as validation]
    [daisyproducer2.words.confirm :as confirm]
    [daisyproducer2.words.global :as global]
@@ -35,6 +36,7 @@
 (s/def ::spelling (s/and int? #{0 1}))
 (s/def ::braille (s/and string? validation/braille-valid?))
 (s/def ::hyphenation (s/and string? validation/hyphenation-valid?))
+(s/def ::state #{"open" "closed"})
 
 (def default-limit 200)
 
@@ -111,7 +113,27 @@
              :handler (fn [{{{:keys [id]} :path} :parameters}]
                         (if-let [doc (db/get-document {:id id})]
                           (ok doc)
-                          (not-found)))}}]]]
+                          (not-found)))}
+
+       :patch {:summary "Patch a document, e.g. update the state"
+               :middleware [wrap-restricted wrap-authorized]
+               :swagger {:security [{:apiAuth []}]}
+               :authorized #{:admin :it}
+               :parameters {:path {:id int?}
+                            :body {:state ::state}}
+               :handler (fn [{{{:keys [id]} :path {:keys [state]} :body} :parameters}]
+                          (let [doc (db/get-document {:id id})
+                                state-id (get state/keyword-to-state-id (keyword state))]
+                            (cond
+                              (nil? doc) (not-found)
+                              (= (:state-id doc) state-id)
+                              (conflict {:status-text (if (= state "closed") "Cannot close a closed production" "Cannot reopen an open production")})
+                              :else (try
+                                      (db/update-document-state {:id id :state-id state-id})
+                                      (no-content)
+                                      (catch clojure.lang.ExceptionInfo e
+                                        (log/error (ex-message e))
+                                        (internal-server-error {:status-text (ex-message e)}))))))}}]]]
 
    ["/words"
     {:swagger {:tags ["Global Words"]}}
