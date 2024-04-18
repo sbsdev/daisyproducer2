@@ -131,6 +131,7 @@
       :put {:summary "Update or create a global word"
             :middleware [wrap-restricted wrap-authorized]
             :swagger {:security [{:apiAuth []}]}
+            :authorized #{:admin}
             :parameters {:body {:untranslated string?
                                 :type int?
                                 :uncontracted ::braille
@@ -143,6 +144,7 @@
       :delete {:summary "Delete a global word"
                :middleware [wrap-restricted wrap-authorized]
                :swagger {:security [{:apiAuth []}]}
+               :authorized #{:admin :it}
                :parameters {:body {:untranslated string?
                                    :type int?
                                    :uncontracted ::braille
@@ -432,6 +434,7 @@
      :put {:summary "Confirm a local word"
            :middleware [wrap-restricted wrap-authorized]
            :swagger {:security [{:apiAuth []}]}
+           :authorized #{:admin}
            :parameters {:body {:untranslated string? :type int?
                                :uncontracted ::braille
                                :contracted ::braille

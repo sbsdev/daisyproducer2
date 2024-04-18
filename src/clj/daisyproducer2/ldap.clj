@@ -25,7 +25,8 @@
 
 (defn- extract-role [s]
   (->> s
-   (re-matches #"cn=([a-z_.]+),cn=roles,cn=accounts,dc=sbszh,dc=ch")
+   ;; only extract roles related to Daisyproducer
+   (re-matches #"cn=daisyproducer.([a-z_.]+),cn=roles,cn=accounts,dc=sbszh,dc=ch")
    second))
 
 (defn- add-groups [{memberships :memberOf :as user}]
@@ -37,7 +38,9 @@
 (defn- add-roles [{memberships :memberOf :as user}]
   (let [roles (->> memberships
                    (map extract-role)
-                   (remove nil?))]
+                   (map keyword)
+                   (remove nil?)
+                   set)]
     (assoc user :roles roles)))
 
 (defn authenticate [username password & [attributes]]

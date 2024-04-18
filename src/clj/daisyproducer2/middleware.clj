@@ -1,6 +1,7 @@
 (ns daisyproducer2.middleware
   (:require
     [daisyproducer2.env :refer [defaults]]
+    [clojure.set :refer [intersection]]
     [clojure.tools.logging :as log]
     [daisyproducer2.layout :refer [error-page]]
     [daisyproducer2.i18n :refer [tr]]
@@ -9,6 +10,7 @@
     [muuntaja.middleware :refer [wrap-format wrap-params]]
     [daisyproducer2.config :refer [env]]
     [daisyproducer2.auth :as auth]
+    [reitit.ring :as ring]
     [ring.middleware.flash :refer [wrap-flash]]
     [ring.util.http-response :refer [unauthorized forbidden]]
     [ring.adapter.undertow.middleware.session :refer [wrap-session]]
@@ -64,13 +66,35 @@
   (forbidden
    {:status-text (tr [:not-authorized] [(:uri request)])}))
 
+;; https://learning.oreilly.com/library/view/web-development-with/9781680508833/f_0048.xhtml#:-:text=get-roles-from-match
+(defn get-roles-from-match [request]
+  (let [request-method (:request-method request)]
+    (-> request (ring/get-match) (get-in [:data request-method :authorized] #{}))))
+
+(defn- get-roles-from-identity [request]
+  (->> (get-in request [:identity :user :roles])
+       ;; unfortunately the jws-backend parses the token as json and
+       ;; hence ignores keywords and sets. So we have to reconstruct
+       ;; those here
+       (map keyword)
+       set))
+
+(defn authorized?
+  "Return true if the roles of the identity in `request` intersect with
+  the `roles` defined in the router. So if an identity has no roles it
+  will never be authorized."
+  [request]
+  (let [route-roles (get-roles-from-match request)
+        request-roles (get-roles-from-identity request)]
+    (some? (seq (intersection route-roles request-roles)))))
+
+(defn wrap-authorized [handler]
+  (restrict handler {:handler authorized?
+                     :on-error on-unauthorized})  )
+
 (defn wrap-restricted [handler]
   (restrict handler {:handler authenticated?
                      :on-error on-unauthenticated}))
-
-(defn wrap-authorized [handler]
-  (restrict handler {:handler auth/is-admin?
-                     :on-error on-unauthorized}))
 
 ;; see https://adambard.com/blog/clojure-auth-with-buddy/ for some
 ;; inspiration on how to do JW* Token Authentication
