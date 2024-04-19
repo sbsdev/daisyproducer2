@@ -103,12 +103,12 @@
         (db/delete-old-versions {:document_id document-id}))
       0)))
 
-(defn delete-old-versions-of-finished-documents
-  "Delete all but the latest version of all finished documents. Return the number of rows affected."
+(defn delete-old-versions-of-closed-documents
+  "Delete all but the latest version of all closed documents. Return the number of rows affected."
   []
   ;; we need to fetch the versions first to know the path to the xml file, which we
   ;; will have to delete also
-  (let [old-versions (db/get-old-versions-of-finished-documents {})]
+  (let [old-versions (db/get-old-versions-of-closed-documents {})]
     (if (seq old-versions)
       (do
         (doseq [old-version old-versions]
@@ -116,7 +116,7 @@
             ;; if an version file does not exist we simply log that fact, but do
             ;; not raise an exception
             (log/errorf "Attempting to delete non-existing version file %s" (version-path old-version))))
-        (db/delete-old-versions-of-finished-documents {}))
+        (db/delete-old-versions-of-closed-documents {}))
       0)))
 
 (prometheus/instrument! metrics/registry #'get-versions)
@@ -126,3 +126,4 @@
 (prometheus/instrument! metrics/registry #'insert-version)
 (prometheus/instrument! metrics/registry #'delete-version)
 (prometheus/instrument! metrics/registry #'delete-old-versions)
+(prometheus/instrument! metrics/registry #'delete-old-versions-of-closed-documents)

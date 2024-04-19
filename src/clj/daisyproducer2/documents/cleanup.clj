@@ -1,6 +1,6 @@
 (ns daisyproducer2.documents.cleanup
   "Cron job to discard no longer needed artifacts after a document has been 
-  finished, such as pre-computed unknown words, old versions and
+  closed, such as pre-computed unknown words, old versions and
   images."
   (:require [chime.core :as chime]
             [clojure.tools.logging :as log]
@@ -14,16 +14,16 @@
    (java.time LocalTime Period ZonedDateTime ZoneId)))
 
 (defn- cleanup-unknown-words []
-  (->> (db/delete-unknown-words-of-finished-documents)
-       (log/debugf "Removed %s unknown words of finished documents")))
+  (->> (db/delete-unknown-words-of-closed-documents)
+       (log/debugf "Removed %s unknown words of closed documents")))
 
 (defn- cleanup-images []
-  (->> (images/delete-images-of-finished-documents)
-       (log/debugf "Removed %s images of finished documents")))
+  (->> (images/delete-images-of-closed-documents)
+       (log/debugf "Removed %s images of closed documents")))
 
 (defn- cleanup-old-versions []
-  (->> (versions/delete-old-versions-of-finished-documents)
-       (log/debugf "Removed %s versions of finished documents")))
+  (->> (versions/delete-old-versions-of-closed-documents)
+       (log/debugf "Removed %s versions of closed documents")))
 
 (defn- cleanup []
   ;; cleanup old versions
@@ -34,7 +34,7 @@
   (cleanup-unknown-words))
 
 (defstate cleanup-cron
-  ;; clean up finished documents every day at 22:00
+  ;; clean up closed documents every day at 22:00
   :start (chime/chime-at
           (chime/periodic-seq
            (-> (LocalTime/of 22 0 0)
@@ -46,3 +46,5 @@
           (.close cleanup-cron)))
 
 (prometheus/instrument! metrics/registry #'cleanup-unknown-words)
+(prometheus/instrument! metrics/registry #'cleanup-images)
+(prometheus/instrument! metrics/registry #'cleanup-old-versions)

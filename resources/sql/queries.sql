@@ -96,27 +96,27 @@ AND id NOT IN (
     SELECT MAX(id) FROM documents_version
     GROUP BY document_id) t)
 
--- :name get-old-versions-of-finished-documents :? :*
--- :doc Get old versions that belong to any document that is in "finished" state
+-- :name get-old-versions-of-closed-documents :? :*
+-- :doc Get old versions that belong to any document that is in "closed" state
 SELECT * FROM documents_version version
 JOIN documents_document doc
 ON version.document_id = doc.id
 JOIN documents_state state
 ON doc.state_id = state.id
-WHERE state.name = "finished"
+WHERE state.name = "closed"
 AND version.id NOT IN (
     SELECT MAX(id) FROM documents_version
     GROUP BY document_id)
 
--- :name delete-old-versions-of-finished-documents :! :n
--- :doc Remove old versions that belong to any document that is in "finished" state
+-- :name delete-old-versions-of-closed-documents :! :n
+-- :doc Remove old versions that belong to any document that is in "closed" state
 DELETE version
 FROM documents_version version
 JOIN documents_document doc
 ON version.document_id = doc.id
 JOIN documents_state state
 ON doc.state_id = state.id
-WHERE state.name = "finished"
+WHERE state.name = "closed"
 AND version.id NOT IN (
     -- the nested select is needed to avoid a mysql error, see https://stackoverflow.com/a/43171707
     SELECT * FROM (
@@ -165,24 +165,24 @@ DELETE FROM documents_image WHERE id = :id
 -- :doc Delete all image for a for a given `document_id`.
 DELETE FROM documents_image WHERE document_id = :document_id
 
--- :name get-images-of-finished-documents :? :*
--- :doc Get all images that belong to any document that is in "finished" state
+-- :name get-images-of-closed-documents :? :*
+-- :doc Get all images that belong to any document that is in "closed" state
 SELECT * FROM documents_image image
 JOIN documents_document doc
 ON image.document_id = doc.id
 JOIN documents_state state
 ON doc.state_id = state.id
-WHERE state.name = "finished"
+WHERE state.name = "closed"
 
--- :name delete-images-of-finished-documents :! :n
--- :doc Delete all images that belong to any document that is in "finished" state
+-- :name delete-images-of-closed-documents :! :n
+-- :doc Delete all images that belong to any document that is in "closed" state
 DELETE image
 FROM documents_image image
 JOIN documents_document doc
 ON image.document_id = doc.id
 JOIN documents_state state
 ON doc.state_id = state.id
-WHERE state.name = "finished"
+WHERE state.name = "closed"
 
 ------------------
 -- Global Words --
@@ -348,15 +348,15 @@ ON u.untranslated = l.untranslated AND u.type = l.type AND u.document_id = l.doc
 WHERE u.untranslated IS NULL
 AND l.document_id = :document-id
 
--- :name delete-unknown-words-of-finished-documents :! :n
--- :doc Remove all unknown words that belong to any document that is in "finished" state
+-- :name delete-unknown-words-of-closed-documents :! :n
+-- :doc Remove all unknown words that belong to any document that is in "closed" state
 DELETE unknown
 FROM dictionary_unknownword unknown
 JOIN documents_document doc
 ON unknown.document_id = doc.id
 JOIN documents_state state
 ON doc.state_id = state.id
-WHERE state.name = "finished"
+WHERE state.name = "closed"
 
 -- :name get-all-unknown-words :? :*
 -- :doc given a `document-id` and a `:grade` retrieve all unknown words for it. If `:grade` is 0 then return words for both grade 1 and 2. Otherwise just return the unknown words for the given grade.This assumes that the new words contained in this document have been inserted into the `dictionary_unknownword` table.
@@ -527,7 +527,7 @@ LEFT JOIN hyphenation_words AS hyphenation
 ON words.untranslated = hyphenation.word
 AND hyphenation.spelling = (CASE doc.language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END)
 WHERE words.isConfirmed = FALSE
--- only get words from finished productions
+-- only get words from closed productions
 AND doc.state_id = (SELECT id FROM documents_state WHERE sort_order = (SELECT MAX(sort_order) FROM documents_state))
 ORDER BY words.document_id, words.untranslated
 LIMIT :limit OFFSET :offset
