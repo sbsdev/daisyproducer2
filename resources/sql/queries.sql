@@ -8,6 +8,7 @@ SELECT doc.*, (CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL EN
 FROM documents_document doc
 JOIN documents_state state
 ON doc.state_id = state.id
+ORDER BY doc.state_id
 LIMIT :limit OFFSET :offset
 
 -- :name find-documents :? :*
@@ -17,6 +18,7 @@ FROM documents_document doc
 JOIN documents_state state
 ON doc.state_id = state.id
 WHERE LOWER(doc.title) LIKE LOWER(:search) OR LOWER(doc.author) LIKE LOWER(:search)
+ORDER BY doc.state_id
 LIMIT :limit OFFSET :offset
 
 -- :name get-document :? :1
