@@ -156,46 +156,6 @@
          [:span.icon {:aria-hidden true} [:i.mi.mi-backup]]
          [:span (tr [:upload])]]]])))
 
-(rf/reg-event-fx
-  ::delete-old-versions
-  (fn [{:keys [db]} [_ document-id]]
-    {:db (-> db
-             (assoc-in [:loading :versions] true)
-             (notifications/set-button-state :all-versions :delete))
-     :http-xhrio (as-transit
-                  {:method          :delete
-                   :headers 	    (auth/auth-header db)
-                   :uri             (str "/api/documents/" document-id "/versions")
-                   :on-success      [::delete-versions-success document-id]
-                   :on-failure      [::delete-versions-failure]})}))
-
-(rf/reg-event-fx
- ::delete-versions-success
- (fn [{:keys [db]} [_ document-id]]
-   {:db (-> db
-            (assoc-in [:loading :versions] false)
-            (notifications/clear-button-state :all-versions :delete))
-    :dispatch [::fetch-versions document-id]}))
-
-(rf/reg-event-db
- ::delete-versions-failure
- (fn [db [_ response]]
-   (-> db
-       (notifications/set-errors :delete-old-versions (get response :status-text))
-       (assoc-in [:loading :versions] false)
-       (notifications/clear-button-state :all-versions :delete))))
-
-(defn delete-old-versions-button [document-id]
-  (let [authenticated? @(rf/subscribe [::auth/authenticated?])
-        has-multiple-versions? @(rf/subscribe [::multiple-versions?])]
-    [:div.buttons.has-addons.is-right
-     [:button.button.is-danger.has-tooltip-arrow
-      {:disabled (not (and authenticated? has-multiple-versions?))
-       :data-tooltip (tr [:delete-old-versions])
-       :aria-label (tr [:delete-old-versions])
-       :on-click (fn [e] (rf/dispatch [::delete-old-versions document-id]))}
-      [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]]]))
-
 (rf/reg-sub ::search (fn [db [_ document-id]] (get-search db document-id) ))
 
 (rf/reg-event-fx
@@ -234,9 +194,7 @@
      [:div.control.is-expanded
       [version-search document-id]]
      [:div.control
-      [version-upload document-id]]
-     #_[:div.control
-      [delete-old-versions-button document-id]]]]])
+      [version-upload document-id]]]]])
 
 (defn- version-row [{:keys [content created-at created-by comment]}]
   [:tr

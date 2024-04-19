@@ -86,16 +86,6 @@ VALUES (:comment, :document_id, :content, :user)
 -- :doc Delete a version.
 DELETE FROM documents_version WHERE id = :id
 
--- :name delete-old-versions :! :n
--- :doc Delete all but the latest versions for given `document_id`.
-DELETE FROM documents_version
-WHERE document_id = :document_id
-AND id NOT IN (
-    -- the nested select is needed to avoid a mysql error, see https://stackoverflow.com/a/43171707
-    SELECT * FROM (
-    SELECT MAX(id) FROM documents_version
-    GROUP BY document_id) t)
-
 -- :name get-old-versions-of-closed-documents :? :*
 -- :doc Get old versions that belong to any document that is in "closed" state
 SELECT * FROM documents_version version

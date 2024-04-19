@@ -43,7 +43,6 @@
                     :new-version "New Version"
                     :new-image "New Image"
                     :upload-images "Upload Images"
-                    :delete-old-versions "Remove old versions"
                     :delete-all-images "Remove all images"
                     ;;
                     :documents "Documents"
@@ -241,7 +240,6 @@
                     :new-version "Neue Version"
                     :new-image "Neues Bild"
                     :upload-images "Bilder hochladen"
-                    :delete-old-versions "Alte Versionen löschen"
                     :delete-all-images "Alle Bilder löschen"
                     ;;
                     :documents "Dokumente"
