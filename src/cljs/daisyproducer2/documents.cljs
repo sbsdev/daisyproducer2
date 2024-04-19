@@ -80,10 +80,10 @@
      [:tr
       [:th (tr [:title])] [:th (tr [:author])] [:th (tr [:source-publisher])] [:th (tr [:state])]]]
     [:tbody
-     (for [{:keys [id author source-publisher state-id] :as document} @(rf/subscribe [::documents-sorted])]
+     (for [{:keys [id author source-publisher state] :as document} @(rf/subscribe [::documents-sorted])]
        ^{:key id}
        [:tr
         [:td [document-link document]]
         [:td author] [:td source-publisher]
-        [:td [state/state state-id]]])]]])
+        [:td [state/state state]]])]]])
 

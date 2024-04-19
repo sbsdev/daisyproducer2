@@ -4,27 +4,33 @@
 
 -- :name get-documents :? :*
 -- :doc retrieve all documents given a limit and an offset
-SELECT *, (CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END) AS spelling
-FROM documents_document
+SELECT doc.*, (CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END) AS spelling, state.name AS state
+FROM documents_document doc
+JOIN documents_state state
+ON doc.state_id = state.id
 LIMIT :limit OFFSET :offset
 
 -- :name find-documents :? :*
 -- :doc retrieve all documents given a `search` term, a `limit` and an `offset`
-SELECT *, (CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END) AS spelling
-FROM documents_document
-WHERE LOWER(title) LIKE LOWER(:search) OR LOWER(author) LIKE LOWER(:search)
+SELECT doc.*, (CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END) AS spelling, state.name AS state
+FROM documents_document doc
+JOIN documents_state state
+ON doc.state_id = state.id
+WHERE LOWER(doc.title) LIKE LOWER(:search) OR LOWER(doc.author) LIKE LOWER(:search)
 LIMIT :limit OFFSET :offset
 
 -- :name get-document :? :1
 -- :doc retrieve a document record given the `id`
-SELECT *, (CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END) AS spelling
-FROM documents_document
-WHERE id = :id
+SELECT doc.*, (CASE language WHEN "de" THEN 1 WHEN "de-1901" THEN 0 ELSE NULL END) AS spelling, state.name AS state
+FROM documents_document doc
+JOIN documents_state state
+ON doc.state_id = state.id
+WHERE doc.id = :id
 
 -- :name update-document-state :! :n
--- :doc update the `state-id` field of a document with given `id`
+-- :doc update the `state` field of a document with given `id`. The state can be either "open" or "closed"
 UPDATE documents_document
-SET state_id = :state-id
+SET state_id = (CASE :state WHEN "open" THEN 7 WHEN "closed" THEN 8 END)
 WHERE id = :id
 
 --------------

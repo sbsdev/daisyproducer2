@@ -3,18 +3,16 @@
    [daisyproducer2.ajax :refer [as-transit]]
    [daisyproducer2.auth :as auth]
    [daisyproducer2.i18n :refer [tr]]
-   [daisyproducer2.state-utils :as utils]
    [daisyproducer2.words.notifications :as notifications]
    [re-frame.core :as rf]))
 
 ;; define a bulma tag class for each state, see https://bulma.io/documentation/elements/tag/
-(def klass {:open "is-success" :closed "is-info"})
+(def klass {"open" "is-success" "closed" "is-info"})
 
 (defn state
   "Component to diplay the state in a Bulma tag"
-  [state-id]
-  (let [state (utils/state-id-to-keyword state-id state-id)
-        klass (klass state-id)]
+  [state]
+  (let [klass (klass state)]
     [:span.tag {:class klass} state]))
 
 (rf/reg-sub
@@ -34,7 +32,7 @@
                   {:method          :patch
                    :headers 	     (auth/auth-header db)
                    :uri             (str "/api/documents/" (:id document))
-                   :body            {:state (name state)}
+                   :params          {:state state}
                    :on-success      [::ack-update-state state]
                    :on-failure      [::ack-failure]})}))
 
@@ -55,23 +53,20 @@
          (notifications/clear-button-state :document :update)))))
 
 
-(defn- open? [state-id]
-  (= state-id 7))
-
 (defn button
   "Button to change the state of a production"
   [document]
   (let [admin? @(rf/subscribe [::auth/is-admin?])
         state @(rf/subscribe [::current-state])]
     (when admin?
-      (if (open? state)
+      (if (= state "open")
         [:button.button.is-success
-         {:on-click (fn [e] (rf/dispatch [::update-state document :close]))}
+         {:on-click (fn [e] (rf/dispatch [::update-state document "closed"]))}
          [:span.icon {:aria-hidden true}
           [:i.mi.mi-close]]
          [:span (tr [:close])]]
         [:button.button.is-success.is-light
-         {:on-click (fn [e] (rf/dispatch [::update-state document :open]))}
+         {:on-click (fn [e] (rf/dispatch [::update-state document "open"]))}
          [:span.icon {:aria-hidden true}
           [:i.mi.mi-refresh]]
          [:span (tr [:reopen])]]))))

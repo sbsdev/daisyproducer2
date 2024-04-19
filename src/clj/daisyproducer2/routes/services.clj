@@ -14,7 +14,6 @@
    [daisyproducer2.middleware :refer [wrap-authorized wrap-restricted]]
    [daisyproducer2.middleware.exception :as exception]
    [daisyproducer2.middleware.formats :as formats]
-   [daisyproducer2.state-utils :as state]
    [daisyproducer2.validation :as validation]
    [daisyproducer2.words.confirm :as confirm]
    [daisyproducer2.words.global :as global]
@@ -122,14 +121,13 @@
                :parameters {:path {:id int?}
                             :body {:state ::state}}
                :handler (fn [{{{:keys [id]} :path {:keys [state]} :body} :parameters}]
-                          (let [doc (db/get-document {:id id})
-                                state-id (get state/keyword-to-state-id (keyword state))]
+                          (let [doc (db/get-document {:id id})]
                             (cond
                               (nil? doc) (not-found)
-                              (= (:state-id doc) state-id)
+                              (= (:state doc) state)
                               (conflict {:status-text (if (= state "closed") "Cannot close a closed production" "Cannot reopen an open production")})
                               :else (try
-                                      (db/update-document-state {:id id :state-id state-id})
+                                      (db/update-document-state {:id id :state state})
                                       (no-content)
                                       (catch clojure.lang.ExceptionInfo e
                                         (log/error (ex-message e))
