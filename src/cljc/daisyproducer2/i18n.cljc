@@ -53,8 +53,8 @@
                     ;;
                     :new "New"
                     :old "Old"
-                    :in-production "In Production"
-                    :finished "Finished"
+                    :open "In Production"
+                    :closed "Finished"
                     :close "Close"
                     :reopen "Reopen"
                     ;;
@@ -250,8 +250,8 @@
                     :book "Buch"
                     ;;
                     :new "Neu"
-                    :in-production "In Produktion"
-                    :finished "Fertig"
+                    :open "In Produktion"
+                    :closed "Fertig"
                     :close "Abschliessen"
                     :reopen "Wiedereröffnen"
                     ;;
