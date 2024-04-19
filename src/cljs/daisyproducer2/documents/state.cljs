@@ -40,7 +40,7 @@
   ::ack-update-state
   (fn [{:keys [db]} [_ state]]
     {:db (-> db (notifications/clear-button-state :document :update))
-     :dispatch [::set-current-state ]}))
+     :dispatch [::set-current-state state]}))
 
 (rf/reg-event-db
  ::ack-failure
