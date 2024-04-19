@@ -37,7 +37,7 @@
 (s/def ::hyphenation (s/and string? validation/hyphenation-valid?))
 (s/def ::state #{"open" "closed"})
 
-(def default-limit 200)
+(def default-limit 100)
 
 (defn service-routes []
   ["/api"
