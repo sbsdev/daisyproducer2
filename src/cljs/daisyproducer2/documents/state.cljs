@@ -70,26 +70,3 @@
          [:span.icon {:aria-hidden true}
           [:i.mi.mi-refresh]]
          [:span (tr [:reopen])]]))))
-
-;; FIXME: if we want state information for a document we need to have
-;; the documents addressable with a uuid, i.e. we need to add a uuid
-;; when loading the documents
-#_(defn button-brief
-  "Icon only button to change the state of a production"
-  [uuid]
-  (let [admin? @(rf/subscribe [::auth/is-admin?])
-        documents @(rf/subscribe [:daisyproducer2.documents/documents])
-        state-id (get-in documents [uuid :state-id])
-        _ (println id state-id)]
-    (when admin?
-      (if (open? state-id)
-        [:button.button.is-success.has-tooltip-arrow.is-small
-         {:data-tooltip (tr [:close])
-         :aria-label (tr [:close])}
-         [:span.icon {:aria-hidden true}
-          [:i.mi.mi-close]]]
-        [:button.button.is-success.has-tooltip-arrow.is-small.is-light
-         {:data-tooltip (tr [:reopen])
-         :aria-label (tr [:reopen])}
-         [:span.icon {:aria-hidden true}
-          [:i.mi.mi-refresh]]]))))
