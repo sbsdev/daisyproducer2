@@ -7,6 +7,92 @@
 
 #+TODO: DRAFT PROPOSED | ACCEPTED REJECTED DEPRECATED SUPERSEDED
 
+* ACCEPTED State transition
+CLOSED: [2024-04-24 Mi 11:59]
+- Deciders :: CE
+- Date :: [2024-04-23 Di]
+
+Daisyproducer has the concept of state of a production. In theory it
+is quite powerful but in practice none of this power is needed. We
+want to simplify the state handling (not only in the code but also for
+the user).
+
+** Context and Problem Statement
+
+Daisyproducer historically always had quite an elaborate way to handle
+state. In reality however the only real reason to have a state for a
+production is to limit the number of productions shown on the start
+page. Besides, the "real" state of a production is kept in the Order
+Management System (ABACUS) anyway. So we only really used the states
+"new" and "in_production" for productions that are not completed yet
+and "finished" for completed productions.
+
+With the new start page that dynamically shows productions based on a
+search string we no longer need to partition the productions that are
+not completed.
+
+The only real remaining reason to have a state is to be able to clean
+up once a production is finished.
+
+** Decision Drivers
+
+- simplify the code
+- simplify the user experience
+
+** Considered Options
+
+- Simplify states :: Migrate the db and use the simplified states
+  throughout. At the same time we also rename the states to better
+  reflect their meaning: A production will be either "Open" or
+  "Closed".
+- Keep the old states :: Keep the old states in the db but use the
+  back-end to put a facade over it and have the rest of the system use
+  the simplified states from the facade.
+
+** Decision Outcome
+
+Chosen option: *Simplify states*. While this option makes the rollback
+harder it is certainly a better fit for the future. There is only one
+set of state names and they are used throughout the application, be
+that the db, the back end or the user interface.
+
+*** Positive Consequences
+
+- Conceptually the state handling is much simpler
+- The same state names are used throughout
+
+*** Negative Consequences
+
+- Rollback will not be that easy
+- The users will have to adapt to the new state names (unless we hide
+  the names in the i18n translation)
+
+** Pros and Cons of the Options
+
+*** Simplify states
+
+There will only be two states "Open" and "Closed". The existing state
+"new" will be dropped and the states "in_production" and "finished"
+will be renamed.
+
+- Good :: state handling will be more sane as the states are called by
+  the same name, be that in the db, the back-end or the user interface
+- Bad :: Rollback will be somewhat difficult, as the "new" state will
+  have to be recreated and all productions have been set to "open".
+
+*** Keep the old states
+
+The db will remain (almost) the same. The names of the states will
+stay, all productions with state "new" will be set to state
+"in_production" however.
+
+- Good :: Rollback is still somewhat possible aside from the problem
+  that the "new" productions cannot be reconstructed
+- Bad :: There are different state names in the db than in the rest of
+  the application
+
+** Links
+
 * ACCEPTED Deployment Scenarios
 CLOSED: [2024-04-23 Di 15:46]
 - Deciders :: CE, MK, US, MM
