@@ -124,11 +124,11 @@
 (defn braille [{id :id}]
   [fork/form {:initial-values {:cells-per-line 28 :lines-per-page 28
                                :contraction 2 :hyphenation false
-                               :depth-of-toc 0 :footer-up-to-level 0
-                               :include-sbsform-macros true :show-page-numbers true
-                               :show-vforms true :downshift-ordinals true
+                               :toc-level 0 :footer-level 0
+                               :include-macros true :show-original-page-numbers true
+                               :show-v-forms true :downshift-ordinals true
                                :enable-capitalization false
-                               :accented-chars :swiss :footnote-placement :standard}
+                               :detailed-accented-chars :swiss :footnote-placement :standard}
               :path [:form :braille]
               :prevent-default? true
               :clean-on-unmount? true
@@ -148,16 +148,16 @@
         (dropdown props {:name :contraction :label (tr [:forms/contraction])
                                :options [{0 (tr [:grade/g0])} {1 (tr [:grade/g1])} {2 (tr [:grade/g2])}]})
         (checkbox props {:name :hyphenation :text (tr [:forms/hyphenation])})
-        (dropdown props {:name :depth-of-toc :label (tr [:forms/depth-of-toc])
+        (dropdown props {:name :toc-level :label (tr [:forms/toc-level])
                                :options [{0 0} {1 1} {2 2} {3 3} {4 4} {5 5} {6 6}]})
-        (dropdown props {:name :footer-up-to-level :label (tr [:forms/footer-up-to-level])
+        (dropdown props {:name :footer-level :label (tr [:forms/footer-level])
                                :options [{0 0} {1 1} {2 2} {3 3} {4 4} {5 5} {6 6}]})
-        (checkbox props {:name :include-sbsform-macros :text (tr [:forms/include-sbsform-macros])})
-        (checkbox props {:name :show-page-numbers :text (tr [:forms/show-page-numbers])})
-        (checkbox props {:name :show-vforms :text (tr [:forms/show-vforms])})
+        (checkbox props {:name :include-macros :text (tr [:forms/include-macros])})
+        (checkbox props {:name :show-original-page-numbers :text (tr [:forms/show-original-page-numbers])})
+        (checkbox props {:name :show-v-forms :text (tr [:forms/show-v-forms])})
         (checkbox props {:name :downshift-ordinals :text (tr [:forms/downshift-ordinals])})
         (checkbox props {:name :enable-capitalization :text (tr [:forms/enable-capitalization])})
-        (dropdown props {:name :accented-chars :label (tr [:forms/accented-chars])
+        (dropdown props {:name :detailed-accented-chars :label (tr [:forms/accented-chars])
                                :options [{:swiss (tr [:accented-chars/swiss])} {:basic (tr [:accented-chars/basic])}]})
         (dropdown props {:name :footnote-placement :label (tr [:forms/footnote-placement])
                                :options [{:standard (tr [:footnote-placement/standard])} {:end-vol (tr [:footnote-placement/end-vol])}
