@@ -2,11 +2,12 @@
   (:require
    [babashka.fs :as fs]
    [daisyproducer2.db.core :as db]
+   [daisyproducer2.documents.images :as images]
    [daisyproducer2.documents.versions :as versions]
-   [daisyproducer2.pipeline2.scripts :as scripts]
+   [daisyproducer2.dtbook2sbsform :as dtbook2sbsform]
    [daisyproducer2.metrics :as metrics]
-   [iapetos.collector.fn :as prometheus]
-   [daisyproducer2.documents.images :as images]))
+   [daisyproducer2.pipeline2.scripts :as scripts]
+   [iapetos.collector.fn :as prometheus]))
 
 (defn epub
   "Generate an EPUB for given `document-id` and return a tuple
@@ -32,5 +33,19 @@
      (scripts/dtbook-to-ebook dtbook images epub-path)
      [epub-name epub-path])))
 
+(defn sbsform
+  "Generate an SBSForm file for given `document-id` and return a tuple
+  containing the name and the path of the generated sbsform file. An
+  exception is thrown if the document has no versions."
+  ([document-id opts]
+   (let [dtbook (-> (versions/get-latest document-id)
+                    (versions/get-content))
+         name (str document-id ".sbsform")
+         temp-dir (fs/temp-dir)
+         path (str (fs/path temp-dir name))]
+     (dtbook2sbsform/sbsform dtbook path opts)
+     [name path])))
+
 (prometheus/instrument! metrics/registry #'epub)
+(prometheus/instrument! metrics/registry #'sbsform)
 
