@@ -36,6 +36,8 @@
 (s/def ::braille (s/and string? validation/braille-valid?))
 (s/def ::hyphenation (s/and string? validation/hyphenation-valid?))
 (s/def ::state #{"open" "closed"})
+(s/def ::accented-chars (s/and keyword? #{:basic :swiss}))
+(s/def ::footnote-placement (s/and keyword? #{:standard :end-vol :level1 :level2 :level3 :level4}))
 
 (def default-limit 100)
 
@@ -314,9 +316,41 @@
 
      ["/braille"
       {:get {:summary "Get a braille file for a document by ID"
-             :parameters {:path {:id int?}}
-             :handler (fn [{{{:keys [id]} :path} :parameters}]
-                        (not-implemented))}}]
+             :parameters {:path {:id int?}
+                          :query {:contraction ::grade
+                                  :cells-per-line int?
+                                  :lines-per-page int?
+                                  :hyphenation boolean?
+                                  :toc-level int?
+                                  :footer-level int?
+                                  :include-macros boolean?
+                                  :show-original-page-numbers boolean?
+                                  :show-v-forms boolean?
+                                  :downshift-ordinals boolean?
+                                  :enable-capitalization boolean?
+                                  :detailed-accented-chars ::accented-chars
+                                  :footnote-placement ::footnote-placement}}
+             :handler (fn [{{{:keys [id]} :path
+                             {:keys [contraction] :as opts} :query} :parameters}]
+                        (if-let [doc (db/get-document {:id id})]
+                          (try
+                            (let [[name path] (preview/sbsform id opts)
+                                  mapping {0 "text/x-sbsform-g0"
+                                           1 "text/x-sbsform-g1"
+                                           2 "text/x-sbsform-g2"}
+                                  type (get mapping contraction)]
+                              #_(found (str "/download/" name))
+                              (->
+                               (file-response (str path))
+                               (content-type type)
+                               (header "Content-Disposition" (format "attachment; filename=%s" name))))
+                            (catch clojure.lang.ExceptionInfo e
+                              (log/error (ex-message e))
+                              (internal-server-error {:status-text (ex-message e)}))
+                            (catch java.nio.file.FileSystemException e
+                              (log/error (str e))
+                              (internal-server-error {:status-text (str e)})))
+                          (not-found)))}}]
 
      ["/large-print"
       {:get {:summary "Get a large print file for a document by ID"
