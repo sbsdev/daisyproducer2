@@ -331,19 +331,12 @@
                                   :detailed-accented-chars ::accented-chars
                                   :footnote-placement ::footnote-placement}}
              :handler (fn [{{{:keys [id]} :path
-                             {:keys [contraction] :as opts} :query} :parameters}]
+                             opts :query} :parameters}]
                         (if-let [doc (db/get-document {:id id})]
                           (try
-                            (let [[name path] (preview/sbsform id opts)
-                                  mapping {0 "text/x-sbsform-g0"
-                                           1 "text/x-sbsform-g1"
-                                           2 "text/x-sbsform-g2"}
-                                  type (get mapping contraction)]
-                              #_(found (str "/download/" name))
-                              (->
-                               (file-response (str path))
-                               (content-type type)
-                               (header "Content-Disposition" (format "attachment; filename=%s" name))))
+                            (let [[name _] (preview/sbsform id opts)]
+                              (let [url (str "/download/" name)]
+                                (created url {:location url})))
                             (catch clojure.lang.ExceptionInfo e
                               (log/error (ex-message e))
                               (internal-server-error {:status-text (ex-message e)}))

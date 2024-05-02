@@ -6,10 +6,10 @@
 
 (rf/reg-event-fx
  ::success
- (fn [{db :db} [_ path format]]
-   {:db (-> db
-            (fork/set-submitting path false)
-            (fork/set-server-message path (str "Fetching " (name format) " successful!")))}))
+ (fn [{db :db} [_ path format response]]
+   (let [_ (js/window.open (:location response) "_blank")]
+     {:db (-> db
+              (fork/set-submitting path false))})))
 
 (rf/reg-event-fx
  ::failure

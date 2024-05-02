@@ -1,6 +1,7 @@
 (ns daisyproducer2.documents.preview
   (:require
    [babashka.fs :as fs]
+   [daisyproducer2.config :refer [env]]
    [daisyproducer2.db.core :as db]
    [daisyproducer2.documents.images :as images]
    [daisyproducer2.documents.versions :as versions]
@@ -41,8 +42,8 @@
    (let [dtbook (-> (versions/get-latest document-id)
                     (versions/get-content))
          name (str document-id ".sbsform")
-         temp-dir (fs/temp-dir)
-         path (str (fs/path temp-dir name))]
+         target-dir (fs/path (env :spool-dir))
+         path (str (fs/path target-dir name))]
      (dtbook2sbsform/sbsform dtbook path opts)
      [name path])))
 

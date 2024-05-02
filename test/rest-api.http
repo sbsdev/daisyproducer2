@@ -230,6 +230,9 @@ GET http://localhost:3000/api/documents/412/preview/epub
 # Get SBSForm
 GET http://localhost:3000/api/documents/412/preview/braille?contraction=1&cells-per-line=28&lines-per-page=8&hyphenation=true&toc-level=2&footer-level=2&include-macros=true&show-original-page-numbers=true&show-v-forms=true&downshift-ordinals=true&enable-capitalization=true&detailed-accented-chars=swiss&footnote-placement=level1
 
+# Get the actual SBSForm artifact
+GET http://localhost:3000/download/412.sbsform
+
 #########
 # Words #
 #########
