@@ -40,6 +40,7 @@
                  [luminus-migrations "0.7.5"]
                  [luminus-transit "0.1.6"]
                  [markdown-clj "1.11.8"]
+                 [dev.weavejester/medley "1.8.0"]
                  [me.flowthing/sigel "1.0.3"]
                  [metosin/jsonista "0.3.8"]
                  [metosin/muuntaja "0.6.8"]

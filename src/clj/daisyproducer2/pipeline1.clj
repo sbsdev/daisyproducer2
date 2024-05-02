@@ -8,11 +8,12 @@
    [babashka.fs :as fs]
    [babashka.process :as process]
    [clojure.java.io :as io]
+   [clojure.set :as set]
    [clojure.string :as s]
    [clojure.tools.logging :as log]
    [daisyproducer2.config :refer [env]]
-   [sigel.xslt.core :as xslt]
-   [clojure.set :as set]))
+   [medley.core :refer [update-existing]]
+   [sigel.xslt.core :as xslt]))
 
 (defn continuation-line? [line]
   (cond
@@ -95,14 +96,14 @@
   [opts]
   (-> opts
       ;; the font-size is expected to be a string in the form of '17pt'
-      (update :font-size #(format "%spt" %))
-      (update :font #(case % :tiresias "Tiresias LPfont" :roman "Latin Modern Roman" :sans "Latin Modern Sans" :mono "Latin Modern Mono"))
-      (update :page-style #(case % :plain "plain" :compact "compact" :with-page-nums "withPageNums" :spacious "spacious" :scientific "scientific" ))
-      (update :stock-size #(case % :a3paper "a3paper" :a4paper "a4paper"))
-      (update :line-spacing #(case % :singlespacing "singlespacing" :onehalfspacing "onehalfspacing" :doublespacing "doublespacing"))
-      (update :alignment #(case % :left "left" :justified "justified"))
-      (update :end-notes #(case % :none "none" :document "document" :chapter "chapter"))
-      (update :image-visibility #(case % :show "show" :ignore "ignore"))))
+      (update-existing :font-size #(format "%spt" %))
+      (update-existing :font #(case % :tiresias "Tiresias LPfont" :roman "Latin Modern Roman" :sans "Latin Modern Sans" :mono "Latin Modern Mono"))
+      (update-existing :page-style #(case % :plain "plain" :compact "compact" :with-page-nums "withPageNums" :spacious "spacious" :scientific "scientific" ))
+      (update-existing :stock-size #(case % :a3paper "a3paper" :a4paper "a4paper"))
+      (update-existing :line-spacing #(case % :singlespacing "singlespacing" :onehalfspacing "onehalfspacing" :doublespacing "doublespacing"))
+      (update-existing :alignment #(case % :left "left" :justified "justified"))
+      (update-existing :end-notes #(case % :none "none" :document "document" :chapter "chapter"))
+      (update-existing :image-visibility #(case % :show "show" :ignore "ignore"))))
 
 (defn dtbook-to-latex
   "Invoke the LaTeX conversion script. See the Pipeline documentation for all possible options."
