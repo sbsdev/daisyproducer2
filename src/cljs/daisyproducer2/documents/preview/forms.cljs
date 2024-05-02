@@ -27,7 +27,6 @@
      {:method :get
       :uri (str "/api/documents/" id "/preview/" (name format))
       :params values
-      :timeout 2000
       :on-success [::success path format]
       :on-failure [::failure path format]})}))
 
