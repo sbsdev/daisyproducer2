@@ -7,9 +7,12 @@
   (:require
    [babashka.fs :as fs]
    [babashka.process :as process]
+   [clojure.java.io :as io]
    [clojure.string :as s]
    [clojure.tools.logging :as log]
-   [daisyproducer2.config :refer [env]]))
+   [daisyproducer2.config :refer [env]]
+   [sigel.xslt.core :as xslt]
+   [clojure.set :as set]))
 
 (defn continuation-line? [line]
   (cond
@@ -71,17 +74,56 @@
         (throw
          (ex-info (format "Audio encoding of %s failed" input) {:error-id ::audio-encoding-failed}))))))
 
+(defn- filter-braille-and-add-image-refs
+  [xml target]
+  (let [xslt [(xslt/compile-xslt (io/resource "xslt/filterBrlContractionhints.xsl"))
+              (xslt/compile-xslt (io/resource "xslt/addImageRefs.xsl"))]]
+    (xslt/transform-to-file xslt xml target)))
+
+(def ^:private key-mapping
+  "Parameter name mapping between Clojure and the Pipeline1 script"
+  {:font-size :fontsize
+   :page-style :pageStyle
+   :stock-size :stocksize
+   :line-spacing :line_spacing
+   :replace-em-with-quote :replace_em_with_quote
+   :end-notes :endnotes
+   :image-visibility :image_visibility})
+
+(defn- to-pipeline1
+  "Convert parameter values from Clojure keywords to strings that the Pipeline1 script understands"
+  [opts]
+  (-> opts
+      ;; the font-size is expected to be a string in the form of '17pt'
+      (update :font-size #(format "%spt" %))
+      (update :font #(case % :tiresias "Tiresias LPfont" :roman "Latin Modern Roman" :sans "Latin Modern Sans" :mono "Latin Modern Mono"))
+      (update :page-style #(case % :plain "plain" :compact "compact" :with-page-nums "withPageNums" :spacious "spacious" :scientific "scientific" ))
+      (update :stock-size #(case % :a3paper "a3paper" :a4paper "a4paper"))
+      (update :line-spacing #(case % :singlespacing "singlespacing" :onehalfspacing "onehalfspacing" :doublespacing "doublespacing"))
+      (update :alignment #(case % :left "left" :justified "justified"))
+      (update :end-notes #(case % :none "none" :document "document" :chapter "chapter"))
+      (update :image-visibility #(case % :show "show" :ignore "ignore"))))
+
 (defn dtbook-to-latex
   "Invoke the LaTeX conversion script. See the Pipeline documentation for all possible options."
-  [input output & opts]
-  (let [args (merge opts {:input input :output output})
-        script (fs/path (env :pipeline1-install-path)
-                        "scripts/create_distribute/latex/DTBookToLaTeX.taskScript")]
+  [input output opts]
+  (let [tmp-file (fs/create-temp-file {:prefix "daisyproducer-" :suffix ".xml"})
+        args (-> opts
+                 ;; add required arguments
+                 (->> (merge {:font-size 17}))
+                 to-pipeline1
+                 ;; map the keys to the ones that the pipeline1 expects
+                 (set/rename-keys key-mapping)
+                 (merge {:input (str tmp-file) :output output}))
+        script (str (fs/path (env :pipeline1-install-path)
+                             "scripts/create_distribute/latex/DTBookToLaTeX.taskScript"))]
     (try
-      (apply process/shell "daisy-pipeline" (str script)
-             (map (fn [[k v]] (format "--%s=%s" (name k) v)) args))
+      (filter-braille-and-add-image-refs (fs/file input) (fs/file tmp-file))
+      (apply process/shell
+             {:pre-start-fn #(log/info "Invoking" (:cmd %))}
+             "daisy-pipeline" script (map (fn [[k v]] (format "--%s=%s" (name k) v)) args))
       (catch clojure.lang.ExceptionInfo e
-        (log/error (ex-message e))
+        (log/error e)
         (throw
          (ex-info (format "Conversion of %s failed" input) {:error-id ::latex-conversion-failed} e))))))
 
@@ -91,9 +133,10 @@
   (let [tmp-dir (fs/create-temp-dir {:prefix "daisyproducer2-"})
         pdf-path (fs/path tmp-dir (str (fs/file-name (fs/strip-ext input)) ".pdf"))]
     (try
-      (process/shell "latexmk" "-interaction=batchmode" "-xelatex"
+      (process/shell {:err :string :pre-start-fn #(log/info "Invoking" (:cmd %))}
+                     "latexmk" "-interaction=batchmode" "-xelatex"
                      (format "-output-directory=%s" tmp-dir) input)
-      (fs/move pdf-path output)
+      (fs/move pdf-path output {:replace-existing true})
       (catch clojure.lang.ExceptionInfo e
         (log/error (ex-message e))
         (throw

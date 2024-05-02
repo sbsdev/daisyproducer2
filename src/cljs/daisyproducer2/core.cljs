@@ -82,6 +82,8 @@
                    :controllers [{:parameters {:path [:id]}}]}]
       ["/preview/braille" {:name :document-preview-braille :view #'document/preview-braille
                            :controllers [{:parameters {:path [:id]}}]}]
+      ["/preview/large-print-library" {:name :document-preview-large-print-library :view #'document/preview-large-print-library
+                                    :controllers [{:parameters {:path [:id]}}]}]
       ["/preview/large-print-sale" {:name :document-preview-large-print-sale :view #'document/preview-large-print-sale
                                     :controllers [{:parameters {:path [:id]}}]}]
       ["/preview/large-print-configurable" {:name :document-preview-large-print-configurable :view #'document/preview-large-print-configurable

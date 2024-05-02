@@ -12,7 +12,7 @@
   [:div.field.is-grouped
    [:p.control
     [:a.button
-     {:href (str "#/documents/" id "/preview/large-print")}
+     {:href (str "#/documents/" id "/preview/large-print-library")}
      [:span (tr [:large-print-library])]]]
    [:p.control
     [:a.button

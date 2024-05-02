@@ -165,12 +165,30 @@
                                          {:level3 (tr [:footnote-placement/level3])} {:level4 (tr [:footnote-placement/level4])}]})
         (submit-button props {:name :submit :label (tr [:preview])})]))])
 
+(defn large-print-library [{id :id}]
+  [fork/form {:initial-values {}
+              :path [:form :large-print-library]
+              :prevent-default? true
+              :clean-on-unmount? true
+              :on-submit #(rf/dispatch [::submit-handler :large-print id %])
+              :keywordize-keys true
+              }
+   (fn [{:keys [path
+                form-id
+                submitting?
+		on-submit-server-message
+                handle-submit] :as props}]
+     (if on-submit-server-message
+       [] ; [forms/error-notification on-submit-server-message path]
+       [:form {:id form-id :on-submit handle-submit}
+        (submit-button props {:name :submit :label (tr [:preview])})]))])
+
 (defn large-print-sale [{id :id}]
   [fork/form {:initial-values {:font-size 17}
               :path [:form :large-print-sale]
               :prevent-default? true
               :clean-on-unmount? true
-              :on-submit #(rf/dispatch [::preview-large-print-sale id %])
+              :on-submit #(rf/dispatch [::submit-handler :large-print id %])
               :keywordize-keys true
               }
    (fn [{:keys [path
@@ -197,7 +215,7 @@
               :path [:form :large-print-configurable]
               :prevent-default? true
               :clean-on-unmount? true
-              :on-submit #(rf/dispatch [::preview-large-print-configurable id %])
+              :on-submit #(rf/dispatch [::submit-handler :large-print id %])
               :keywordize-keys true
               }
    (fn [{:keys [path

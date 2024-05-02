@@ -132,6 +132,13 @@
      [tabs document]
      [forms/braille document]]))
 
+(defn preview-large-print-library []
+  (let [document @(rf/subscribe [::current])]
+    [:section.section>div.container>div.content
+     [summary document]
+     [tabs document]
+     [forms/large-print-library document]]))
+
 (defn preview-large-print-sale []
   (let [document @(rf/subscribe [::current])]
     [:section.section>div.container>div.content

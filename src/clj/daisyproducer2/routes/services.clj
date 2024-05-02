@@ -38,6 +38,14 @@
 (s/def ::state #{"open" "closed"})
 (s/def ::accented-chars (s/and keyword? #{:basic :swiss}))
 (s/def ::footnote-placement (s/and keyword? #{:standard :end-vol :level1 :level2 :level3 :level4}))
+(s/def ::font-size (s/and int? #{17 20 25}))
+(s/def ::font (s/and keyword? #{:tiresias :roman :sans :mono}))
+(s/def ::page-style (s/and keyword? #{:plain :with-page-nums :spacious :scientific}))
+(s/def ::alignment (s/and keyword? #{:left :justified}))
+(s/def ::stock-size (s/and keyword? #{:a3paper :a4paper}))
+(s/def ::line-spacing (s/and keyword? #{:singlespacing :onehalfspacing :doublespacing}))
+(s/def ::end-notes (s/and keyword? #{:none :document :chapter}))
+(s/def ::image-visibility (s/and keyword? #{:show :ignore}))
 
 (def default-limit 100)
 
@@ -347,9 +355,30 @@
 
      ["/large-print"
       {:get {:summary "Get a large print file for a document by ID"
-             :parameters {:path {:id int?}}
-             :handler (fn [{{{:keys [id]} :path} :parameters}]
-                        (not-implemented))}}]]
+             :parameters {:path {:id int?}
+                          :query {(spec/opt :font-size) ::font-size
+                                  (spec/opt :font) ::font
+                                  (spec/opt :page-style) ::page-style
+                                  (spec/opt :alignment) ::alignment
+                                  (spec/opt :stock-size) ::stock-size
+                                  (spec/opt :line-spacing) ::line-spacing
+                                  (spec/opt :replace-em-with-quote) boolean?
+                                  (spec/opt :end-notes) ::end-notes
+                                  (spec/opt :image-visibility) ::image-visibility}}
+             :handler (fn [{{{:keys [id]} :path
+                             opts :query} :parameters}]
+                        (if-let [doc (db/get-document {:id id})]
+                          (try
+                            (let [[name _] (preview/large-print id opts)]
+                              (let [url (str "/download/" name)]
+                                (created url {:location url})))
+                            (catch clojure.lang.ExceptionInfo e
+                              (log/error (ex-message e))
+                              (internal-server-error {:status-text (ex-message e)}))
+                            (catch java.nio.file.FileSystemException e
+                              (log/error (str e))
+                              (internal-server-error {:status-text (str e)})))
+                          (not-found)))}}]]
 
     ["/versions"
      {:swagger {:tags ["Versions"]}}

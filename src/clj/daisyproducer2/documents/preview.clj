@@ -8,7 +8,8 @@
    [daisyproducer2.dtbook2sbsform :as dtbook2sbsform]
    [daisyproducer2.metrics :as metrics]
    [daisyproducer2.pipeline2.scripts :as scripts]
-   [iapetos.collector.fn :as prometheus]))
+   [iapetos.collector.fn :as prometheus]
+   [daisyproducer2.pipeline1 :as pipeline1]))
 
 (defn epub
   "Generate an EPUB for given `document-id` and return a tuple
@@ -47,6 +48,22 @@
      (dtbook2sbsform/sbsform dtbook path opts)
      [name path])))
 
+(defn large-print
+  "Generate an Large Print file for given `document-id` and return a
+  tuple containing the name and the path of the generated file. An
+  exception is thrown if the document has no versions."
+  ([document-id {:keys [font-size] :or {font-size 17} :as opts}]
+   (let [dtbook (-> (versions/get-latest document-id)
+                    (versions/get-content))
+         name (format "%s_%spt.pdf" document-id font-size)
+         latex-file (fs/create-temp-file {:prefix "daisyproducer-" :suffix ".tex"})
+         target-dir (fs/path (env :spool-dir))
+         path (str (fs/path target-dir name))]
+     (pipeline1/dtbook-to-latex dtbook latex-file opts)
+     (pipeline1/latex-to-pdf latex-file path)
+     [name path])))
+
 (prometheus/instrument! metrics/registry #'epub)
 (prometheus/instrument! metrics/registry #'sbsform)
+(prometheus/instrument! metrics/registry #'large-print)
 
