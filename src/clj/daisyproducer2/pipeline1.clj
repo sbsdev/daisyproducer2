@@ -97,10 +97,13 @@
   (-> opts
       ;; the font-size is expected to be a string in the form of '17pt'
       (update-existing :font-size #(format "%spt" %))
-      (update-existing :font #(case % :tiresias "Tiresias LPfont" :roman "Latin Modern Roman" :sans "Latin Modern Sans" :mono "Latin Modern Mono"))
-      (update-existing :page-style #(case % :plain "plain" :compact "compact" :with-page-nums "withPageNums" :spacious "spacious" :scientific "scientific" ))
+      (update-existing :font #(case % :tiresias "Tiresias LPfont" :roman "Latin Modern Roman"
+                                    :sans "Latin Modern Sans" :mono "Latin Modern Mono"))
+      (update-existing :page-style #(case % :plain "plain" :compact "compact" :with-page-nums "withPageNums"
+                                          :spacious "spacious" :scientific "scientific" ))
       (update-existing :stock-size #(case % :a3paper "a3paper" :a4paper "a4paper"))
-      (update-existing :line-spacing #(case % :singlespacing "singlespacing" :onehalfspacing "onehalfspacing" :doublespacing "doublespacing"))
+      (update-existing :line-spacing #(case % :singlespacing "singlespacing" :onehalfspacing "onehalfspacing"
+                                            :doublespacing "doublespacing"))
       (update-existing :alignment #(case % :left "left" :justified "justified"))
       (update-existing :end-notes #(case % :none "none" :document "document" :chapter "chapter"))
       (update-existing :image-visibility #(case % :show "show" :ignore "ignore"))))
@@ -121,7 +124,9 @@
     (try
       (filter-braille-and-add-image-refs (fs/file input) (fs/file tmp-file))
       (apply process/shell
-             {:pre-start-fn #(log/info "Invoking" (:cmd %))}
+             {:err :string
+              :out :string
+              :pre-start-fn #(log/info "Invoking" (:cmd %))}
              "daisy-pipeline" script (map (fn [[k v]] (format "--%s=%s" (name k) v)) args))
       (catch clojure.lang.ExceptionInfo e
         (log/error e)
@@ -134,7 +139,9 @@
   (let [tmp-dir (fs/create-temp-dir {:prefix "daisyproducer2-"})
         pdf-path (fs/path tmp-dir (str (fs/file-name (fs/strip-ext input)) ".pdf"))]
     (try
-      (process/shell {:err :string :pre-start-fn #(log/info "Invoking" (:cmd %))}
+      (process/shell {:err :string
+                      :out :string
+                      :pre-start-fn #(log/info "Invoking" (:cmd %))}
                      "latexmk" "-interaction=batchmode" "-xelatex"
                      (format "-output-directory=%s" tmp-dir) input)
       (fs/move pdf-path output {:replace-existing true})

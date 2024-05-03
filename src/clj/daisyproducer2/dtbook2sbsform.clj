@@ -33,6 +33,7 @@
    (let [opts (map stringify-opts opts)
          input (format "-s:%s" dtbook)]
      (apply process/shell {:out :write :out-file (fs/file output-path)
+                           :err :string
                            :extra-env {"LANG" "en_US.UTF-8"}
                            :pre-start-fn #(log/info "Invoking" (:cmd %))}
             executable input opts))))
