@@ -186,7 +186,7 @@
 		on-submit-server-message
                 handle-submit] :as props}]
      (if on-submit-server-message
-       [] ; [forms/error-notification on-submit-server-message path]
+       [error-notification on-submit-server-message path]
        [:form {:id form-id :on-submit handle-submit}
         (submit-button props {:name :submit :label (tr [:preview])})]))])
 
@@ -204,7 +204,7 @@
 		on-submit-server-message
                 handle-submit] :as props}]
      (if on-submit-server-message
-       [] ; [forms/error-notification on-submit-server-message path]
+       [error-notification on-submit-server-message path]
        [:form {:id form-id :on-submit handle-submit}
         (dropdown props {:name :font-size :label (tr [:forms/font-size]) :options [{17 "17pt"} {20 "20pt"} {25 "25pt"}]})
         (submit-button props {:name :submit :label (tr [:preview])})]))])
@@ -231,7 +231,7 @@
 		on-submit-server-message
                 handle-submit] :as props}]
      (if on-submit-server-message
-       [] ; [forms/error-notification on-submit-server-message path]
+       [error-notification on-submit-server-message path]
        [:form {:id form-id :on-submit handle-submit}
         (dropdown props {:name :font-size :label (tr [:forms/font-size])
                                :options [{17 "17pt"} {20 "20pt"} {25 "25pt"}]})
@@ -274,7 +274,7 @@
 		on-submit-server-message
                 handle-submit] :as props}]
      (if on-submit-server-message
-       [] ; [forms/error-notification on-submit-server-message path]
+       [error-notification on-submit-server-message path]
        [:form {:id form-id :on-submit handle-submit}
         (dropdown props {:name :math :label (tr [:forms/math])
                                :options [{:asciimath (tr [:math/asciimath])} {:mathml (tr [:math/mathml])} {:both (tr [:math/both])}]})
