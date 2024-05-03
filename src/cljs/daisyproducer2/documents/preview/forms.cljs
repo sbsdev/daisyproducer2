@@ -4,12 +4,18 @@
             [fork.re-frame :as fork]
             [re-frame.core :as rf]))
 
+;; Effect handler to open a new window for the given url, see
+;; https://day8.github.io/re-frame/Effects/
+(rf/reg-fx
+ :open-url
+ (fn [url]
+   (js/window.open url "_blank")))
+
 (rf/reg-event-fx
  ::success
  (fn [{db :db} [_ path format response]]
-   (let [_ (js/window.open (:location response) "_blank")]
-     {:db (-> db
-              (fork/set-submitting path false))})))
+   {:db (fork/set-submitting db path false)
+    :open-url (:location response)}))
 
 (rf/reg-event-fx
  ::failure
