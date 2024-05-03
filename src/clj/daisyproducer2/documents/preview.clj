@@ -48,14 +48,31 @@
      (dtbook2sbsform/sbsform dtbook path opts)
      [name path])))
 
+(def ^:private large-print-defaults {:font-size 17
+                                     :font :tiresias
+                                     :page-style :plain
+                                     :alignment :left
+                                     :stock-size :a4paper
+                                     :line-spacing :onehalfspacing
+                                     :paperwidth 200
+                                     :paperheight 250
+                                     :left-margin 28
+                                     :right-margin 20
+                                     :top-margin 20
+                                     :bottom-margin 20
+                                     :replace-em-with-quote true
+                                     :end-notes :none
+                                     :image-visibility :ignore})
+
 (defn large-print
   "Generate an Large Print file for given `document-id` and return a
   tuple containing the name and the path of the generated file. An
   exception is thrown if the document has no versions."
-  ([document-id {:keys [font-size] :or {font-size 17} :as opts}]
+  ([document-id opts]
    (let [dtbook (-> (versions/get-latest document-id)
                     (versions/get-content))
-         name (format "%s_%spt.pdf" document-id font-size)
+         opts (merge large-print-defaults opts)
+         name (format "%s_%spt.pdf" document-id (:font-size opts))
          latex-file (fs/create-temp-file {:prefix "daisyproducer-" :suffix ".tex"})
          target-dir (fs/path (env :spool-dir))
          path (str (fs/path target-dir name))]

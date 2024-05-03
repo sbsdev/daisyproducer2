@@ -87,6 +87,10 @@
    :page-style :pageStyle
    :stock-size :stocksize
    :line-spacing :line_spacing
+   :left-margin :left_margin
+   :right-margin :right_margin
+   :top-margin :top_margin
+   :bottom-margin :bottom_margin
    :replace-em-with-quote :replace_em_with_quote
    :end-notes :endnotes
    :image-visibility :image_visibility})
@@ -104,6 +108,12 @@
       (update-existing :stock-size #(case % :a3paper "a3paper" :a4paper "a4paper"))
       (update-existing :line-spacing #(case % :singlespacing "singlespacing" :onehalfspacing "onehalfspacing"
                                             :doublespacing "doublespacing"))
+      (update-existing :paperwidth #(format "%smm" %))
+      (update-existing :paperheight #(format "%smm" %))
+      (update-existing :left-margin #(format "%smm" %))
+      (update-existing :right-margin #(format "%smm" %))
+      (update-existing :top-margin #(format "%smm" %))
+      (update-existing :bottom-margin #(format "%smm" %))
       (update-existing :alignment #(case % :left "left" :justified "justified"))
       (update-existing :end-notes #(case % :none "none" :document "document" :chapter "chapter"))
       (update-existing :image-visibility #(case % :show "show" :ignore "ignore"))))
