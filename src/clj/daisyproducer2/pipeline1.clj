@@ -81,6 +81,21 @@
               (xslt/compile-xslt (io/resource "xslt/addImageRefs.xsl"))]]
     (xslt/transform-to-file xslt xml target)))
 
+(defn- compact?
+  "Given an `xml` determine whether it should be rendered using
+  compactStyle. Return true if it only contains `level1`. Return true
+  if it contains `level2` but all `h2` are empty. Return false
+  otherwise."
+  [xml]
+  (let [xslt (xslt/compile-xslt (io/resource "xslt/isCompactStyle.xsl"))]
+    (= "true" (str (xslt/transform xslt xml)))))
+
+(defn- maybe-set-compact-style
+  "Change the `page-style` option to `:compact` is it is currently `:plain` and the `xml` is `compact?`"
+  [{:keys [page-style] :as opts} xml]
+  (cond-> opts
+    (and (= page-style :plain) (compact? xml)) (assoc :page-style :compact)))
+
 (def ^:private key-mapping
   "Parameter name mapping between Clojure and the Pipeline1 script"
   {:font-size :fontsize
@@ -123,6 +138,9 @@
   [input output opts]
   (let [tmp-file (fs/create-temp-file {:prefix "daisyproducer-" :suffix ".xml"})
         args (-> opts
+                 ;; when the page style is not explicitely requested check
+                 ;; whether the book should be rendered using compact style
+                 (maybe-set-compact-style (fs/file input))
                  ;; add required arguments
                  (->> (merge {:font-size 17}))
                  to-pipeline1
