@@ -277,16 +277,15 @@
              :handler (fn [{{{:keys [id]} :path} :parameters}]
                         (if-let [doc (db/get-document {:id id})]
                           (try
-                            (let [[epub-name epub-path] (preview/epub id)]
-                              ;; copy the result to the spool dir if there is a spool dir defined
-                              ;; for the language and if the epub has a known product-id
+                            (let [[name path] (preview/epub id)]
+                              ;; copy the result to a spool dir for the online player if there is a
+                              ;; spool dir defined for the language and if the epub has a known
+                              ;; product-id
                               (if-let [spool-dir (get-in env [:ebook-spool-dir (:language doc)])]
-                                (when-not (= epub-name "unknown.epub")
-                                  (fs/copy epub-path spool-dir)))
-                              (->
-                               (file-response epub-path)
-                               (content-type "application/epub+zip")
-                               (header "Content-Disposition" (format "attachment; filename=%s" epub-name))))
+                                (when-not (= name "unknown.epub")
+                                  (fs/copy path spool-dir)))
+                              (let [url (str "/download/" name)]
+                                (created url {:location url})))
                             (catch clojure.lang.ExceptionInfo e
                               (log/error (ex-message e))
                               (internal-server-error {:status-text (ex-message e)}))

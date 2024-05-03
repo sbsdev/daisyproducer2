@@ -88,6 +88,8 @@
                                     :controllers [{:parameters {:path [:id]}}]}]
       ["/preview/large-print-configurable" {:name :document-preview-large-print-configurable :view #'document/preview-large-print-configurable
                                             :controllers [{:parameters {:path [:id]}}]}]
+      ["/preview/epub" {:name :document-preview-epub :view #'document/preview-epub
+                                 :controllers [{:parameters {:path [:id]}}]}]
       ["/preview/open-document" {:name :document-preview-open-document :view #'document/preview-open-document
                                  :controllers [{:parameters {:path [:id]}}]}]
       ["/markup" {:name :document-markup :view #'document/markup
