@@ -7,13 +7,11 @@
   (:require
    [babashka.fs :as fs]
    [babashka.process :as process]
-   [clojure.java.io :as io]
    [clojure.set :as set]
    [clojure.string :as s]
    [clojure.tools.logging :as log]
    [daisyproducer2.config :refer [env]]
-   [medley.core :refer [update-existing]]
-   [sigel.xslt.core :as xslt]))
+   [medley.core :refer [update-existing]]))
 
 (defn continuation-line? [line]
   (cond
@@ -75,27 +73,6 @@
         (throw
          (ex-info (format "Audio encoding of %s failed" input) {:error-id ::audio-encoding-failed}))))))
 
-(defn- filter-braille-and-add-image-refs
-  [xml target]
-  (let [xslt [(xslt/compile-xslt (io/resource "xslt/filterBrlContractionhints.xsl"))
-              (xslt/compile-xslt (io/resource "xslt/addImageRefs.xsl"))]]
-    (xslt/transform-to-file xslt xml target)))
-
-(defn- compact?
-  "Given an `xml` determine whether it should be rendered using
-  compactStyle. Return true if it only contains `level1`. Return true
-  if it contains `level2` but all `h2` are empty. Return false
-  otherwise."
-  [xml]
-  (let [xslt (xslt/compile-xslt (io/resource "xslt/isCompactStyle.xsl"))]
-    (= "true" (str (xslt/transform xslt xml)))))
-
-(defn- maybe-set-compact-style
-  "Change the `page-style` option to `:compact` is it is currently `:plain` and the `xml` is `compact?`"
-  [{:keys [page-style] :as opts} xml]
-  (cond-> opts
-    (and (= page-style :plain) (compact? xml)) (assoc :page-style :compact)))
-
 (def ^:private key-mapping
   "Parameter name mapping between Clojure and the Pipeline1 script"
   {:font-size :fontsize
@@ -136,21 +113,14 @@
 (defn dtbook-to-latex
   "Invoke the LaTeX conversion script. See the Pipeline documentation for all possible options."
   [input output opts]
-  (let [tmp-file (fs/create-temp-file {:prefix "daisyproducer-" :suffix ".xml"})
-        args (-> opts
-                 ;; when the page style is not explicitely requested check
-                 ;; whether the book should be rendered using compact style
-                 (maybe-set-compact-style (fs/file input))
-                 ;; add required arguments
-                 (->> (merge {:font-size 17}))
+  (let [args (-> opts
                  to-pipeline1
                  ;; map the keys to the ones that the pipeline1 expects
                  (set/rename-keys key-mapping)
-                 (merge {:input (str tmp-file) :output output}))
+                 (merge {:input input :output output}))
         script (str (fs/path (env :pipeline1-install-path)
                              "scripts/create_distribute/latex/DTBookToLaTeX.taskScript"))]
     (try
-      (filter-braille-and-add-image-refs (fs/file input) (fs/file tmp-file))
       (apply process/shell
              {:err :string
               :out :string
@@ -182,3 +152,20 @@
         (throw
          (ex-info (format "Move of %s to %s failed" pdf-path output) {:error-id ::no-such-file} e)))
       (finally (fs/delete-tree tmp-dir)))))
+
+(defn insert-volume-split-points
+  [input output volumes]
+  (let [script (str (fs/path (env :pipeline1-install-path)
+                             "scripts/modify_improve/dtbook/DTBookVolumeSplit.taskScript"))
+        args {:input input :output output :number_of_volumes volumes}]
+    (try
+      (apply process/shell
+       {:err :string
+        :out :string
+        :pre-start-fn #(log/info "Invoking" (:cmd %))}
+       "daisy-pipeline" script (map (fn [[k v]] (format "--%s=%s" (name k) v)) args))
+      (catch clojure.lang.ExceptionInfo e
+        (log/error e)
+        (throw
+         (ex-info (format "Insertion of volume split points for %s failed" input)
+                  {:error-id ::volume-split-points-insertion-failed} e))))))

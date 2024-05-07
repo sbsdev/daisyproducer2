@@ -49,6 +49,7 @@
                  [mount "0.1.17"]
                  [mysql/mysql-connector-java "8.0.33"]
                  [nrepl "1.1.1"]
+                 [org.apache.pdfbox/pdfbox "3.0.2"]
                  [org.clojars.pntblnk/clj-ldap "0.0.17"]
                  [org.clojure/clojure "1.11.1"]
                  [org.clojure/clojurescript "1.11.60" :scope "provided"]
