@@ -5,8 +5,8 @@
    [daisyproducer2.db.core :as db]
    [daisyproducer2.documents.images :as images]
    [daisyproducer2.documents.preview.dtbook2pdf :as dtbook2pdf]
+   [daisyproducer2.documents.preview.dtbook2sbsform :as dtbook2sbsform]
    [daisyproducer2.documents.versions :as versions]
-   [daisyproducer2.dtbook2sbsform :as dtbook2sbsform]
    [daisyproducer2.metrics :as metrics]
    [daisyproducer2.pipeline2.scripts :as scripts]
    [iapetos.collector.fn :as prometheus]))

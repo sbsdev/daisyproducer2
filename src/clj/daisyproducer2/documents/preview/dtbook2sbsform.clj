@@ -1,4 +1,4 @@
-(ns daisyproducer2.dtbook2sbsform
+(ns daisyproducer2.documents.preview.dtbook2sbsform
   "Wrapper around the dtbook2sbsform scripts.
 
   It is assumed that the dtbook2sbsform scripts have been installed
