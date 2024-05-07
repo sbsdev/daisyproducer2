@@ -1,20 +1,20 @@
 (ns daisyproducer2.pipeline2.core
   "Thin layer on top of the [Pipeline2 Web Service
   API](https://daisy.github.io/pipeline/WebServiceAPI)"
-  (:require [clj-http.client :as client]
-            [clj-http.util :refer [url-encode]]
-            [clojure.data.codec.base64 :as b64]
-            [clojure.data.xml :as xml]
-            [clojure.data.zip :as zf]
-            [clojure.data.zip.xml :refer [attr xml-> xml1->]]
-            [clojure.java.io :as io]
-            [clojure.zip :refer [xml-zip]]
-            [crypto.random :as crypt-rand]
-            [java-time :as time]
-            [daisyproducer2.config :refer [env]]
-            [pandect.algo.sha1 :as pandect]
-            [babashka.fs :as fs])
-  (:import [java.util.zip ZipEntry ZipOutputStream]))
+  (:require
+   [babashka.fs :as fs]
+   [clj-http.client :as client]
+   [clj-http.util :refer [url-encode]]
+   [clojure.data.codec.base64 :as b64]
+   [clojure.data.xml :as xml]
+   [clojure.data.zip :as zf]
+   [clojure.data.zip.xml :refer [attr xml-> xml1->]]
+   [clojure.java.io :as io]
+   [clojure.zip :refer [xml-zip]]
+   [crypto.random :as crypt-rand]
+   [daisyproducer2.config :refer [env]]
+   [java-time :as time]
+   [pandect.algo.sha1 :as pandect]))
 
 ;; the following assumes that the pipeline is run in remote mode and
 ;; the default webservice url
@@ -30,14 +30,16 @@
       String.))
 
 (defn- auth-query-params [uri]
-  (let [timestamp (time/format :iso-local-date-time (time/local-date-time))
-        nonce (crypt-rand/base64 32)
-        auth-id (get-in env [:pipeline2 :auth-id])
-        params {"authid" auth-id "time" timestamp "nonce" nonce}
-        query-string (str uri "?" (client/generate-query-string params))
-        hashcode (create-hash query-string (get-in env [:pipeline2 :secret]))]
-    {:query-params
-     {"authid" auth-id "time" timestamp "nonce" nonce "sign" hashcode}}))
+  (if (get-in env [:pipeline2 :authentication])
+    (let [timestamp (time/format :iso-local-date-time (time/local-date-time))
+          nonce (crypt-rand/base64 32)
+          auth-id (get-in env [:pipeline2 :auth-id])
+          params {"authid" auth-id "time" timestamp "nonce" nonce}
+          query-string (str uri "?" (client/generate-query-string params))
+          hashcode (create-hash query-string (get-in env [:pipeline2 :secret]))]
+      {:query-params
+       {"authid" auth-id "time" timestamp "nonce" nonce "sign" hashcode}})
+    {}))
 
 (def qname (partial xml/qname "http://www.daisy.org/ns/pipeline/data"))
 
