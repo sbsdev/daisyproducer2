@@ -46,6 +46,8 @@
 (s/def ::line-spacing (s/and keyword? #{:singlespacing :onehalfspacing :doublespacing}))
 (s/def ::end-notes (s/and keyword? #{:none :document :chapter}))
 (s/def ::image-visibility (s/and keyword? #{:show :ignore}))
+(s/def ::asciimath (s/and keyword? #{:asciimath :mathml :both}))
+(s/def ::image-handling (s/and keyword? #{:embed :link :drop}))
 
 (def default-limit 100)
 
@@ -369,6 +371,31 @@
                         (if-let [doc (db/get-document {:id id})]
                           (try
                             (let [[name _] (preview/large-print id opts)]
+                              (let [url (str "/download/" name)]
+                                (created url {:location url})))
+                            (catch clojure.lang.ExceptionInfo e
+                              (log/error (ex-message e))
+                              (internal-server-error {:status-text (ex-message e)}))
+                            (catch java.nio.file.FileSystemException e
+                              (log/error (str e))
+                              (internal-server-error {:status-text (str e)})))
+                          (not-found)))}}]
+
+     ["/open-document"
+      {:get {:summary "Get an OpenDocument Text Document (ODT) for a document by ID"
+             :parameters {:path {:id int?}
+                          :query {(spec/opt :asciimath) ::asciimath
+                                  (spec/opt :phonetics) boolean?
+                                  (spec/opt :image-handling) ::image-handling
+                                  (spec/opt :line-numbers) boolean?
+                                  (spec/opt :page-numbers) boolean?
+                                  (spec/opt :page-numbers-float) boolean?
+                                  (spec/opt :answer) string?}}
+             :handler (fn [{{{:keys [id]} :path
+                             opts :query} :parameters}]
+                        (if-let [doc (db/get-document {:id id})]
+                          (try
+                            (let [[name _] (preview/open-document id opts)]
                               (let [url (str "/download/" name)]
                                 (created url {:location url})))
                             (catch clojure.lang.ExceptionInfo e

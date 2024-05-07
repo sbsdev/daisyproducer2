@@ -48,8 +48,6 @@
      (dtbook2sbsform/sbsform dtbook path opts)
      [name path])))
 
-
-
 (defn large-print
   "Generate an Large Print file for given `document-id` and return a
   tuple containing the name and the path of the generated file. An
@@ -61,6 +59,20 @@
          target-dir (fs/path (env :spool-dir))
          path (str (fs/path target-dir name))]
      (dtbook2pdf/dtbook2pdf dtbook path opts)
+     [name path])))
+
+(defn open-document
+  "Generate an OpenDocument Text Document (ODT) file for given
+  `document-id` and return a tuple containing the name and the path of
+  the generated file. An exception is thrown if the document has no
+  versions."
+  ([document-id opts]
+   (let [dtbook (-> (versions/get-latest document-id)
+                    (versions/get-content))
+         name (format "%s.odt" document-id)
+         target-dir (fs/path (env :spool-dir))
+         path (str (fs/path target-dir name))]
+     (scripts/dtbook-to-odt dtbook [] path opts)
      [name path])))
 
 (prometheus/instrument! metrics/registry #'epub)

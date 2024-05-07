@@ -248,6 +248,18 @@ GET http://localhost:3000/api/documents/644/preview/large-print?page-style=plain
 # Get the actual Large print artifact
 GET http://localhost:3000/download/644_17pt.pdf
 
+# Get Open Document
+GET http://localhost:3000/api/documents/644/preview/open-document
+
+# Get Open Document
+GET http://localhost:3000/api/documents/644/preview/open-document?phonetics=true&image-handling=embed&line-numbers=true&answer=.._&asciimath=mathml
+
+# Get Open Document
+GET http://localhost:3000/api/documents/644/preview/open-document?asciimath=asciimath&phonetics=true&image-handling=embed&line-numbers=true&page-numbers=true&page-numbers-float=true&answer=.._
+
+# Get the actual ODT artifact
+GET http://localhost:3000/download/644.odt
+
 #########
 # Words #
 #########
