@@ -283,7 +283,7 @@
               :path [:form :open-document]
               :prevent-default? true
               :clean-on-unmount? true
-              :on-submit #(rf/dispatch [::preview-open-document id %])
+              :on-submit #(rf/dispatch [::submit-handler :open-document id %])
               :keywordize-keys true
               }
    (fn [{:keys [path
