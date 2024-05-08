@@ -160,6 +160,13 @@
      [tabs document]
      [forms/epub document]]))
 
+(defn preview-epub-in-player []
+  (let [document @(rf/subscribe [::current])]
+    [:section.section>div.container>div.content
+     [summary document]
+     [tabs document]
+     [forms/epub-in-player document]]))
+
 (defn preview-open-document []
   (let [document @(rf/subscribe [::current])]
     [:section.section>div.container>div.content

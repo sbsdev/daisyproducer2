@@ -90,6 +90,8 @@
                                             :controllers [{:parameters {:path [:id]}}]}]
       ["/preview/epub" {:name :document-preview-epub :view #'document/preview-epub
                                  :controllers [{:parameters {:path [:id]}}]}]
+      ["/preview/epub-in-player" {:name :document-preview-epub-in-player :view #'document/preview-epub-in-player
+                                 :controllers [{:parameters {:path [:id]}}]}]
       ["/preview/open-document" {:name :document-preview-open-document :view #'document/preview-open-document
                                  :controllers [{:parameters {:path [:id]}}]}]
       ["/markup" {:name :document-markup :view #'document/markup

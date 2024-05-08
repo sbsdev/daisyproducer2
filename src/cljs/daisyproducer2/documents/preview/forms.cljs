@@ -272,6 +272,24 @@
        [:form {:id form-id :on-submit handle-submit}
         (submit-button props {:name :submit :label (tr [:preview])})]))])
 
+(defn epub-in-player [{id :id}]
+  [fork/form {:initial-values {}
+              :path [:form :epub]
+              :prevent-default? true
+              :clean-on-unmount? true
+              :on-submit #(rf/dispatch [::submit-handler :epub-in-player id %])
+              :keywordize-keys true
+              }
+   (fn [{:keys [path
+                form-id
+                submitting?
+		on-submit-server-message
+                handle-submit] :as props}]
+     (if on-submit-server-message
+       [error-notification on-submit-server-message path]
+       [:form {:id form-id :on-submit handle-submit}
+        (submit-button props {:name :submit :label (tr [:preview])})]))])
+
 (defn open-document [{id :id}]
   [fork/form {:initial-values {:math :both
                                :phonetics true

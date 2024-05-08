@@ -313,8 +313,8 @@
                                     (fs/delete path)))
                               (let [player-url (get-in env [:online-player :url])
                                     source (format (get-in env [:online-player :source]) version-id)
-                                    location (str player-url source)]
-                                (found location)))
+                                    url (str player-url source)]
+                                (created url {:location url})))
                             (catch clojure.lang.ExceptionInfo e
                               (log/error (ex-message e))
                               (internal-server-error {:status-text (ex-message e)}))
