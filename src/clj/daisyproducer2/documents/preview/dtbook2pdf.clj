@@ -30,12 +30,19 @@
   (cond-> opts
     (and (= page-style :plain) (compact? xml)) (assoc :page-style :compact)))
 
+(defmacro with-tempfile
+  [[tempfile tempfile-opts] & body]
+  `(let [~tempfile (fs/create-temp-file ~tempfile-opts)]
+     (try
+       ~@body
+       (finally
+         (fs/delete ~tempfile)))))
+
 (defn- generate-pdf
   [input output opts]
-  (let [latex-file (fs/create-temp-file {:prefix "daisyproducer-" :suffix ".tex"})]
+  (with-tempfile [latex-file {:prefix "daisyproducer-" :suffix ".tex"}]
     (pipeline1/dtbook-to-latex input latex-file opts)
-    (pipeline1/latex-to-pdf latex-file output)
-    (fs/delete latex-file)))
+    (pipeline1/latex-to-pdf latex-file output)))
 
 (defn- get-number-of-volumes
   [pdf]
@@ -58,14 +65,11 @@
   (let [opts (merge large-print-defaults opts)
         ;; when the page style is not explicitely requested check
         ;; whether the book should be rendered using compact style
-        opts (maybe-set-compact-style opts input)
-        clean-xml (fs/create-temp-file {:prefix "daisyproducer-" :suffix "-clean.xml"})
-        pdf-no-volumes (fs/create-temp-file {:prefix "daisyproducer-" :suffix "-no-volumes.pdf"})
-        split-xml (fs/create-temp-file {:prefix "daisyproducer-" :suffix "-split.xml"})]
-    (filter-braille-and-add-image-refs input clean-xml)
-    (generate-pdf clean-xml pdf-no-volumes opts)
-    (pipeline1/insert-volume-split-points clean-xml split-xml (get-number-of-volumes (fs/file pdf-no-volumes)))
-    (generate-pdf split-xml output opts)
-    (fs/delete clean-xml)
-    (fs/delete pdf-no-volumes)
-    (fs/delete split-xml)))
+        opts (maybe-set-compact-style opts input)]
+    (with-tempfile [clean-xml {:prefix "daisyproducer-" :suffix "-clean.xml"}]
+      (with-tempfile [pdf-no-volumes {:prefix "daisyproducer-" :suffix "-no-volumes.pdf"}]
+        (with-tempfile [split-xml {:prefix "daisyproducer-" :suffix "-split.xml"}]
+          (filter-braille-and-add-image-refs input clean-xml)
+          (generate-pdf clean-xml pdf-no-volumes opts)
+          (pipeline1/insert-volume-split-points clean-xml split-xml (get-number-of-volumes (fs/file pdf-no-volumes)))
+          (generate-pdf split-xml output opts))))))
