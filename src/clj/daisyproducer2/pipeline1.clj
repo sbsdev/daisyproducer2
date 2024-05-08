@@ -74,7 +74,7 @@
          (ex-info (format "Audio encoding of %s failed" input) {:error-id ::audio-encoding-failed}))))))
 
 (def ^:private key-mapping
-  "Parameter name mapping between Clojure and the Pipeline1 script"
+  "Parameter name mapping between Clojure and the Pipeline1 scripts"
   {:font-size :fontsize
    :page-style :pageStyle
    :stock-size :stocksize
@@ -132,7 +132,8 @@
          (ex-info (format "Conversion of %s failed" input) {:error-id ::latex-conversion-failed} e))))))
 
 (defn latex-to-pdf
-  "Invoke `latexmk` on the given `input` file and store the resulting PDF in the given `output` file."
+  "Invoke `latexmk` on the given `input` file and store the resulting
+  PDF in the given `output` file."
   [input output]
   (let [tmp-dir (fs/create-temp-dir {:prefix "daisyproducer2-"})
         pdf-path (fs/path tmp-dir (str (fs/file-name (fs/strip-ext input)) ".pdf"))]
@@ -154,6 +155,8 @@
       (finally (fs/delete-tree tmp-dir)))))
 
 (defn insert-volume-split-points
+  "Invoke the script to insert volume split points on the given `input`
+  file and store the resulting XML in the given `output` file."
   [input output volumes]
   (let [script (str (fs/path (env :pipeline1-install-path)
                              "scripts/modify_improve/dtbook/DTBookVolumeSplit.taskScript"))
