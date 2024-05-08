@@ -78,4 +78,5 @@
 (prometheus/instrument! metrics/registry #'epub)
 (prometheus/instrument! metrics/registry #'sbsform)
 (prometheus/instrument! metrics/registry #'large-print)
+(prometheus/instrument! metrics/registry #'open-document)
 
