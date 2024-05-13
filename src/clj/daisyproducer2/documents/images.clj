@@ -29,9 +29,7 @@
     ;; make sure path exists
     (fs/create-dirs (fs/parent absolute-path))
     ;; copy the contents into the archive
-    (with-open [in (io/input-stream tempfile)
-                out (io/output-stream (fs/file absolute-path))]
-      (io/copy in out))
+    (fs/copy tempfile absolute-path)
     ;; and store it in the db ...
     (->
      (db/insert-image {:document_id document-id :content (str path)})
