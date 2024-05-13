@@ -3,6 +3,7 @@
    [babashka.fs :as fs]
    [clojure.java.io :as io]
    [clojure.math :as math]
+   [daisyproducer2.documents.utils :refer [with-tempfile]]
    [daisyproducer2.pipeline1 :as pipeline1]
    [sigel.xslt.core :as xslt])
   (:import
@@ -29,14 +30,6 @@
   [{:keys [page-style] :as opts} xml]
   (cond-> opts
     (and (= page-style :plain) (compact? xml)) (assoc :page-style :compact)))
-
-(defmacro with-tempfile
-  [[tempfile tempfile-opts] & body]
-  `(let [~tempfile (fs/create-temp-file ~tempfile-opts)]
-     (try
-       ~@body
-       (finally
-         (fs/delete ~tempfile)))))
 
 (defn- generate-pdf
   [input images output opts]
