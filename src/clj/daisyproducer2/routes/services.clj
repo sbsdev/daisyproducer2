@@ -440,6 +440,7 @@
                                  new-url (format "/documents/%s/versions/%s" id new-key)]
                              ;; update the unknown words list for this document
                              (unknown/update-words tempfile id)
+                             (fs/delete tempfile)
                              (created new-url {})) ;; add an empty body
                            (catch clojure.lang.ExceptionInfo e
                              (let [{:keys [error-id errors]} (ex-data e)
