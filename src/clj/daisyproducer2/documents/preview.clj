@@ -55,10 +55,12 @@
   ([document-id opts]
    (let [dtbook (-> (versions/get-latest document-id)
                     (versions/get-content))
+         images (->> (images/get-images document-id)
+                     (map images/image-path))
          name (format "%s_%spt.pdf" document-id (:font-size opts))
          target-dir (fs/path (env :spool-dir))
          path (str (fs/path target-dir name))]
-     (dtbook2pdf/dtbook2pdf dtbook path opts)
+     (dtbook2pdf/dtbook2pdf dtbook images path opts)
      [name path])))
 
 (defn open-document
@@ -69,10 +71,12 @@
   ([document-id opts]
    (let [dtbook (-> (versions/get-latest document-id)
                     (versions/get-content))
+         images (->> (images/get-images document-id)
+                     (map images/image-path))
          name (format "%s.odt" document-id)
          target-dir (fs/path (env :spool-dir))
          path (str (fs/path target-dir name))]
-     (scripts/dtbook-to-odt dtbook [] path opts)
+     (scripts/dtbook-to-odt dtbook images path opts)
      [name path])))
 
 (prometheus/instrument! metrics/registry #'epub)

@@ -134,10 +134,12 @@
 (defn latex-to-pdf
   "Invoke `latexmk` on the given `input` file and store the resulting
   PDF in the given `output` file."
-  [input output]
+  [input images output]
   (let [tmp-dir (fs/create-temp-dir {:prefix "daisyproducer2-"})
         pdf-path (fs/path tmp-dir (str (fs/file-name (fs/strip-ext input)) ".pdf"))]
     (try
+      ;; copy the images into the temp dir so that LaTeX can find them
+      (doseq [image images] (fs/copy image tmp-dir))
       (process/shell {:err :string
                       :out :string
                       :pre-start-fn #(log/info "Invoking" (:cmd %))}

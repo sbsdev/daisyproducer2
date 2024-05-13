@@ -39,10 +39,10 @@
          (fs/delete ~tempfile)))))
 
 (defn- generate-pdf
-  [input output opts]
+  [input images output opts]
   (with-tempfile [latex-file {:prefix "daisyproducer-" :suffix ".tex"}]
     (pipeline1/dtbook-to-latex input latex-file opts)
-    (pipeline1/latex-to-pdf latex-file output)))
+    (pipeline1/latex-to-pdf latex-file images output)))
 
 (defn- get-number-of-volumes
   [pdf]
@@ -61,7 +61,7 @@
    :replace-em-with-quote true :end-notes :none :image-visibility :ignore})
 
 (defn dtbook2pdf
-  [input output opts]
+  [input images output opts]
   (let [opts (merge large-print-defaults opts)
         ;; when the page style is not explicitely requested check
         ;; whether the book should be rendered using compact style
@@ -70,6 +70,6 @@
       (with-tempfile [pdf-no-volumes {:prefix "daisyproducer-" :suffix "-no-volumes.pdf"}]
         (with-tempfile [split-xml {:prefix "daisyproducer-" :suffix "-split.xml"}]
           (filter-braille-and-add-image-refs input clean-xml)
-          (generate-pdf clean-xml pdf-no-volumes opts)
+          (generate-pdf clean-xml images pdf-no-volumes opts)
           (pipeline1/insert-volume-split-points clean-xml split-xml (get-number-of-volumes (fs/file pdf-no-volumes)))
-          (generate-pdf split-xml output opts))))))
+          (generate-pdf split-xml images output opts))))))
