@@ -440,13 +440,14 @@
                                  new-url (format "/documents/%s/versions/%s" id new-key)]
                              ;; update the unknown words list for this document
                              (unknown/update-words tempfile id)
-                             (fs/delete tempfile)
                              (created new-url {})) ;; add an empty body
                            (catch clojure.lang.ExceptionInfo e
                              (let [{:keys [error-id errors]} (ex-data e)
                                    message (ex-message e)]
                                (log/warn message error-id errors)
-                               (bad-request {:status-text (ex-message e) :errors errors})))))}}]
+                               (bad-request {:status-text (ex-message e) :errors errors})))
+                           (finally
+                             (fs/delete tempfile))))}}]
 
      ["/:version-id"
       {:get {:summary "Get a version"
@@ -486,9 +487,12 @@
               :parameters {:path {:id int?} :multipart {:file multipart/temp-file-part}}
               :handler (fn [{{{:keys [id]} :path {{:keys [filename tempfile]} :file} :multipart} :parameters
                              {{uid :uid} :user} :identity}]
-                         (let [new-key (images/insert-image id filename tempfile)
-                               new-url (format "/documents/%s/images/%s" id new-key)]
-                           (created new-url {})))}
+                         (try
+                           (let [new-key (images/insert-image id filename tempfile)
+                                 new-url (format "/documents/%s/images/%s" id new-key)]
+                             (created new-url {}))
+                           (finally
+                             (fs/delete tempfile))))}
        :delete {:summary "Delete all images of a given document"
                 :middleware [wrap-restricted]
                 :swagger {:security [{:apiAuth []}]}
