@@ -1,16 +1,18 @@
 (ns daisyproducer2.documents.versions
   (:require [babashka.fs :as fs]
             [clojure.java.io :as io]
+            [clojure.tools.logging :as log]
             [daisyproducer2.config :refer [env]]
             [daisyproducer2.db.core :as db]
-            [daisyproducer2.metrics :as metrics]
+            [daisyproducer2.documents.utils :refer [with-tempfile]]
+          [daisyproducer2.documents.metadata-validation :as metadata-validation]
             [daisyproducer2.documents.schema-validation :as schema-validation]
-            [daisyproducer2.documents.metadata-validation :as metadata-validation]
+            [daisyproducer2.metrics :as metrics]
+            [daisyproducer2.pipeline1 :as pipeline1]
             [iapetos.collector.fn :as prometheus]
-            [clojure.tools.logging :as log]
-            [daisyproducer2.pipeline1 :as pipeline1])
+            [sigel.xslt.core :as xslt])
   ;; Universally Unique Lexicographically Sortable Identifiers (https://github.com/ulid/spec)
-  (:import [io.azam.ulidj ULID] ))
+  (:import [io.azam.ulidj ULID]))
 
 (defn get-versions
   ([document-id]
@@ -38,11 +40,29 @@
 
 (def ^:private schema "schema/dtbook-2005-3-sbs.rng")
 
+(defn- filter-braille-and-absolutize-image-paths
+  "Given an input `xml` that possibly contains `img/@src` attributes,
+  clean the brl contraction hints and convert these paths from
+  relative to absolute paths and make sure they point to the images
+  path for the given `document`. Store the updated xml in `target`.
+  This is mostly needed for validation, where the existence of the
+  image files is verified."
+  [xml document target]
+  (let [document-root (env :document-root)
+        document-id (:id document)
+        image-path (fs/file document-root (str document-id) "images")
+        absolute-image-path (fs/absolutize image-path)
+        xslt [(xslt/compile-xslt (io/resource "xslt/filterBrlContractionhints.xsl"))
+              (xslt/compile-xslt (io/resource "xslt/absolutizeImagePath.xsl"))]]
+    (xslt/transform-to-file xslt {:absolute-image-path (str absolute-image-path)} (fs/file xml) (fs/file target))))
+
 (defn validate-version [file document]
   (concat
    (schema-validation/validation-errors file schema)
    (metadata-validation/validate-metadata file document)
-   (pipeline1/validate file :dtbook)))
+   (with-tempfile [with-absolute-image-paths {:prefix "daisyproducer-" :suffix ".xml"}]
+     (filter-braille-and-absolutize-image-paths file document with-absolute-image-paths)
+     (pipeline1/validate with-absolute-image-paths :dtbook))))
 
 (defn insert-version
   [document-id tempfile comment user]
