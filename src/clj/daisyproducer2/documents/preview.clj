@@ -22,7 +22,7 @@
          product-id (or (->
                          (db/get-products {:document_id document-id :type 2}) ;; type 2 => ebook
                          :identifier)
-                        "unknown") ;; FIXME
+                        document-id) ;; use the document-id as a fallback
          target-dir (fs/path (env :spool-dir))]
      (epub document-id product-id target-dir)))
   ([document-id name target-dir]
