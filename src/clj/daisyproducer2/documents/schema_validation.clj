@@ -29,6 +29,8 @@
   accepts a number of params about a given resource and returns a
   `LSInput` object. This object will contain the proper `systemId` so
   that the resource is found inside the Jar file."
+  ;; for inspiration see https://stackoverflow.com/q/2342808
+  ;; and https://xmlresolver.org (which I ended up not using)
   (reify LSResourceResolver
     (resolveResource [this type namespaceURI publicId systemId baseURI]
       (let [;; the `systemId` contains the file name of the schema file we are
