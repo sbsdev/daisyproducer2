@@ -35,6 +35,12 @@ UPDATE documents_document
 SET state_id = (CASE :state WHEN "open" THEN 7 WHEN "closed" THEN 8 END)
 WHERE id = :id
 
+-- :name insert-document :insert :raw
+-- :doc Insert a new document with given `comment`, `content` and `user`.
+INSERT INTO documents_document (title, author, subject, description, date, identifier, source, language, rights, source_date, source_edition, source_publisher, source_rights, production_series, production_series_number, production_source)
+VALUES (:title, :author, :subject, :description, :date, :identifier, :source, :language, :rights, :source_date, :source_edition, :source_publisher, :source_rights, :production_series, :production_series_number, :production_source)
+
+
 --------------
 -- Products --
 --------------
