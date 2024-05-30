@@ -108,7 +108,7 @@
 
              :prep-tasks ["compile" ["run" "-m" "shadow.cljs.devtools.cli" "release" "app"]]
              :aot :all
-             :uberjar-name "daisyproducer2.jar"
+             :uberjar-name "daisyproducer2-%s-standalone.jar"
              :source-paths ["env/prod/clj"  "env/prod/cljs" ]
              :resource-paths ["env/prod/resources"]}
 

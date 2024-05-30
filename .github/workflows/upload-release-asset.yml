@@ -23,4 +23,4 @@ jobs:
         with:
           draft: false
           prerelease: false
-          files: ./target/uberjar/daisyproducer2.jar
+          files: ./target/uberjar/daisyproducer2-*-standalone.jar
