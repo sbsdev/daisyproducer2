@@ -1,0 +1,10 @@
+default-character-set=utf8mb4
+default-collation=utf8mb4_general_ci
+generator=skeema:1.10.1-community
+schema=daisyproducer_test
+
+[production]
+flavor=mariadb:10.1
+host=db.sbszh.ch
+port=3306
+user=daisyproducer
