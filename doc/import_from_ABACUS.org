@@ -1,0 +1,160 @@
+* Terminology
+
+* Procedure
+- validate xml
+- extract the relevant data
+- validate the ISBN
+- ignore the file if it is not meant for daisyproducer
+- validate the product number
+- are there exiting documents with the given product number?
+  - yes
+    - make sure there is only one document
+    - update the metadata in the db
+    - update the XML with the new metadata
+      - by using a virtual "abacus" user
+      - and shelling out to a jar file that implements the XML update
+	- ~update-dtbook-metadata.jar~
+  - otherwise
+    - check if
+      - there is a document with the given ISBN
+      - or if there is a document with the same title and source_edition
+    - yes
+      - make sure there is only one document
+      - update the metadata in the db
+      - update the XML with the new metadata
+	- by using a virtual "abacus" user
+	- and shelling out to a jar file that implements the XML update
+	  - update-dtbook-metadata.jar
+      - update the product association
+	- i.e. create a product with the given product_number, product_type and document
+  - otherwise
+    - Looks like the document hasn't been imported before
+    - Create a new document and insert it in the db
+      - with initial state set to /new/ or /in_production/
+	- (/open/)
+    - update the product association
+      - i.e. create a product with the given product_number, product_type and document
+    - Create an initial default XML with the given metadata
+      - using a templating engine
+      - and the ABACUS user
+- (disabled) if the product_number has never been seen before then we
+  are talking about a new production, i.e. try to check out the
+  document in the archive
+- If the order has been archived before fetch the xml from the archive
+  - has been archived before
+    - find out with a CMIS request
+  - yes
+    - get the content
+      - search the product in the archive
+	- using CMIS and the product_number
+      - get the the sibling object (via the parents children) with the
+	properties ~D:sbs:daisyFile~
+      - get the latest version
+      - get the content stream, read and close it
+    - store the content in a temp file
+    - and update the metadata
+      - again by shelling out to a jar file that implements the XML
+        update
+	- ~update-dtbook-metadata.jar~
+    - then validate the temp file (why?)
+      - fail if invalid
+    - Create a new version with that temp file
+    - (disabled) update the content in /ueberarbeiten/
+
+* State diagram
+#+begin_src plantuml :file ABACUS_import.png
+@startuml
+  start
+  :Receive ABACUS XML;
+  :Validate;
+  :Extract data;
+  :Validate ISBN;
+  :Validate product_number;
+  if (Not for Daisyproducer?) then (no)
+    :Ignore file;
+  elseif (Existing document for product_number?) then (yes)
+	:Assert that there is only one document;
+	:Update the metadata in the db;
+	:Update the XML with the metadata;
+  elseif (Document with ISBN or same title and source_edition?) then (yes)
+      	:Assert that there is only one document;
+      	:Update the metadata in the db;
+      	:Update the XML with the metadata;
+      	:Create a product with given product_number, product_type and document;
+  else (no)
+      	:Create a new document in the db;
+      	:Create a product with given product_number, product_type and document;
+	:Create an initial default XML with the given metadata;
+  endif
+  partition #Wheat "Checkout (Disabled)" {
+  if (product_number has never been seen before) then (yes)
+    :Try to check out the document in the archive;
+  endif
+  }
+  partition "Fetch content" {
+  if (document has been archived before) then (yes)
+    :Get the latest content from the archive;
+    :Update it with the metadata;
+    :Validate it;
+    :Create a new Version from it;
+  endif
+  }
+  partition #Wheat "Update archive (Disabled)" {
+  if (document is checked out) then (yes)
+    :find the document in ueberarbeiten;
+    :update it with the content;
+  endif
+  }
+stop
+@enduml
+#+end_src
+
+#+RESULTS:
+[[file:ABACUS_import.png]]
+
+* Database Model
+
+** Document
+| Field                    | Type         | Null | Key | Default | Extra          |
+|--------------------------+--------------+------+-----+---------+----------------|
+| id                       | int          | NO   | PRI | NULL    | auto_increment |
+| title                    | varchar(255) | NO   |     | NULL    |                |
+| author                   | varchar(255) | NO   |     | NULL    |                |
+| subject                  | varchar(255) | NO   |     | NULL    |                |
+| description              | longtext     | NO   |     | NULL    |                |
+| publisher                | varchar(255) | NO   |     | NULL    |                |
+| date                     | date         | NO   |     | NULL    |                |
+| identifier               | varchar(255) | NO   | UNI | NULL    |                |
+| source                   | varchar(20)  | NO   |     | NULL    |                |
+| language                 | varchar(10)  | NO   |     | NULL    |                |
+| rights                   | varchar(255) | NO   |     | NULL    |                |
+| source_date              | date         | YES  |     | NULL    |                |
+| source_edition           | varchar(255) | NO   |     | NULL    |                |
+| source_publisher         | varchar(255) | NO   |     | NULL    |                |
+| source_rights            | varchar(255) | NO   |     | NULL    |                |
+| state_id                 | int          | NO   | MUL | NULL    |                |
+| assigned_to_id           | int          | YES  | MUL | NULL    |                |
+| created_at               | datetime     | NO   |     | NULL    |                |
+| modified_at              | datetime     | NO   |     | NULL    |                |
+| production_series        | varchar(25)  | NO   |     | NULL    |                |
+| production_series_number | varchar(25)  | NO   |     | NULL    |                |
+| production_source        | varchar(25)  | NO   |     | NULL    |                |
+
+** Product
+| Field       | Type         | Null | Key | Default | Extra                              |
+|-------------+--------------+------+-----+---------+------------------------------------|
+| id          | int          | NO   | PRI | NULL    | auto_increment                     |
+| identifier  | varchar(255) | NO   | UNI | NULL    |                                    |
+| type        | smallint     | NO   |     | NULL    |                                    |
+| document_id | int          | NO   | MUL | NULL    | REFERENCES documents_document (id) |
+
+#+begin_src sql
+  CREATE TABLE documents_product (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    identifier VARCHAR(255) NOT NULL UNIQUE,
+    type SMALLINT NOT NULL,
+    document_id INT NOT NULL FOREIGN KEY REFERENCES documents_document (id),
+    KEY (document_id)
+  );
+#+end_src
+
