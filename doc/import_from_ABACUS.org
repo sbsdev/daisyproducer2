@@ -62,6 +62,7 @@
     - (disabled) update the content in /ueberarbeiten/
 
 * State diagram
+** Import
 #+begin_src plantuml :file ABACUS_import.png
 @startuml
   start
@@ -86,31 +87,29 @@
       	:Create a product with given product_number, product_type and document;
 	:Create an initial default XML with the given metadata;
   endif
-  partition #Wheat "Checkout (Disabled)" {
-  if (product_number has never been seen before) then (yes)
-    :Try to check out the document in the archive;
-  endif
-  }
-  partition "Fetch content" {
-  if (document has been archived before) then (yes)
-    :Get the latest content from the archive;
-    :Update it with the metadata;
-    :Validate it;
-    :Create a new Version from it;
-  endif
-  }
-  partition #Wheat "Update archive (Disabled)" {
-  if (document is checked out) then (yes)
-    :find the document in ueberarbeiten;
-    :update it with the content;
-  endif
-  }
 stop
 @enduml
 #+end_src
 
 #+RESULTS:
 [[file:ABACUS_import.png]]
+
+** Alfresco synchronization
+#+begin_src plantuml :file Alfresco_sync.png
+@startuml
+  start
+  if (document has been archived before) then (yes)
+    :Get the latest content from the archive;
+    :Update it with the metadata;
+    :Validate it;
+    :Create a new Version from it;
+  endif
+stop
+@enduml
+#+end_src
+
+#+RESULTS:
+[[file:Alfresco_sync.png]]
 
 * Database Model
 
