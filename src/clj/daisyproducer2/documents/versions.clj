@@ -16,13 +16,13 @@
 
 (defn get-versions
   ([document-id]
-   (db/get-versions {:document_id document-id}))
+   (db/get-versions {:document-id document-id}))
   ([document-id limit offset]
-   (db/get-versions {:document_id document-id :limit limit :offset offset})))
+   (db/get-versions {:document-id document-id :limit limit :offset offset})))
 
 (defn find-versions
   [document-id limit offset search]
-  (db/find-versions {:document_id document-id :limit limit :offset offset :search search}))
+  (db/find-versions {:document-id document-id :limit limit :offset offset :search search}))
 
 (defn get-version
   [document-id id]
@@ -30,7 +30,7 @@
 
 (defn get-latest
   [document-id]
-  (db/get-latest-version {:document_id document-id}))
+  (db/get-latest-version {:document-id document-id}))
 
 (defn get-content
   [version]
@@ -83,7 +83,7 @@
     (fs/copy tempfile absolute-path)
     ;; store it in the db ...
     (->
-     (db/insert-version {:document_id document-id :comment comment :content (str path) :user user})
+     (db/insert-version {:document-id document-id :comment comment :content (str path) :user user})
      ;; ... and return the new key
      db/get-generated-key)))
 

@@ -40,9 +40,9 @@ WHERE id = :id
 --------------
 
 -- :name get-products :? :*
--- :doc retrieve all product record given the associated `document_id` and an optional `type`
+-- :doc retrieve all product record given the associated `document-id` and an optional `type`
 SELECT * FROM documents_product
-WHERE document_id = :document_id
+WHERE document_id = :document-id
 --~ (when (:type params) "AND type = :type")
 
 --------------
@@ -50,17 +50,17 @@ WHERE document_id = :document_id
 --------------
 
 -- :name get-versions :? :*
--- :doc retrieve all versions of a document given a `document_id`
+-- :doc retrieve all versions of a document given a `document-id`
 SELECT * FROM documents_version
-WHERE document_id = :document_id
+WHERE document_id = :document-id
 ORDER BY created_at DESC
 --~ (when (:limit params) "LIMIT :limit")
 --~ (when (:offset params) "OFFSET :offset")
 
 -- :name find-versions :? :*
--- :doc retrieve all versions given a `search` term, a `limit` and an `offset`
+-- :doc retrieve all versions given a `document-id`, a `search` term, a `limit` and an `offset`
 SELECT * FROM documents_version
-WHERE document_id = :document_id
+WHERE document_id = :document-id
 AND LOWER(comment) LIKE LOWER(:search)
 ORDER BY created_at DESC
 LIMIT :limit OFFSET :offset
@@ -72,15 +72,15 @@ WHERE document_id = :document_id
 AND id = :id
 
 -- :name get-latest-version :? :1
--- :doc retrieve the latest version of a document given a `document_id`
+-- :doc retrieve the latest version of a document given a `document-id`
 SELECT * FROM documents_version
-WHERE document_id = :document_id
-AND created_at = (SELECT MAX(created_at) FROM documents_version WHERE document_id = :document_id)
+WHERE document_id = :document-id
+AND created_at = (SELECT MAX(created_at) FROM documents_version WHERE document_id = :document-id)
 
 -- :name insert-version :insert :raw
--- :doc Insert a new version for a given `document_id` with given `comment`, `content` and `user`.
+-- :doc Insert a new version for a given `document-id` with given `comment`, `content` and `user`.
 INSERT INTO documents_version (comment, document_id, content, created_by)
-VALUES (:comment, :document_id, :content, :user)
+VALUES (:comment, :document-id, :content, :user)
 
 -- :name delete-version :! :n
 -- :doc Delete a version.
@@ -118,31 +118,31 @@ AND version.id NOT IN (
 ------------
 
 -- :name get-images :? :*
--- :doc retrieve all images of a document given a `document_id`. Optionally the results can be limited by `limit` and `offset`
+-- :doc retrieve all images of a document given a `document-id`. Optionally the results can be limited by `limit` and `offset`
 SELECT * FROM documents_image
-WHERE document_id = :document_id
+WHERE document_id = :document-id
 ORDER BY content
 --~ (when (:limit params) "LIMIT :limit")
 --~ (when (:offset params) "OFFSET :offset")
 
 -- :name find-images :? :*
--- :doc retrieve all images given a `search` term, a `limit` and an `offset`
+-- :doc retrieve all images given a `document-id`, a `search` term, a `limit` and an `offset`
 SELECT * FROM documents_image
-WHERE document_id = :document_id
+WHERE document_id = :document-id
 AND LOWER(content) LIKE LOWER(:search)
 ORDER BY content
 LIMIT :limit OFFSET :offset
 
 -- :name get-image :? :1
--- :doc retrieve an image for given `id`
+-- :doc retrieve an image for the given `id`
 SELECT * FROM documents_image
 WHERE document_id = :document_id
 AND id = :id
 
 -- :name insert-image :insert :raw
--- :doc Insert a new image for a given `document_id` with given and `content`.
+-- :doc Insert a new image for a given `document-id` with given and `content`.
 INSERT INTO documents_image (document_id, content)
-VALUES (:document_id, :content)
+VALUES (:document-id, :content)
 ON DUPLICATE KEY UPDATE
 content = VALUES(content),
 document_id = VALUES(document_id)
@@ -152,8 +152,8 @@ document_id = VALUES(document_id)
 DELETE FROM documents_image WHERE id = :id
 
 -- :name delete-all-images :! :n
--- :doc Delete all image for a for a given `document_id`.
-DELETE FROM documents_image WHERE document_id = :document_id
+-- :doc Delete all image for a for a given `document-id`.
+DELETE FROM documents_image WHERE document_id = :document-id
 
 -- :name get-images-of-closed-documents :? :*
 -- :doc Get all images that belong to any document that is in "closed" state
@@ -205,7 +205,7 @@ WHERE :i:braille IS NOT NULL
 -- :name insert-global-word :! :n
 -- :doc Insert or update a word in the global dictionary.
 INSERT INTO dictionary_globalword (untranslated, uncontracted, contracted, type, homograph_disambiguation)
-VALUES (:untranslated, :uncontracted, :contracted, :type, :homograph_disambiguation)
+VALUES (:untranslated, :uncontracted, :contracted, :type, :homograph-disambiguation)
 ON DUPLICATE KEY UPDATE
 contracted = VALUES(contracted),
 uncontracted = VALUES(uncontracted)
@@ -215,7 +215,7 @@ uncontracted = VALUES(uncontracted)
 DELETE FROM dictionary_globalword
 WHERE untranslated = :untranslated
 AND type = :type
-AND homograph_disambiguation = :homograph_disambiguation
+AND homograph_disambiguation = :homograph-disambiguation
 
 -----------------
 -- Local Words --
@@ -250,13 +250,13 @@ ORDER BY words.untranslated
 --~ (when (:offset params) "OFFSET :offset")
 
 -- :name get-local-word :? :1
--- :doc retrieve a local word record given `document_id`, `untranslated`, `type` and `homograph_disambiguation`.
+-- :doc retrieve a local word record given `document-id`, `untranslated`, `type` and `homograph-disambiguation`.
 SELECT *
 FROM dictionary_localword
 WHERE untranslated = :untranslated
 AND type = :type
-AND homograph_disambiguation = :homograph_disambiguation
-AND document_id = :document_id
+AND homograph_disambiguation = :homograph-disambiguation
+AND document_id = :document-id
 
 -- :name insert-local-word :! :n
 -- :doc Insert or update a word in the local dictionary. Optionally specify `isconfirmed`.
@@ -274,8 +274,8 @@ VALUES (
 --~ (when (:contracted params) ":contracted,")
 --~ (when (:uncontracted params) ":uncontracted,")
        :type,
-       :homograph_disambiguation,
-       :document_id,
+       :homograph-disambiguation,
+       :document-id,
        :islocal,
 --~ (if (:isconfirmed params) ":isconfirmed" "DEFAULT")
        )
@@ -286,7 +286,7 @@ ON DUPLICATE KEY UPDATE
 isLocal = VALUES(isLocal)
 
 -- :name delete-local-word-partial :! :n
--- :doc Set either contracted or uncontracted to NULL for given `document_id`, `untranslated`, `type` and `homograph_disambiguation`.
+-- :doc Set either contracted or uncontracted to NULL for given `document-id`, `untranslated`, `type` and `homograph-disambiguation`.
 UPDATE dictionary_localword
 /*~ (if (:contracted params) */
 SET contracted = NULL
@@ -295,16 +295,16 @@ SET uncontracted = NULL
 /*~ ) ~*/
 WHERE untranslated = :untranslated
 AND type = :type
-AND homograph_disambiguation = :homograph_disambiguation
-AND document_id = :document_id
+AND homograph_disambiguation = :homograph-disambiguation
+AND document_id = :document-id
 
 -- :name delete-local-word :! :n
 -- :doc Delete a word in the local dictionary.
 DELETE FROM dictionary_localword
 WHERE untranslated = :untranslated
 AND type = :type
-AND homograph_disambiguation = :homograph_disambiguation
-AND document_id = :document_id
+AND homograph_disambiguation = :homograph-disambiguation
+AND document_id = :document-id
 
 -------------------
 -- Unknown words --
@@ -326,8 +326,8 @@ UPDATE dictionary_unknownword
 SET isIgnored = :isignored, isLocal = :islocal
 WHERE untranslated = :untranslated
 AND type = :type
-AND homograph_disambiguation = :homograph_disambiguation
-AND document_id = :document_id
+AND homograph_disambiguation = :homograph-disambiguation
+AND document_id = :document-id
 
 -- :name delete-non-existing-unknown-words-from-local-words :! :n
 -- :doc delete words that are not in the list of unknown words from the local words for given `:document-id`

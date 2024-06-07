@@ -96,8 +96,7 @@
 (def dictionary-keys [:untranslated :uncontracted :contracted :type :homograph-disambiguation
                       :document-id :islocal :isconfirmed])
 
-(def dictionary-mapping {:homograph-disambiguation :homograph_disambiguation
-                         :document-id :document_id})
+(def dictionary-mapping {})
 
 (defn to-db [word keys mapping]
   (-> word

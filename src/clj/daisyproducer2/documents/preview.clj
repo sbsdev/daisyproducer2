@@ -20,7 +20,7 @@
    (let [;; if no name for the EPUB is given we use the product-id,
          ;; e.g. EB12345.epub
          product-id (or (->
-                         (db/get-products {:document_id document-id :type 2}) ;; type 2 => ebook
+                         (db/get-products {:document-id document-id :type 2}) ;; type 2 => ebook
                          :identifier)
                         document-id) ;; use the document-id as a fallback
          target-dir (fs/path (env :spool-dir))]

@@ -9,13 +9,13 @@
 
 (defn get-images
   ([document-id]
-   (db/get-images {:document_id document-id}))
+   (db/get-images {:document-id document-id}))
   ([document-id limit offset]
-   (db/get-images {:document_id document-id :limit limit :offset offset})))
+   (db/get-images {:document-id document-id :limit limit :offset offset})))
 
 (defn find-images
   [document-id limit offset search]
-  (db/find-images {:document_id document-id :limit limit :offset offset :search search}))
+  (db/find-images {:document-id document-id :limit limit :offset offset :search search}))
 
 (defn get-image
   [document-id id]
@@ -32,7 +32,7 @@
     (fs/copy tempfile absolute-path)
     ;; and store it in the db ...
     (->
-     (db/insert-image {:document_id document-id :content (str path)})
+     (db/insert-image {:document-id document-id :content (str path)})
      ;; ... and return the new key
      db/get-generated-key)))
 
@@ -59,14 +59,14 @@
   [document-id]
   ;; we need to fetch the images first to know the path to the image file, which we
   ;; will have to delete also
-  (let [images (db/get-images {:document_id document-id})]
+  (let [images (db/get-images {:document-id document-id})]
     (if (seq images)
       (do (doseq [image images]
             (when-not (fs/delete-if-exists (image-path image))
               ;; if an image file does not exist we simply log that fact, but do not raise an
               ;; exception
               (log/errorf "Attempting to delete non-existing image file %s" (image-path image))))
-          (db/delete-all-images {:document_id document-id}))
+          (db/delete-all-images {:document-id document-id}))
       0)))
 
 (defn delete-images-of-closed-documents
