@@ -453,7 +453,7 @@
       {:get {:summary "Get a version"
               :parameters {:path {:id int? :version-id int?}}
               :handler (fn [{{{:keys [id version-id]} :path} :parameters}]
-                         (if-let [version (versions/get-version id version-id)]
+                         (if-let [version (versions/get-version version-id)]
                            (ok version)
                            (not-found)))}
         :delete {:summary "Delete a version"
@@ -507,7 +507,7 @@
       {:get {:summary "Get an image"
              :parameters {:path {:id int? :image-id int?}}
              :handler (fn [{{{:keys [id image-id]} :path} :parameters}]
-                        (if-let [image (images/get-image id image-id)]
+                        (if-let [image (images/get-image image-id)]
                           (ok image)
                           (not-found)))}
        :delete {:summary "Delete an image"

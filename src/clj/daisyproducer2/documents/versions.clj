@@ -25,8 +25,8 @@
   (db/find-versions {:document-id document-id :limit limit :offset offset :search search}))
 
 (defn get-version
-  [document-id id]
-  (db/get-version {:document_id document-id :id id}))
+  [id]
+  (db/get-version {:id id}))
 
 (defn get-latest
   [document-id]
@@ -96,7 +96,7 @@
   [document-id id]
   ;; we need to fetch the version first to know the path to the xml file, which we will have to
   ;; delete also
-  (if-let [version (db/get-version {:document_id document-id :id id})]
+  (if-let [version (db/get-version {:id id})]
     (let [deletions (db/delete-version {:id id})]
       (when-not (fs/delete-if-exists (version-path version))
         ;; if a version file does not exist we simply log that fact,

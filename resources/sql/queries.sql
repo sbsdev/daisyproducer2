@@ -68,8 +68,7 @@ LIMIT :limit OFFSET :offset
 -- :name get-version :? :1
 -- :doc retrieve a version for given `id`
 SELECT * FROM documents_version
-WHERE document_id = :document_id
-AND id = :id
+WHERE id = :id
 
 -- :name get-latest-version :? :1
 -- :doc retrieve the latest version of a document given a `document-id`
@@ -136,8 +135,7 @@ LIMIT :limit OFFSET :offset
 -- :name get-image :? :1
 -- :doc retrieve an image for the given `id`
 SELECT * FROM documents_image
-WHERE document_id = :document_id
-AND id = :id
+WHERE id = :id
 
 -- :name insert-image :insert :raw
 -- :doc Insert a new image for a given `document-id` with given and `content`.

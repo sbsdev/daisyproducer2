@@ -18,8 +18,8 @@
   (db/find-images {:document-id document-id :limit limit :offset offset :search search}))
 
 (defn get-image
-  [document-id id]
-  (db/get-image {:document_id document-id :id id}))
+  [id]
+  (db/get-image {:id id}))
 
 (defn insert-image
   [document-id filename tempfile]
@@ -45,7 +45,7 @@
   [document-id id]
   ;; we need to fetch the image first to know the path to the image file, which we will have to
   ;; delete also
-  (if-let [image (db/get-image {:document_id document-id :id id})]
+  (if-let [image (db/get-image {:id id})]
     (let [deletions (db/delete-image {:id id})]
       (when-not (fs/delete-if-exists (image-path image))
         ;; if an image file does not exist we simply log that fact, but do not raise an
