@@ -9,6 +9,7 @@
    [daisyproducer2.documents.images :as images]
    [daisyproducer2.documents.preview :as preview]
    [daisyproducer2.documents.versions :as versions]
+   [daisyproducer2.documents.documents :as documents]
    [daisyproducer2.hyphenate :as hyphenate]
    [daisyproducer2.hyphenations :as hyphenations]
    [daisyproducer2.middleware :refer [wrap-authorized wrap-restricted]]
@@ -114,15 +115,15 @@
             :handler (fn [{{{:keys [limit offset search]
                              :or {limit default-limit offset 0}} :query} :parameters}]
                        (ok (if (blank? search)
-                             (db/get-documents {:limit limit :offset offset})
-                             (db/find-documents {:limit limit :offset offset :search (db/search-to-sql search)}))))}}]
+                             (documents/get-documents {:limit limit :offset offset})
+                             (documents/find-documents {:limit limit :offset offset :search (db/search-to-sql search)}))))}}]
 
     ["/:id"
      [""
       {:get {:summary "Get a document by ID"
              :parameters {:path {:id int?}}
              :handler (fn [{{{:keys [id]} :path} :parameters}]
-                        (if-let [doc (db/get-document {:id id})]
+                        (if-let [doc (documents/get-document id)]
                           (ok doc)
                           (not-found)))}
 
@@ -133,7 +134,7 @@
                :parameters {:path {:id int?}
                             :body {:state ::state}}
                :handler (fn [{{{:keys [id]} :path {:keys [state]} :body} :parameters}]
-                          (let [doc (db/get-document {:id id})]
+                          (let [doc (documents/get-document id)]
                             (cond
                               (nil? doc) (not-found)
                               (= (:state doc) state)
@@ -277,7 +278,7 @@
       {:get {:summary "Get an EPUB file for a document by ID"
              :parameters {:path {:id int?}}
              :handler (fn [{{{:keys [id]} :path} :parameters}]
-                        (if-let [doc (db/get-document {:id id})]
+                        (if-let [doc (documents/get-document id)]
                           (try
                             (let [[name path] (preview/epub id)]
                               ;; copy the result to a spool dir for the online player if there is a
@@ -300,7 +301,7 @@
       {:get {:summary "Generate the EPUB and redirect to a view of it in the online player"
              :parameters {:path {:id int?}}
              :handler (fn [{{{:keys [id]} :path} :parameters}]
-                        (if-let [doc (db/get-document {:id id})]
+                        (if-let [doc (documents/get-document id)]
                           (try
                             (let [version-id (-> (versions/get-latest id) :id)
                                   spool-dir (get-in env [:online-player :spool-dir])]
@@ -341,7 +342,7 @@
                                   :footnote-placement ::footnote-placement}}
              :handler (fn [{{{:keys [id]} :path
                              opts :query} :parameters}]
-                        (if-let [doc (db/get-document {:id id})]
+                        (if-let [doc (documents/get-document id)]
                           (try
                             (let [[name _] (preview/sbsform id opts)]
                               (let [url (str "/download/" name)]
@@ -368,7 +369,7 @@
                                   (spec/opt :image-visibility) ::image-visibility}}
              :handler (fn [{{{:keys [id]} :path
                              opts :query} :parameters}]
-                        (if-let [doc (db/get-document {:id id})]
+                        (if-let [doc (documents/get-document id)]
                           (try
                             (let [[name _] (preview/large-print id opts)]
                               (let [url (str "/download/" name)]
@@ -393,7 +394,7 @@
                                   (spec/opt :answer) string?}}
              :handler (fn [{{{:keys [id]} :path
                              opts :query} :parameters}]
-                        (if-let [doc (db/get-document {:id id})]
+                        (if-let [doc (documents/get-document id)]
                           (try
                             (let [[name _] (preview/open-document id opts)]
                               (let [url (str "/download/" name)]

@@ -29,11 +29,25 @@ JOIN documents_state state
 ON doc.state_id = state.id
 WHERE doc.id = :id
 
+-- :name insert-document :insert :raw
+-- :doc Insert a new document with given `title`, `author`, `subject`, `description`, `publisher`, `date`, `identifier`, `source`, `language`, `rights`, `source-date`, `source-edition`, `source-publisher`, `source-rights`, `production-series`, `production-series-number` and `production-source`.
+INSERT INTO documents_document (title, author, subject, description, publisher, date, identifier,
+       source, language, rights, source_date, source_edition, source_publisher, source_rights,
+       state_id, production_series, production_series_number, production_source)
+VALUES (:title, :author, :subject, :description, :publisher, :date, :identifier,
+        :source, :language, :rights, :source-date, :source-edition, :source-publisher, :source-rights,
+	7, :production-series, :production-series-number, :production-source)
+
 -- :name update-document-state :! :n
 -- :doc update the `state` field of a document with given `id`. The state can be either "open" or "closed"
 UPDATE documents_document
 SET state_id = (CASE :state WHEN "open" THEN 7 WHEN "closed" THEN 8 END)
 WHERE id = :id
+
+-- :name delete-document :! :n
+-- :doc Delete a document given the `id`.
+DELETE FROM documents_document WHERE id = :id
+
 
 --------------
 -- Products --
