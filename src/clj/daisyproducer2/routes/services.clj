@@ -115,8 +115,8 @@
             :handler (fn [{{{:keys [limit offset search]
                              :or {limit default-limit offset 0}} :query} :parameters}]
                        (ok (if (blank? search)
-                             (documents/get-documents {:limit limit :offset offset})
-                             (documents/find-documents {:limit limit :offset offset :search (db/search-to-sql search)}))))}}]
+                             (documents/get-documents limit offset)
+                             (documents/find-documents limit offset (db/search-to-sql search)))))}}]
 
     ["/:id"
      [""
