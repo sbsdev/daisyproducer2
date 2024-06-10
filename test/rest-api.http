@@ -124,7 +124,7 @@ GET http://localhost:3000/api/documents/105/versions?latest=false
 GET http://localhost:3000/api/documents/105/versions?search=hallo
 
 # Get a specific version
-GET http://localhost:3000/api/documents/105/versions/8212
+GET http://localhost:3000/api/documents/105/versions/8651
 
 # Get a specific non-existing version
 GET http://localhost:3000/api/documents/105/versions/0
@@ -133,7 +133,7 @@ GET http://localhost:3000/api/documents/105/versions/0
 GET http://localhost:3000/api/documents/105/versions?latest=true
 
 # Get xml for a version
-GET http://localhost:3000/api/documents/105/versions/8532/xml
+GET http://localhost:3000/archive/105/versions/01HSBCFKZBE40ZPNRP993BQ4R8.xml
 
 # Add a version
 :version := (with-temp-buffer (insert-file-contents "~/tmp/6304.xml") (buffer-string))
@@ -161,10 +161,6 @@ Authorization: :auth-token
 DELETE http://localhost:3000/api/documents/105/versions/8449
 Authorization: :auth-token
 
-# Delete old versions
-DELETE http://localhost:3000/api/documents/105/versions
-Authorization: :auth-token
-
 ##########
 # Images #
 ##########
@@ -173,7 +169,7 @@ Authorization: :auth-token
 GET http://localhost:3000/api/documents/644/images
 
 # Get a specific image
-GET http://localhost:3000/api/documents/644/images/6419
+GET http://localhost:3000/api/documents/644/images/10651
 
 # Get a specific non-existing image
 GET http://localhost:3000/api/documents/644/images/0
