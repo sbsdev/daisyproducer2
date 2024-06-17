@@ -25,14 +25,16 @@
      name grade2-name-tables
      :else grade2-tables)))
 
-(defn translate [word tables]
+(defn translator [tables]
+  (let [tables-string (apply str (interpose \, tables))]
+    (Translator. ^String tables-string)))
+
+(defn translate [word translator]
   (let [length (count word)
-        tables-string (apply str (interpose \, tables))
-        inter-character-attributes (int-array (repeat (- length 1) 0))
-        translator (Translator. ^String tables-string)]
+        inter-character-attributes (int-array (repeat (- length 1) 0))]
     (try
       (.getBraille (.translate translator word nil nil inter-character-attributes))
       ;; log the params that caused the exception and bubble it up
       (catch Exception e
-        (log/errorf "Translation failed for word '%s' with tables %s: %s" word tables e)
+        (log/errorf "Translation failed for word '%s' with tables %s: %s" word (str translator) e)
         (throw e)))))

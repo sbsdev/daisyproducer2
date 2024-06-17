@@ -184,7 +184,7 @@
         document-extension (if identifier (str "-" identifier) "")]
     (format "%s/sbs-de-%s-white%s.mod" tables-dir key document-extension)))
 
-(defn write-table [w grade translator words]
+(defn write-table [w grade translate words]
   (doseq [{:keys [untranslated uncontracted contracted homograph-disambiguation] :as word} words]
     (let [untranslated (if (words/is-homograph? word)
                          (string/replace homograph-disambiguation "|" words/braille-dummy-text)
@@ -194,7 +194,7 @@
           ;; liblouis does not produce braille with dummy text
           ;; FIXME: Why are we keeping the dummy text in the db? If it is just trown away anyway?
           braille (string/replace braille words/braille-dummy-text "")]
-      (when (not= braille (translator untranslated))
+      (when (not= braille (translate untranslated))
         (let [line (format "word %s\t%s" untranslated (to-dots braille))]
           (.write w line)
           (.newLine w))))))
@@ -202,16 +202,18 @@
 (defn write-local-table [document grade opts words]
   (let [filename (table-filename grade document opts)
         tables (louis/get-tables grade opts)
-        translator #(louis/translate % tables)]
+        translator (louis/translator tables)
+        translate #(louis/translate % translator)]
     (with-open [w (io/writer filename)]
-      (write-table w grade translator words))))
+      (write-table w grade translate words))))
 
 (defn write-global-table [grade opts words]
   (let [filename (table-filename grade {} opts)
         tables (louis/get-tables grade opts)
-        translator #(louis/translate % tables)]
+        translator (louis/translator tables)
+        translate #(louis/translate % translator)]
     (with-open [w (io/writer filename)]
-      (write-table w grade translator words))))
+      (write-table w grade translate words))))
 
 (defn is-plain? [{:keys [type]}] (some? (#{0 1 3 5} type)))
 
