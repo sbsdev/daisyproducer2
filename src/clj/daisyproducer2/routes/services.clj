@@ -10,6 +10,7 @@
    [daisyproducer2.documents.preview :as preview]
    [daisyproducer2.documents.versions :as versions]
    [daisyproducer2.documents.documents :as documents]
+   [daisyproducer2.documents.products :as products]
    [daisyproducer2.hyphenate :as hyphenate]
    [daisyproducer2.hyphenations :as hyphenations]
    [daisyproducer2.middleware :refer [wrap-authorized wrap-restricted]]
@@ -49,6 +50,9 @@
 (s/def ::image-visibility (s/and keyword? #{:show :ignore}))
 (s/def ::asciimath (s/and keyword? #{:asciimath :mathml :both}))
 (s/def ::image-handling (s/and keyword? #{:embed :link :drop}))
+(s/def ::product-type (s/and int? #(<= 0 % 3)))
+;; (s/and keyword? #{:braille :large-print :ebook :etext}))
+(s/def ::product-number (s/and string? #(re-matches #"^(PS|GD|EB|ET)\d{4,7}$" %)))
 
 (def default-limit 100)
 
@@ -520,6 +524,48 @@
                 :parameters {:path {:id int? :image-id int?}}
                 :handler (fn [{{{:keys [id image-id]} :path} :parameters}]
                            (let [deleted (images/delete-image id image-id)]
+                             (if (> deleted 0)
+                              (no-content) ; we found something and deleted it
+                              (not-found))))}}]]
+    ["/products"
+     {:swagger {:tags ["Products"]}}
+
+     [""
+      {:get {:summary "Get all products of a given document. Optionally limit the result by `type`."
+             :parameters {:path {:id int?}
+                          :query {(spec/opt :type) ::product-type}}
+             :handler (fn [{{{:keys [id]} :path
+                             {:keys [product-type]} :query} :parameters}]
+                        (ok (if product-type
+                              (products/get-products id product-type)
+                              (products/get-products id))))}
+       :post {:summary "Add a new product to a given document"
+              :middleware [wrap-restricted]
+              :swagger {:security [{:apiAuth []}]}
+              :parameters {:path {:id int?}
+                           :body {:product-number ::product-number
+                                  :type ::product-type}}
+              :handler (fn [{{{:keys [id]} :path {:keys [product-number type]} :body} :parameters}]
+                         (try
+                           (let [new-key (products/insert-product id product-number type)
+                                 new-url (format "/documents/%s/products/%s" id new-key)]
+                             (created new-url {}))
+                           (catch clojure.lang.ExceptionInfo e
+                             (log/warn (ex-message e))
+                             (bad-request {:status-text (ex-message e)}))))}}]
+     ["/:product-id"
+      {:get {:summary "Get a product"
+             :parameters {:path {:id int? :product-id int?}}
+             :handler (fn [{{{:keys [id product-id]} :path} :parameters}]
+                        (if-let [product (products/get-product product-id)]
+                          (ok product)
+                          (not-found)))}
+       :delete {:summary "Delete a product"
+                :middleware [wrap-restricted]
+                :swagger {:security [{:apiAuth []}]}
+                :parameters {:path {:id int? :product-id int?}}
+                :handler (fn [{{{:keys [product-id]} :path} :parameters}]
+                           (let [deleted (products/delete-product product-id)]
                              (if (> deleted 0)
                               (no-content) ; we found something and deleted it
                               (not-found))))}}]]]

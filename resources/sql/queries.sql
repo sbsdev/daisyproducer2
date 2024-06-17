@@ -59,6 +59,20 @@ SELECT * FROM documents_product
 WHERE document_id = :document-id
 --~ (when (:type params) "AND type = :type")
 
+-- :name get-product :? :1
+-- :doc retrieve a product for given `id`
+SELECT * FROM documents_product
+WHERE id = :id
+
+-- :name insert-product :insert :raw
+-- :doc Insert a new product for a given `document-id` with given `product-number` and `type`.
+INSERT INTO documents_product (identifier, type, document_id)
+VALUES (:product-number, :type, :document-id)
+
+-- :name delete-product :! :n
+-- :doc Delete a version.
+DELETE FROM documents_product WHERE id = :id
+
 --------------
 -- Versions --
 --------------

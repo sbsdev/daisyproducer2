@@ -209,6 +209,86 @@ Authorization: :auth-token
 DELETE http://localhost:3000/api/documents/105/images
 Authorization: :auth-token
 
+############
+# Products #
+############
+
+# Get all products for a document
+GET http://localhost:3000/api/documents/644/products
+
+# Get a specific product
+GET http://localhost:3000/api/documents/644/products/410
+
+# Get a specific non-existing product
+GET http://localhost:3000/api/documents/644/products/0
+
+# Limit the results by type
+GET http://localhost:3000/api/documents/644/products?type=0
+
+# Limit the results by type
+GET http://localhost:3000/api/documents/644/products?type=1
+
+# Add a product
+POST http://localhost:3000/api/documents/644/products
+Authorization: :auth-token
+Content-Type: application/json
+{
+	"product-number": "EB123457",
+	"type": 2
+}
+# Add a product
+POST http://localhost:3000/api/documents/644/products
+Authorization: :auth-token
+Content-Type: application/json
+{
+	"product-number": "PS123457",
+	"type": 0
+}
+
+# Add a product twice
+POST http://localhost:3000/api/documents/644/products
+Authorization: :auth-token
+Content-Type: application/json
+{
+	"product-number": "PS123457",
+	"type": 0
+}
+
+# Add a product
+POST http://localhost:3000/api/documents/644/products
+Authorization: :auth-token
+Content-Type: application/json
+{
+	"product-number": "ET123457",
+	"type": 03
+}
+
+# Add an invalid product (invalid product-number)
+POST http://localhost:3000/api/documents/644/products
+Authorization: :auth-token
+Content-Type: application/json
+{
+	"product-number": "HA123457",
+	"type": 0
+}
+
+# Add an invalid product (invalid type)
+POST http://localhost:3000/api/documents/644/products
+Authorization: :auth-token
+Content-Type: application/json
+{
+	"product-number": "PS123457",
+	"type": 7
+}
+
+# Delete a non-existing product
+DELETE http://localhost:3000/api/documents/644/products/0
+Authorization: :auth-token
+
+# Delete an existing product
+DELETE http://localhost:3000/api/documents/644/products/412
+Authorization: :auth-token
+
 ###########
 # Metrics #
 ###########
