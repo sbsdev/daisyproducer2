@@ -535,9 +535,9 @@
              :parameters {:path {:id int?}
                           :query {(spec/opt :type) ::product-type}}
              :handler (fn [{{{:keys [id]} :path
-                             {:keys [product-type]} :query} :parameters}]
-                        (ok (if product-type
-                              (products/get-products id product-type)
+                             {:keys [type]} :query} :parameters}]
+                        (ok (if type
+                              (products/get-products id type)
                               (products/get-products id))))}
        :post {:summary "Add a new product to a given document"
               :middleware [wrap-restricted]
