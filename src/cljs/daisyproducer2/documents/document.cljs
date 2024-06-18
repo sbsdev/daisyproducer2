@@ -3,6 +3,7 @@
             [clojure.string :as string]
             [daisyproducer2.documents.state :as state]
             [daisyproducer2.documents.image :as image]
+            [daisyproducer2.documents.product :as product]
             [daisyproducer2.documents.version :as version]
             [daisyproducer2.documents.preview :as preview]
             [daisyproducer2.documents.preview.forms :as forms]
@@ -41,6 +42,7 @@
   ::init-current
   (fn [{:keys [db]} [_ id]]
     {:dispatch-n [[::fetch-current id]
+                  [::product/fetch-products id]
                   [::unknown/fetch-words-total id]]}))
 
 
@@ -100,7 +102,8 @@
     [:section.section>div.container>div.content
      [summary document]
      [tabs document]
-     [details document]]))
+     [details document]
+     [product/products document]]))
 
 (defn unknown []
   (let [document @(rf/subscribe [::current])]

@@ -44,6 +44,7 @@
                     :new-image "New Image"
                     :upload-images "Upload Images"
                     :delete-all-images "Remove all images"
+                    :products "Products"
                     ;;
                     :documents "Documents"
                     :confirm "Confirm"
@@ -241,6 +242,7 @@
                     :new-image "Neues Bild"
                     :upload-images "Bilder hochladen"
                     :delete-all-images "Alle Bilder löschen"
+                    :products "Produkte"
                     ;;
                     :documents "Dokumente"
                     :confirm "Bestätigen"
