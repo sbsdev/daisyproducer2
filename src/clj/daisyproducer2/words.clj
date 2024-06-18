@@ -71,9 +71,9 @@
                        untranslated)]
     (cond-> word
       (and (contains? word :uncontracted) (nil? (:uncontracted word)))
-      (assoc :uncontracted (louis/translate untranslated (louis/get-tables 1 params)))
+      (assoc :uncontracted (louis/translate untranslated (louis/translator (louis/get-tables 1 params))))
       (and (contains? word :contracted) (nil? (:contracted word)))
-      (assoc :contracted (louis/translate untranslated (louis/get-tables 2 params))))))
+      (assoc :contracted (louis/translate untranslated (louis/translator (louis/get-tables 2 params)))))))
 
 (defn grades [grade]
   (case grade ; convert grade into a list of grades
