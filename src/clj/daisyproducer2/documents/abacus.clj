@@ -5,7 +5,7 @@
   directory. The import from ABACUS is done via XML. The interface
   imports the following notifications:
 
-  - Start (open) a production."
+  - Import a document."
   (:require [clojure.java.io :as io]
             [clojure.xml :as xml]
             [clojure.data.xml :as data.xml]
@@ -35,7 +35,7 @@
    })
 
 (defn source-date
-  "Extract the source date from a raw `production` by taking the last
+  "Extract the source date from a raw `document` by taking the last
   segment of the `:source-edition`"
   [{source-edition :source-edition}]
   (when source-edition
@@ -60,7 +60,7 @@
          (not (str/blank? reihe))
          (str/includes? reihe "SJW")) (re-find #"\d+" reihe)))
 
-(defn- production-type
+(defn- product-type
   [{:keys [product-number]}]
   (condp #(str/starts-with? %2 %1) product-number
     "PS" :braille
@@ -77,7 +77,7 @@
   [{:keys [language source aufwand verkaufstext] :as raw-document}]
   (let [production-series (production-series raw-document)
         production-series-number (production-series-number raw-document)
-        production-type (production-type raw-document)
+        product-type (product-type raw-document)
         source-date (source-date raw-document)]
     (-> raw-document
         (dissoc :reihe :aufwand :verkaufstext)
@@ -85,7 +85,7 @@
         (assoc :publisher (get default-publisher language "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte"))
         (cond-> (or (str/blank? source) (= source "keine")) (dissoc :source))
         (cond-> (= aufwand "D") (assoc :production-source "electronicData"))
-        (cond-> production-type (assoc :production-type production-type))
+        (cond-> product-type (assoc :product-type product-type))
         (cond-> (not (str/blank? verkaufstext)) (assoc :author (-> verkaufstext (str/split #"\[xx\]") first str/trim)))
         (cond-> (not (str/blank? verkaufstext)) (assoc :title (-> verkaufstext (str/split #"\[xx\]") second str/trim))))))
 
@@ -112,8 +112,8 @@
 
 (def ^:private abacus-export-schema "schema/abacus_export.rng")
 
-(defn import-new-production
-  "Import a new production from file `f`"
+(defn import-new-document
+  "Import a new document from file `f`"
   [f]
   (let [errors (validation-errors f abacus-export-schema)]
     (if (empty? errors)
@@ -124,4 +124,4 @@
                 {:error-id :invalid-xml
                  :errors errors})))))
 
-(prometheus/instrument! metrics/registry #'import-new-production)
+(prometheus/instrument! metrics/registry #'import-new-document)
