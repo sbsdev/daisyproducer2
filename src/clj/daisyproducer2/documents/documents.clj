@@ -39,6 +39,9 @@
      (db/insert-document document)
      ;; ... and return the new key
      db/get-generated-key)))
+(defn update-document-meta-data
+  [document]
+  (db/update-document-meta-data document))
 
 (defn delete-document
   "Delete a document given an `id`. Return the number of rows affected."

@@ -44,6 +44,26 @@ UPDATE documents_document
 SET state_id = (CASE :state WHEN "open" THEN 7 WHEN "closed" THEN 8 END)
 WHERE id = :id
 
+-- :name update-document-meta-data :! :n
+-- :doc update the meta data of a document with given `id`.
+-- Note: `publisher` and `language` cannot be updated
+UPDATE documents_document
+SET title = :title,
+    author = :author,
+    date = :date,
+    description = :description,
+    rights = :rights,
+    source = :source,
+    subject = :subject,
+    source_date = :source-date,
+    source_publisher = :source-publisher,
+    source_edition = :source-edition,
+    source_rights = :source-rights,
+    production_series = :production-series,
+    production_series_number = :production-series-number,
+    production_source = :production-source
+WHERE id = :id
+
 -- :name delete-document :! :n
 -- :doc Delete a document given the `id`.
 DELETE FROM documents_document WHERE id = :id
