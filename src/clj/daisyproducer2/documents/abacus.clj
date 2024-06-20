@@ -32,6 +32,7 @@
    :reihe [:MetaData :sbs :reihe text]
    :aufwand [:MetaData :sbs :Aufwand_A2 text]
    :verkaufstext [:MetaData :sbs :verkaufstext text]
+   :daisyproducer? [:MetaData :sbs :daisy_producer text]
    })
 
 (defn source-date
@@ -74,7 +75,7 @@
 
 (defn clean-raw-document
   "Return a proper document based on a raw document"
-  [{:keys [language source aufwand verkaufstext] :as raw-document}]
+  [{:keys [language source aufwand verkaufstext daisyproducer?] :as raw-document}]
   (let [production-series (production-series raw-document)
         production-series-number (production-series-number raw-document)
         product-type (product-type raw-document)
@@ -83,6 +84,7 @@
         (dissoc :reihe :aufwand :verkaufstext)
         (cond-> source-date (assoc :source-date source-date))
         (assoc :publisher (get default-publisher language "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte"))
+        (assoc :daisyproducer? (= daisyproducer? "ja"))
         (cond-> (or (str/blank? source) (= source "keine")) (dissoc :source))
         (cond-> (= aufwand "D") (assoc :production-source "electronicData"))
         (cond-> product-type (assoc :product-type product-type))
