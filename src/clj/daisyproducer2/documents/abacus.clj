@@ -7,6 +7,7 @@
 
   - Import a document."
   (:require [clojure.java.io :as io]
+            [clojure.spec.alpha :as s]
             [clojure.xml :as xml]
             [clojure.data.xml :as data.xml]
             [clojure.zip :as zip]
@@ -16,6 +17,8 @@
             [iapetos.collector.fn :as prometheus]
             [daisyproducer2.metrics :as metrics]
             [clojure.string :as str]))
+
+(s/def ::product-number (s/and string? #(re-matches #"^(PS|GD|EB|ET)\d{4,7}$" %)))
 
 (def ^:private root-path [:Task :Transaction :DocumentData])
 
