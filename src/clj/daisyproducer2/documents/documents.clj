@@ -17,6 +17,15 @@
   [id]
   (db/get-document {:id id}))
 
+(defn get-document-for-product-number
+  [product-number]
+  (db/get-document-for-product-number {:product-number product-number}))
+
+(defn get-document-for-source-or-title-and-source-edition
+  [params]
+  (or (db/get-document-for-source params)
+      (db/get-document-for-title-and-source-edition params)))
+
 (defn insert-document
   [{:keys [id] :as document}]
   (let [document-root (env :document-root)

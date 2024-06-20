@@ -48,6 +48,22 @@ WHERE id = :id
 -- :doc Delete a document given the `id`.
 DELETE FROM documents_document WHERE id = :id
 
+-- :name get-document-for-product-number :? :1
+-- :doc retrieve the document for the given `product-number`
+SELECT * FROM documents_document doc
+JOIN documents_product prod
+ON doc.id = prod.document_id
+WHERE prod.identifier = :product-number
+
+-- :name get-document-for-source :? :1
+-- :doc retrieve the document for the given `source`
+SELECT * FROM documents_document
+WHERE source = :source
+
+-- :name get-document-for-title-and-source-edition :? :1
+-- :doc retrieve the document for the given `title` and `source-edition`
+SELECT * FROM documents_document
+WHERE title = :title AND source_edition = :source-edition
 
 --------------
 -- Products --
