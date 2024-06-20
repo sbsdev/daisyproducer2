@@ -19,6 +19,7 @@
                  [com.andrewmcveigh/cljs-time "0.5.2"]
                  [com.cognitect/transit-clj "1.0.333"]
                  [com.cognitect/transit-cljs "0.8.280"]
+                 [com.github.f4b6a3/uuid-creator "5.3.7"] ;; for UUIDv7
                  [com.google.javascript/closure-compiler-unshaded "v20230411"]
                  ;; [com.fasterxml.jackson.core/jackson-core "2.12.5"]
                  ;; [com.fasterxml.jackson.core/jackson-databind "2.12.5"]

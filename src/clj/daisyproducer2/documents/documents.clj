@@ -1,9 +1,10 @@
 (ns daisyproducer2.documents.documents
-  (:require [daisyproducer2.db.core :as db]
+  (:require [babashka.fs :as fs]
             [daisyproducer2.config :refer [env]]
+            [daisyproducer2.db.core :as db]
             [daisyproducer2.metrics :as metrics]
-            [iapetos.collector.fn :as prometheus]
-            [babashka.fs :as fs]))
+            [daisyproducer2.uuid :as uuid]
+            [iapetos.collector.fn :as prometheus]))
 
 (defn get-documents
   [limit offset]
@@ -25,6 +26,11 @@
   [params]
   (or (db/get-document-for-source params)
       (db/get-document-for-title-and-source-edition params)))
+
+(defn initialize-document
+  "Initialize a given `document` by adding a UUIDv7 to it."
+  [document]
+  (assoc document :identifier (uuid/uuid)))
 
 (defn insert-document
   [{:keys [id] :as document}]
