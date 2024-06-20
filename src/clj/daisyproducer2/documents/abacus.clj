@@ -6,17 +6,20 @@
   imports the following notifications:
 
   - Import a document."
-  (:require [clojure.java.io :as io]
+  (:require [clojure.data.zip.xml :refer [text xml-> xml1->]]
+            [clojure.java.io :as io]
             [clojure.spec.alpha :as s]
+            [clojure.string :as str]
+            [clojure.tools.logging :as log]
             [clojure.xml :as xml]
-            [clojure.data.xml :as data.xml]
             [clojure.zip :as zip]
-            [clojure.data.zip.xml :refer [xml-> xml1-> attr= attr text]]
-            [clojure.string :as string]
+            [daisyproducer2.documents.documents :as documents]
+            [daisyproducer2.documents.products :as products]
             [daisyproducer2.documents.schema-validation :refer [validation-errors]]
-            [iapetos.collector.fn :as prometheus]
+            [daisyproducer2.documents.versions :as versions]
             [daisyproducer2.metrics :as metrics]
-            [clojure.string :as str]))
+            [iapetos.collector.fn :as prometheus]
+            [clojure.string :as string]))
 
 (s/def ::product-number (s/and string? #(re-matches #"^(PS|GD|EB|ET)\d{4,7}$" %)))
 
@@ -117,13 +120,50 @@
 
 (def ^:private abacus-export-schema "schema/abacus_export.rng")
 
+(defn- metadata-changed?
+  [old new]
+  (let [relevant-keys #{:title :author :date :source
+                        :source-date :source-publisher :source-edition
+                        :production-series :production-series-number :production-source}]
+    (not= (select-keys old relevant-keys) (select-keys new relevant-keys))))
+
+(defn- update-document
+  [old new]
+  (when (metadata-changed? old new)
+    (documents/update-document-meta-data new)
+    #_(versions/insert-version)))
+
 (defn import-new-document
   "Import a new document from file `f`"
   [f]
   (let [errors (validation-errors f abacus-export-schema)]
     (if (empty? errors)
-      #_(prod/create! (read-file f))
-      (read-file f)
+      (let [{:keys [product-number title] :as document} (read-file f)]
+        (cond
+          ;; If the XML indicates that this product is not produced with Daisy Producer ignore this file
+          (not (:daisyproducer? document)) (log/infof "Ignoring %s (%s)" product-number title)
+          ;; validate the product number
+          (not (s/valid? ::product-number product-number)) (throw (ex-info "The product-number is not valid" document))
+          ;; If the product-number has been imported before just update the meta data of the existing document
+          (documents/get-document-for-product-number product-number)
+          (let [{:keys [id title] :as existing} (documents/get-document-for-product-number product-number)]
+            (log/infof "Document %s (%s) for order number '%s' has already been imported." id title product-number)
+            (update-document existing document))
+          ;; If the book has been produced for another product, update the meta data of the existing document and
+          ;; add the new product
+          (documents/get-document-for-source-or-title-and-source-edition document)
+          (let [{:keys [source title source-edition]} document
+                {:keys [id title type] :as existing} (documents/get-document-for-source-or-title-and-source-edition document)]
+            (log/infof "Document %s (%s) has already been imported for a different product." id title)
+            (update-document existing document)
+            (products/insert-product id product-number type))
+          :else
+          ;; the book has not been produced before, add the document using the given metadata and add the product
+          (let [new (documents/initialize-document document)
+                document-id (documents/insert-document new)]
+            (log/infof "Document %s (%s) has not been imported before. Creating a document for %s." document-id title product-number)
+            (products/insert-product document-id product-number type)
+            (versions/insert-initial-version new))))
       (throw
        (ex-info "The provided xml is not valid"
                 {:error-id :invalid-xml
