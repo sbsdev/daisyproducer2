@@ -30,8 +30,8 @@ ON doc.state_id = state.id
 WHERE doc.id = :id
 
 -- :name insert-document :insert :raw
--- :doc Insert a new document with given `title`, `author`, `publisher`, `date`, `identifier`, `source`, `language`, `rights`, `source-date`, `source-edition`, `source-publisher`, `source-rights`, `production-series`, `production-series-number`, `production-source` and optionally `subject` and `description`.
-INSERT INTO documents_document (title, author,
+-- :doc Insert a new document with given `title`, `author`, `publisher`, `date`, `identifier`, `language` and optionally `subject`, `description`, `source`, `rights`, `source-date`, `source-edition`, `source-publisher`, `source-rights`, `production-series`, `production-series-number` and `production-source` .
+INSERT INTO documents_document (
 --~ (when (:subject params) "subject,")
 --~ (when (:description params) "description,")
 --~ (when (:source params) "source,")
@@ -40,12 +40,11 @@ INSERT INTO documents_document (title, author,
 --~ (when (:source_edition params) "source_edition,")
 --~ (when (:source_publisher params) "source_publisher,")
 --~ (when (:source_rights params) "source_rights,")
-       publisher, date, identifier, language,
 --~ (when (:production_series params) "production_series,")
 --~ (when (:production_series_number params) "production_series_number,")
 --~ (when (:production_source params) "production_source,")
-       state_id)
-VALUES (:title, :author,
+       title, author, publisher, date, identifier, language)
+VALUES (
 --~ (when (:subject params) ":subject,")
 --~ (when (:description params) ":description,")
 --~ (when (:source params) ":source,")
@@ -54,11 +53,10 @@ VALUES (:title, :author,
 --~ (when (:source_edition params) ":source_edition,")
 --~ (when (:source_publisher params) ":source_publisher,")
 --~ (when (:source_rights params) ":source_rights,")
-	:publisher, :date, :identifier, :language,
 --~ (when (:production_series params) ":production_series,")
 --~ (when (:production_series_number params) ":production_series_number,")
 --~ (when (:production_source params) ":production_source,")
-	7)
+	:title, :author, :publisher, :date, :identifier, :language)
 
 -- :name update-document-state :! :n
 -- :doc update the `state` field of a document with given `id`. The state can be either "open" or "closed"
