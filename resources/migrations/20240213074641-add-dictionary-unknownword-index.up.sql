@@ -1,1 +1,1 @@
-CREATE INDEX dictionary_unknownword_index ON dictionary_unknownword (document_id, untranslated);
+CREATE INDEX dictionary_unknownword_document_id_untranslated_index ON dictionary_unknownword (document_id, untranslated);
