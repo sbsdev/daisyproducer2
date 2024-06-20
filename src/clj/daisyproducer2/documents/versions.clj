@@ -4,12 +4,13 @@
             [clojure.tools.logging :as log]
             [daisyproducer2.config :refer [env]]
             [daisyproducer2.db.core :as db]
-            [daisyproducer2.documents.utils :refer [with-tempfile]]
-          [daisyproducer2.documents.metadata-validation :as metadata-validation]
+            [daisyproducer2.documents.metadata-validation :as metadata-validation]
             [daisyproducer2.documents.schema-validation :as schema-validation]
+            [daisyproducer2.documents.utils :refer [with-tempfile]]
             [daisyproducer2.metrics :as metrics]
             [daisyproducer2.pipeline1 :as pipeline1]
             [iapetos.collector.fn :as prometheus]
+            [selmer.parser :as parser]
             [sigel.xslt.core :as xslt])
   ;; Universally Unique Lexicographically Sortable Identifiers (https://github.com/ulid/spec)
   (:import [io.azam.ulidj ULID]))
@@ -84,6 +85,29 @@
     ;; store it in the db ...
     (->
      (db/insert-version {:document-id document-id :comment comment :content (str path) :user user})
+     ;; ... and return the new key
+     db/get-generated-key)))
+
+(defn initial-content
+  "Create the initial XML content from a set of metadata given in `document`"
+  [document]
+  (parser/render-file "templates/DTBookTemplate.xml" document))
+
+(defn insert-initial-version
+  [{:keys [document-id] :as document}]
+  (let [document-root (env :document-root)
+        name (str (ULID/random) ".xml")
+        path (fs/path (str document-id) "versions" name)
+        absolute-path (fs/absolutize (fs/path document-root path))]
+    ;; make sure path exists
+    (fs/create-dirs (fs/parent absolute-path))
+    ;; write the initial contents into the archive
+    (spit (fs/file absolute-path) (initial-content document))
+    ;; store it in the db ...
+    (->
+     (db/insert-version {:document-id document-id :content (str path)
+                         :user "abacus"
+                         :comment "Initial version created from meta data"})
      ;; ... and return the new key
      db/get-generated-key)))
 

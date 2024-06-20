@@ -9,7 +9,6 @@
     [ring.middleware.anti-forgery :refer [*anti-forgery-token*]]
     [ring.util.response]))
 
-(parser/set-resource-path!  (clojure.java.io/resource "html"))
 (parser/add-tag! :csrf-field (fn [_ _] (anti-forgery-field)))
 (filters/add-filter! :markdown (fn [content] [:safe (md-to-html-string content)]))
 
@@ -36,4 +35,4 @@
   [error-details]
   {:status  (:status error-details)
    :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body    (parser/render-file "error.html" error-details)})
+   :body    (parser/render-file "html/error.html" error-details)})

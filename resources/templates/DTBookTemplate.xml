@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dtbook PUBLIC "-//NISO//DTD dtbook 2005-3//EN" "http://www.daisy.org/z3986/2005/dtbook-2005-3.dtd">
+<dtbook xmlns="http://www.daisy.org/z3986/2005/dtbook/"
+	xmlns:brl="http://www.daisy.org/z3986/2009/braille/"
+	{% if language = "it" %}version="2005-3-sbs-full"{% else %}version="2005-3-sbs-minimal"{% endif %}
+        xml:lang="{{ language }}">
+  <head>
+    {# for a list of all the metadata fileds see http://www.daisy.org/z3986/2005/Z3986-2005.html #}
+    <meta name="dc:Title" content="{{ title }}"/>
+    <meta name="dc:Creator" content="{{ author }}"/>
+    <meta name="dc:Subject" content="{{ subject }}"/>
+    <meta name="dc:Description" content="{{ description }}"/>
+    <meta name="dc:Publisher" content="{{ publisher }}"/>
+    <meta name="dc:Date" content="{{ date }}"/>
+    <meta name="dc:Type" content="Text"/>
+    <meta name="dc:Format" content="ANSI/NISO Z39.86-2005"/>
+    <meta name="dc:Identifier" content="{{ identifier }}"/>
+    <meta name="dc:Source" content="{{ source }}"/>
+    <meta name="dc:Language" content="{{ language }}"/>
+    <meta name="dc:Rights" content="{{ rights }}"/>
+    <meta name="dtb:uid" content="{{ identifier }}"/>
+    {% if source_date %}
+    <meta name="dtb:sourceDate" content="{{ source_date }}"/>
+    {% endif %}
+    <meta name="dtb:sourceEdition" content="{{ source_edition }}"/>
+    <meta name="dtb:sourcePublisher" content="{{ source_publisher }}"/>
+    <meta name="dtb:sourceRights" content="{{ source_rights }}"/>
+    {# producer specific metadata #}
+    <meta name="prod:series" content="{{ production_series }}"/>
+    <meta name="prod:seriesNumber" content="{{ production_series_number }}"/>
+    <meta name="prod:source" content="{{ production_source }}"/>
+  </head>
+
+  <book>
+    <frontmatter>
+      <doctitle>{{ title }}</doctitle>
+      <docauthor>{{ author }}</docauthor>
+      <level1>
+	<p></p>
+      </level1>
+    </frontmatter>
+
+    <bodymatter>
+      <level1>
+	<h1></h1>
+	<p></p>
+      </level1>
+    </bodymatter>
+
+  </book>
+</dtbook>
