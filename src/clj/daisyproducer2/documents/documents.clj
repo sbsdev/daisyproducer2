@@ -1,9 +1,7 @@
 (ns daisyproducer2.documents.documents
   (:require [babashka.fs :as fs]
-            [conman.core :as conman]
             [daisyproducer2.config :refer [env]]
             [daisyproducer2.db.core :as db]
-            [daisyproducer2.documents.versions :as versions]
             [daisyproducer2.metrics :as metrics]
             [daisyproducer2.uuid :as uuid]
             [iapetos.collector.fn :as prometheus]))
@@ -41,13 +39,9 @@
         absolute-path (fs/absolutize (fs/path document-root path))]
     ;; make sure path exists
     (fs/create-dirs (fs/parent absolute-path))
-    (conman/with-transaction [db/*db*]
-      ;; and store the document in the db ...
-      (let [document-id (-> (db/insert-document document)
-                            db/get-generated-key)
-            document (assoc document :document-id document-id)]
-        ;; and add an initial version
-        (versions/insert-initial-version document)))))
+      ;; and store the document in the db
+    (-> (db/insert-document document)
+        db/get-generated-key)))
 
 (defn update-document-meta-data
   [document]
