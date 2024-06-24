@@ -127,12 +127,19 @@
     (documents/update-document-meta-data new)
     #_(versions/insert-version)))
 
+(def ^:private product-type-to-type
+  {:braille 0
+   :large-print 1
+   :ebook 2
+   :etext 3
+   })
+
 (defn import-new-document
   "Import a new document from file `f`"
   [f]
   (let [errors (validation-errors f abacus-export-schema)]
     (if (empty? errors)
-      (let [{:keys [product-number title] :as document} (read-file f)]
+      (let [{:keys [product-number product-type title] :as document} (read-file f)]
         (cond
           ;; If the XML indicates that this product is not produced with Daisy Producer ignore this file
           (not (:daisyproducer? document)) (log/infof "Ignoring %s (%s)" product-number title)
@@ -156,7 +163,7 @@
           (let [new (documents/initialize-document document)
                 document-id (documents/insert-document new)]
             (log/infof "Document %s (%s) has not been imported before. Creating a document for %s." document-id title product-number)
-            (products/insert-product document-id product-number type)
+            (products/insert-product document-id product-number (product-type-to-type product-type))
             (versions/insert-initial-version new))))
       (throw
        (ex-info "The provided xml is not valid"
