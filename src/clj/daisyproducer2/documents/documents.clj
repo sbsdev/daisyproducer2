@@ -24,8 +24,8 @@
 
 (defn get-document-for-source-or-title-and-source-edition
   [params]
-  (or (db/get-document-for-source params)
-      (db/get-document-for-title-and-source-edition params)))
+  (or (and (:source params) (db/get-document-for-source params))
+      (and (:title params) (:source-edition params) (db/get-document-for-title-and-source-edition params))))
 
 (defn initialize-document
   "Initialize a given `document` by adding a UUIDv7 to it."
