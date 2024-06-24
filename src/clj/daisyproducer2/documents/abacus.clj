@@ -41,16 +41,6 @@
    :daisyproducer? [:MetaData :sbs :daisy_producer text]
    })
 
-(defn source-date
-  "Extract the source date from a raw `document` by taking the last
-  segment of the `:source-edition`"
-  [{source-edition :source-edition}]
-  (when source-edition
-    (-> source-edition
-        (string/split #"/")
-        last
-        (->> (re-find #"\d{4}")))))
-
 (defn- production-series
   [{:keys [production-series-number reihe]}]
   (cond
@@ -85,10 +75,8 @@
   (let [production-series (production-series raw-document)
         production-series-number (production-series-number raw-document)
         product-type (product-type raw-document)
-        source-date (source-date raw-document)]
     (-> raw-document
         (dissoc :reihe :aufwand :verkaufstext)
-        (cond-> source-date (assoc :source-date source-date))
         (assoc :publisher (get default-publisher language "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte"))
         (assoc :daisyproducer? (= daisyproducer? "ja"))
         (cond-> (or (str/blank? source) (= source "keine")) (dissoc :source))
