@@ -20,6 +20,7 @@
                  [com.cognitect/transit-clj "1.0.333"]
                  [com.cognitect/transit-cljs "0.8.280"]
                  [com.github.f4b6a3/uuid-creator "5.3.7"] ;; for UUIDv7
+                 [com.github.f4b6a3/tsid-creator "5.2.6"] ;; for generating Time-Sorted Unique Identifiers (TSID)
                  [com.google.javascript/closure-compiler-unshaded "v20230411"]
                  ;; [com.fasterxml.jackson.core/jackson-core "2.12.5"]
                  ;; [com.fasterxml.jackson.core/jackson-databind "2.12.5"]
@@ -33,7 +34,6 @@
                  [expound "0.9.0"]
                  [funcool/struct "1.4.0"]
                  [fork "2.4.3"] ;; Form Library for re-frame
-                 [io.azam.ulidj/ulidj "1.0.4"] ;; for ulid generation
                  [io.prometheus/simpleclient_hotspot "0.16.0"]
                  [jarohen/chime "0.3.3"]
                  [luminus-undertow "0.1.18"]

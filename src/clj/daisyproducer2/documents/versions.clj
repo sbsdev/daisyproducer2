@@ -11,9 +11,10 @@
             [daisyproducer2.pipeline1 :as pipeline1]
             [iapetos.collector.fn :as prometheus]
             [selmer.parser :as parser]
-            [sigel.xslt.core :as xslt])
-  ;; Universally Unique Lexicographically Sortable Identifiers (https://github.com/ulid/spec)
-  (:import [io.azam.ulidj ULID]))
+            [sigel.xslt.core :as xslt]
+            [daisyproducer2.documents.update-metadata :as update-metadata])
+  ;; Time-Sorted Unique Identifiers (TSID), see https://github.com/f4b6a3/tsid-creator
+  (:import [com.github.f4b6a3.tsid TsidCreator]))
 
 (defn get-versions
   ([document-id]
@@ -65,10 +66,13 @@
      (filter-braille-and-absolutize-image-paths file document with-absolute-image-paths)
      (pipeline1/validate with-absolute-image-paths :dtbook))))
 
+(defn- tsid []
+  (str (TsidCreator/getTsid)))
+
 (defn insert-version
   [document-id tempfile comment user]
   (let [document-root (env :document-root)
-        name (str (ULID/random) ".xml")
+        name (str (tsid) ".xml")
         path (fs/path (str document-id) "versions" name)
         absolute-path (fs/absolutize (fs/path document-root path))
         document (db/get-document {:id document-id})]
@@ -94,9 +98,9 @@
   (parser/render-file "templates/DTBookTemplate.xml" document))
 
 (defn insert-initial-version
-  [{:keys [document-id] :as document}]
+  [{document-id :id :as document}]
   (let [document-root (env :document-root)
-        name (str (ULID/random) ".xml")
+        name (str (tsid) ".xml")
         path (fs/path (str document-id) "versions" name)
         absolute-path (fs/absolutize (fs/path document-root path))]
     ;; make sure path exists
