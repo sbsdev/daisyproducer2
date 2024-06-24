@@ -18,8 +18,10 @@
             [daisyproducer2.documents.schema-validation :refer [validation-errors]]
             [daisyproducer2.documents.versions :as versions]
             [daisyproducer2.metrics :as metrics]
+            [medley.core :as medley]
             [iapetos.collector.fn :as prometheus]
-            [clojure.string :as string]))
+            [clojure.string :as string])
+  (:import java.time.LocalDate))
 
 (s/def ::product-number (s/and string? #(re-matches #"^(PS|GD|EB|ET)\d{4,7}$" %)))
 
@@ -71,14 +73,18 @@
 
 (defn clean-raw-document
   "Return a proper document based on a raw document"
-  [{:keys [language source aufwand verkaufstext daisyproducer?] :as raw-document}]
-  (let [production-series (production-series raw-document)
-        production-series-number (production-series-number raw-document)
+  [{:keys [language source aufwand verkaufstext date daisyproducer?] :as raw-document}]
+  (let [production-series-number (production-series-number raw-document)
+        production-series (production-series raw-document)
         product-type (product-type raw-document)
+        date (LocalDate/parse date)]
     (-> raw-document
-        (dissoc :reihe :aufwand :verkaufstext)
+        (dissoc :reihe :aufwand :verkaufstext :production-series-number)
         (assoc :publisher (get default-publisher language "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte"))
         (assoc :daisyproducer? (= daisyproducer? "ja"))
+        (assoc :date date)
+        (cond-> production-series-number (assoc :production-series-number production-series-number))
+        (cond-> production-series (assoc :production-series production-series))
         (cond-> (or (str/blank? source) (= source "keine")) (dissoc :source))
         (cond-> (= aufwand "D") (assoc :production-source "electronicData"))
         (cond-> product-type (assoc :product-type product-type))
