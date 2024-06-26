@@ -11,8 +11,8 @@
 (defn home-page [request]
   (let [group "ch.sbs"
         artifact "daisyproducer2"]
-    (layout/render request "home.html" {:version (version/get-version group artifact)
-                                        :revision (version/get-revision group artifact)})))
+    (layout/render request "html/home.html" {:version (version/get-version group artifact)
+                                             :revision (version/get-revision group artifact)})))
 
 (defn home-routes []
   [""
