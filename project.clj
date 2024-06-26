@@ -74,7 +74,7 @@
                  [ring/ring-core "1.12.1"]
                  [ring/ring-defaults "0.5.0"]
                  [selmer "1.12.61"]
-                 [ch.sbs/dtbook-update-metadata "0.7"]
+                 [ch.sbs/dtbook-update-metadata "0.8"]
                  [thheller/shadow-cljs "2.25.7" :scope "provided"]
                  [trptcolin/versioneer "0.2.0"]]
 
