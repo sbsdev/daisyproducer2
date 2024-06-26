@@ -355,7 +355,7 @@
        loading? [notifications/loading-spinner]
        :else
        [:<>
-        [:table.table.is-striped
+        [:table.table.is-striped.is-fullwidth
          [:thead
           [:tr
            [:th (tr [:word])]
@@ -440,7 +440,7 @@
        loading? [notifications/loading-spinner]
        :else
        [:<>
-        [:table.table.is-striped
+        [:table.table.is-striped.is-fullwidth
          [:thead
           [:tr
            [:th (tr [:word])]

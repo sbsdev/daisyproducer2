@@ -293,7 +293,7 @@
        errors? [notifications/error-notification]
        :else
        [:<>
-        [:table.table.is-striped
+        [:table.table.is-striped.is-fullwidth
          [:thead
           [:tr
            [:th (tr [:image])]

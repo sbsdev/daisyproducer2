@@ -76,7 +76,7 @@
   [:div.columns
    [:div.column
     [:div.block
-     [:table.table
+     [:table.table.is-striped.is-fullwidth
       [:tbody
        [:tr [:th {:width 200} (tr [:title])] [:td title]]
        [:tr [:th (tr [:author])] [:td author]]
@@ -87,7 +87,7 @@
 
 (defn details [document]
   [:div.block
-   [:table.table.is-striped
+   [:table.table.is-striped.is-fullwidth
     [:tbody
      (for [k [:date :modified-at :spelling :language]
            :let [v (case k

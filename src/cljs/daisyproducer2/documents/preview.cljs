@@ -45,7 +45,7 @@
 
 (defn preview-links [{id :id}]
   [:div.block
-     [:table.table
+     [:table.table.is-fullwidth
       [:thead
        [:tr
         [:th {:width "100%"} (tr [:format])]

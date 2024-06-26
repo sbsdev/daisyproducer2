@@ -75,7 +75,7 @@
 (defn page []
   [:section.section>div.container>div.content
    [search]
-   [:table.table.is-striped
+   [:table.table.is-striped.is-fullwidth
     [:thead
      [:tr
       [:th (tr [:title])] [:th (tr [:author])] [:th (tr [:source-publisher])] [:th (tr [:state])]]]

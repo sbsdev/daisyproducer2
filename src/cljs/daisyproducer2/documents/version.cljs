@@ -212,7 +212,7 @@
      (if errors?
        [notifications/error-notification]
        [:<>
-        [:table.table.is-striped
+        [:table.table.is-striped.is-fullwidth
          [:thead
           [:tr
            [:th (tr [:comment])]
