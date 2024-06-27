@@ -18,10 +18,9 @@
             [daisyproducer2.documents.schema-validation :refer [validation-errors]]
             [daisyproducer2.documents.versions :as versions]
             [daisyproducer2.metrics :as metrics]
-            [medley.core :as medley]
             [iapetos.collector.fn :as prometheus]
-            [clojure.string :as string])
-  (:import java.time.LocalDate))
+            [medley.core :as medley])
+  (:import (java.time LocalDate)))
 
 (s/def ::product-number (s/and string? #(re-matches #"^(PS|GD|EB|ET)\d{4,7}$" %)))
 
@@ -114,12 +113,15 @@
 
 (def ^:private abacus-export-schema "schema/abacus_export.rng")
 
+(def ^:private relevant-metadata-keys #{:title :author :date :source :source-date
+                                        :source-publisher :source-edition
+                                        :production-series :production-series-number :production-source})
+
 (defn- metadata-changed?
   [old new]
-  (let [relevant-keys #{:title :author :date :source
-                        :source-date :source-publisher :source-edition
-                        :production-series :production-series-number :production-source}]
-    (not= (select-keys old relevant-keys) (select-keys new relevant-keys))))
+  (let [old (medley/remove-vals nil? (select-keys old relevant-metadata-keys))
+        new (medley/remove-vals nil? (select-keys new relevant-metadata-keys))]
+    (not= old new)))
 
 (defn- update-document
   [old new]
