@@ -34,7 +34,5 @@
   [old new meta-data]
   (let [in (io/input-stream old)
         out (io/output-stream new)
-        meta-data (rename-meta-data-keys meta-data)
-        env (doto (java.util.Properties.)
-              (.putAll meta-data))]
-    (MetaDataTransformer/transform in out env)))
+        meta-data (rename-meta-data-keys meta-data)]
+    (MetaDataTransformer/transform in out meta-data)))
