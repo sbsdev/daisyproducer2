@@ -9,7 +9,7 @@
   (:require [clojure.data.zip.xml :refer [text xml-> xml1->]]
             [clojure.java.io :as io]
             [clojure.spec.alpha :as s]
-            [clojure.string :as str]
+            [clojure.string :as string]
             [clojure.tools.logging :as log]
             [clojure.xml :as xml]
             [clojure.zip :as zip]
@@ -48,20 +48,20 @@
   (cond
     (not= production-series-number "0") "PPP"
     (and (= production-series-number "0")
-         (not (str/blank? reihe))
-         (str/includes? reihe "SJW")) "SJW"))
+         (not (string/blank? reihe))
+         (string/includes? reihe "SJW")) "SJW"))
 
 (defn- production-series-number
   [{:keys [production-series-number reihe]}]
   (cond
     (not= production-series-number "0") production-series-number
     (and (= production-series-number "0")
-         (not (str/blank? reihe))
-         (str/includes? reihe "SJW")) (re-find #"\d+" reihe)))
+         (not (string/blank? reihe))
+         (string/includes? reihe "SJW")) (re-find #"\d+" reihe)))
 
 (defn- product-type
   [{:keys [product-number]}]
-  (condp #(str/starts-with? %2 %1) product-number
+  (condp #(string/starts-with? %2 %1) product-number
     "PS" :braille
     "GD" :large-print
     "EB" :ebook
@@ -85,11 +85,11 @@
         (assoc :date date)
         (cond-> production-series-number (assoc :production-series-number production-series-number))
         (cond-> production-series (assoc :production-series production-series))
-        (cond-> (or (str/blank? source) (= source "keine")) (dissoc :source))
+        (cond-> (or (string/blank? source) (= source "keine")) (dissoc :source))
         (cond-> (= aufwand "D") (assoc :production-source "electronicData"))
         (cond-> product-type (assoc :product-type product-type))
-        (cond-> (not (str/blank? verkaufstext)) (assoc :author (-> verkaufstext (str/split #"\[xx\]") first str/trim)))
-        (cond-> (not (str/blank? verkaufstext)) (assoc :title (-> verkaufstext (str/split #"\[xx\]") second str/trim))))))
+        (cond-> (not (string/blank? verkaufstext)) (assoc :author (-> verkaufstext (string/split #"\[xx\]") first string/trim)))
+        (cond-> (not (string/blank? verkaufstext)) (assoc :title (-> verkaufstext (string/split #"\[xx\]") second string/trim))))))
 
 (defn extract-value
   "Extract values from a `zipper` from an ABACUS export file for `key`"
