@@ -13,6 +13,8 @@
             [clojure.tools.logging :as log]
             [clojure.xml :as xml]
             [clojure.zip :as zip]
+            [conman.core :as conman]
+            [daisyproducer2.db.core :as db]
             [daisyproducer2.documents.documents :as documents]
             [daisyproducer2.documents.products :as products]
             [daisyproducer2.documents.schema-validation :refer [validation-errors]]
@@ -154,22 +156,25 @@
           (documents/get-document-for-product-number product-number)
           (let [{:keys [id title] :as existing} (documents/get-document-for-product-number product-number)]
             (log/infof "Document %s (%s) for order number '%s' has already been imported." id title product-number)
-            (update-document existing document))
+            (conman/with-transaction [db/*db*]
+              (update-document existing document)))
           ;; If the book has been produced for another product, update the meta data of the existing document and
           ;; add the new product
           (documents/get-document-for-source-or-title-and-source-edition document)
           (let [{:keys [source title source-edition]} document
                 {:keys [id title type] :as existing} (documents/get-document-for-source-or-title-and-source-edition document)]
             (log/infof "Document %s (%s) has already been imported for a different product." id title)
-            (update-document existing document)
-            (products/insert-product id product-number type))
+            (conman/with-transaction [db/*db*]
+              (update-document existing document)
+              (products/insert-product id product-number type)))
           :else
           ;; the book has not been produced before, add the document using the given metadata and add the product
-          (let [new (documents/initialize-document document)
-                document-id (documents/insert-document new)]
-            (log/infof "Document %s (%s) has not been imported before. Creating a document for %s." document-id title product-number)
-            (products/insert-product document-id product-number (product-type-to-type product-type))
-            (versions/insert-initial-version new))))
+          (conman/with-transaction [db/*db*]
+            (let [new (documents/initialize-document document)
+                  document-id (documents/insert-document new)]
+              (log/infof "Document %s (%s) has not been imported before. Creating a document for %s." document-id title product-number)
+              (products/insert-product document-id product-number (product-type-to-type product-type))
+              (versions/insert-initial-version new)))))
       (throw
        (ex-info "The provided xml is not valid"
                 {:error-id :invalid-xml
