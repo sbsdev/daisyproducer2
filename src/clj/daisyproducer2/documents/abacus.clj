@@ -125,9 +125,12 @@
 
 (defn- update-document
   [old new]
-  (when (metadata-changed? old new)
-    (documents/update-document-meta-data new)
-    #_(versions/insert-version)))
+  (if (metadata-changed? old new)
+    (do
+      (log/infof "Updating %s due to changed meta data" (:id new))
+      (documents/update-document-meta-data new)
+      (versions/insert-updated-version new))
+    (log/infof "No change in meta data for %s" (:id new))))
 
 (def ^:private product-type-to-type
   {:braille 0

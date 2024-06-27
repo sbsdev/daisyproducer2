@@ -115,6 +115,25 @@
      ;; ... and return the new key
      db/get-generated-key)))
 
+(defn insert-updated-version
+  [{document-id :id :as document}]
+  (let [document-root (env :document-root)
+        name (str (tsid) ".xml")
+        path (fs/path (str document-id) "versions" name)
+        new-version (->> path (fs/path document-root) fs/absolutize fs/file)
+        old-version (->> (:content (get-latest document-id)) (fs/path document-root) fs/absolutize fs/file)]
+    ;; make sure path exists
+    (fs/create-dirs (fs/parent new-version))
+    ;; write the updated contents into the archive
+    (update-metadata/update-meta-data old-version new-version document)
+    ;; and store it in the db ...
+    (->
+     (db/insert-version {:document-id document-id :content (str path)
+                         :user "abacus"
+                         :comment "Updated version due to meta data update"})
+     ;; ... and return the new key
+     db/get-generated-key)))
+
 (defn version-path [version]
   (let [document-root (env :document-root)]
     (fs/path document-root (:content version))))
