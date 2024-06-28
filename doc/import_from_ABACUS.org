@@ -157,3 +157,56 @@ stop
   );
 #+end_src
 
+*** Constraints
+- Given an product.identifier there should only be one product.document_id
+- product.identifier should be unique
+- (product.type, product.document_id) should be unique, except for type 0
+
+** Version
+| Field         | Type         | Null | Key | Default           | Extra          |
+|---------------+--------------+------+-----+-------------------+----------------|
+| id            | int(11)      | NO   | PRI | NULL              | auto_increment |
+| comment       | varchar(255) | NO   |     | NULL              |                |
+| document_id   | int(11)      | NO   | MUL | NULL              |                |
+| content       | varchar(100) | NO   |     | NULL              |                |
+| created_by    | varchar(32)  | YES  |     | NULL              |                |
+| created_at    | datetime     | NO   |     | CURRENT_TIMESTAMP |                |
+| created_by_id | int(11)      | NO   | MUL | 1                 |                |
+
+
+* Migrations
+
+** Source
+
+|             id | applied | description                      |
+|----------------+---------+----------------------------------|
+| 20210217065618 | true    | fix-documents-title-encoding     |
+| 20210217070106 | true    | add-dictionary-unknownword-table |
+| 20210521124204 | true    | consolidate-globalwords          |
+| 20210527123202 | true    | consolidate-localwords           |
+| 20210903133047 |         | set-created-at-default           |
+| 20230220124612 |         | add-unknownword-ignored          |
+| 20230419123446 |         | drop-detailed-accents            |
+| 20240130135949 |         | add-created-by-column            |
+| 20240213074641 |         | add-dictionary-unknownword-index |
+| 20240222123306 |         | convert-documents-author-to-utf8 |
+| 20240419081742 |         | state-renaming                   |
+| 20240619152403 |         | constrain-products               |
+
+
+** Production
+|             id | applied             | description                      |
+|----------------+---------------------+----------------------------------|
+| 20210217065618 | 2021-04-09 13:21:42 | fix-documents-title-encoding     |
+| 20210217070106 | 2021-04-09 13:21:42 | add-dictionary-unknownword-table |
+| 20210521124204 | 2021-08-27 16:34:07 | consolidate-globalwords          |
+| 20210527123202 | 2021-08-27 16:34:21 | consolidate-localwords           |
+
+** Test
+|             id | applied             | description                      |
+|----------------+---------------------+----------------------------------|
+| 20210217065618 | 2021-02-17 08:04:37 | fix-documents-title-encoding     |
+| 20210217070106 | 2021-02-17 08:31:24 | add-dictionary-unknownword-table |
+| 20210521124204 | 2021-07-12 16:04:57 | consolidate-globalwords          |
+| 20210527123202 | 2021-08-02 18:07:52 | consolidate-localwords           |
+| 20210805091954 | 2021-08-05 13:00:37 | add-ignored-flag                 |
