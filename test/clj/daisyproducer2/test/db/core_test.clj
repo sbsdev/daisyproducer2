@@ -18,13 +18,15 @@
 
 (deftest ^:database test-global-words
   (jdbc/with-transaction [t-conn *db* {:rollback-only true}]
-    (is (= 1 (count (db/find-global-words t-conn {:limit 1 :offset 0 :untranslated "hausboot"} {}))))
+    (is (= 1 (count (db/find-global-words t-conn {:limit 1 :offset 0 :search "hausboot"} {}))))
     #_(is (= 2 (count (db/get-confirmable-words t-conn {:limit 2 :offset 0} {}))))))
 
 (deftest ^:database test-confirmable
   (jdbc/with-transaction [t-conn *db* {:rollback-only true}]
     (let [confirmable (count (db/get-confirmable-words t-conn {:limit 10000 :offset 0} {}))
           word {:untranslated "hahaha2" :contracted "H+H+H+2" :uncontracted "HAHAHA2"
-                :type 0 :homograph_disambiguation "" :document_id 644 :islocal false}
-          _ (db/insert-local-word t-conn word)]
+                :type 0 :homograph-disambiguation "" :document-id 644 :islocal false}
+          _ (db/insert-local-word t-conn word)
+          ;; make sure the document is in state closed
+          _ (db/update-document-state t-conn {:id 644 :state "closed"})]
       (is (= (inc confirmable) (count (db/get-confirmable-words t-conn {:limit 10000 :offset 0} {})))))))
