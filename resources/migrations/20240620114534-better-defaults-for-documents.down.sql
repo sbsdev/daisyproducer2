@@ -11,5 +11,6 @@ MODIFY production_series_number VARCHAR(25) NOT NULL,
 MODIFY production_source VARCHAR(25) NOT NULL,
 MODIFY created_at DATETIME,
 MODIFY modified_at DATETIME,
+ALTER publisher DROP DEFAULT,
 ALTER state_id DROP DEFAULT;
 
