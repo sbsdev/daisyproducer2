@@ -50,7 +50,8 @@
     (not= production-series-number "0") "PPP"
     (and (= production-series-number "0")
          (not (string/blank? reihe))
-         (string/includes? reihe "SJW")) "SJW"))
+         (string/includes? reihe "SJW")) "SJW"
+    :else ""))
 
 (defn- production-series-number
   [{:keys [production-series-number reihe]}]
@@ -58,7 +59,8 @@
     (not= production-series-number "0") production-series-number
     (and (= production-series-number "0")
          (not (string/blank? reihe))
-         (string/includes? reihe "SJW")) (re-find #"\d+" reihe)))
+         (string/includes? reihe "SJW")) (re-find #"\d+" reihe)
+    :else ""))
 
 (defn- product-type
   [{:keys [product-number]}]
