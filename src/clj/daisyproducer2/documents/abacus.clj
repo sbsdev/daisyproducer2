@@ -100,11 +100,10 @@
       :narrator (string/join "; " (apply xml-> zipper (concat root-path path)))
       (apply xml1-> zipper (concat root-path path)))))
 
-(defn read-file
-  "Read an export file from ABACUS and return a map with all the data,
-  i.e. a document"
-  [file]
-  (let [zipper (-> file io/file xml/parse zip/xml-zip)]
+(defn read-xml
+  "Read XML from ABACUS and return a map with all the data, i.e. a document"
+  [xml]
+  (let [zipper (-> xml zip/xml-zip)]
     (->>
      (for [key (keys param-mapping)
            :let [val (extract-value zipper key)]
@@ -112,6 +111,12 @@
        [key val])
       (into {})
       clean-raw-document)))
+
+(defn read-file
+  "Read an export file from ABACUS and return a map with all the data,
+  i.e. a document"
+  [file]
+  (read-xml (-> file io/file xml/parse)))
 
 (def ^:private abacus-export-schema "schema/abacus_export.rng")
 
