@@ -1,4 +1,4 @@
-(ns daisyproducer2.test.abacus-import
+(ns daisyproducer2.test.abacus-import-test
   (:require
    [clojure.java.io :as io]
    [clojure.test :refer :all]
@@ -6,8 +6,10 @@
    [java-time.api :as time]
    [clojure.data.xml :as xml]))
 
+(defrecord Document [product-number title creator source language date production-series-number reihe aufwand daisyproducer?])
+
 (defn- xml-sample
-  [product-number title creator source language date production-series-number reihe aufwand daisyproducer?]
+  [{:keys [product-number title creator source language date production-series-number reihe aufwand daisyproducer?]}]
   [:AbaConnectContainer
    [:Task
     [:Transaction
@@ -39,21 +41,21 @@
                       :publisher "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte"
                       :daisyproducer? false
                       :product-type :ebook}]
-        (are [expected data] (= expected (read-xml (xml/sexp-as-element (apply xml-sample data))))
-          document ["EB11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 0 "" "" false]
-          (assoc document :daisyproducer? true) ["EB11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 0 "" "" true]
+        (are [expected actual] (= expected (read-xml (xml/sexp-as-element (xml-sample actual))))
+          document (->Document "EB11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 0 "" "" false)
+          (assoc document :daisyproducer? true) (->Document "EB11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 0 "" "" true)
           (assoc document :production-series-number "500" :production-series "PPP")
-          ["EB11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 500 "" "" false]
+          (->Document "EB11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 500 "" "" false)
           (assoc document :production-series-number "7000" :production-series "SJW")
-          ["EB11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 0 "SJW 7000" "" false]
+          (->Document "EB11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 0 "SJW 7000" "" false)
           (assoc document :product-number "GD11111" :product-type :large-print)
-          ["GD11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 0 "" "" false]
+          (->Document "GD11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 0 "" "" false)
           (assoc document :product-number "PS11111" :product-type :braille)
-          ["PS11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 0 "" "" false]
+          (->Document "PS11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 0 "" "" false)
           (assoc document :production-source "electronicData")
-          ["EB11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 0 "" "D" false]
+          (->Document "EB11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 0 "" "D" false)
           document
-          ["EB11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 0 "" "C" false])))
+          (->Document "EB11111" "Eine für de Thesi" "Gwerder, Anna" "" "de" "2011-12-23" 0 "" "C" false))))
 
     (testing "Read a file"
       (let [sample (io/file (io/resource "SN_Alfresco_EB11111.xml"))]
