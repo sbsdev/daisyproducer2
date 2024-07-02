@@ -141,7 +141,7 @@
         new (medley/remove-vals nil? (select-keys new relevant-metadata-keys))]
     (not= old new)))
 
-(defn- update-document
+(defn- update-document-and-version
   [old new]
   (if (metadata-changed? old new)
     (do
@@ -150,6 +150,22 @@
       (versions/insert-updated-version new))
     (log/infof "No change in meta data for %s" (:id new))))
 
+(defn- update-document
+  [document product-number]
+  (let [{:keys [id title] :as existing} (documents/get-document-for-product-number product-number)]
+    (log/infof "Document %s (%s) for order number '%s' has already been imported." id title product-number)
+    (conman/with-transaction [db/*db*]
+      (update-document-and-version existing document))))
+
+(defn- update-document-and-product
+  [document product-number]
+  (let [{:keys [source title source-edition]} document
+        {:keys [id title type] :as existing} (documents/get-document-for-source-or-title-and-source-edition document)]
+    (log/infof "Document %s (%s) has already been imported for a different product." id title)
+    (conman/with-transaction [db/*db*]
+      (update-document-and-version existing document)
+      (products/insert-product id product-number type))))
+
 (def ^:private product-type-to-type
   {:braille 0
    :large-print 1
@@ -157,40 +173,39 @@
    :etext 3
    })
 
+(defn- insert-document-and-product
+  [{:keys [product-number product-type title] :as document}]
+  (conman/with-transaction [db/*db*]
+    (let [new (documents/initialize-document document)
+          document-id (documents/insert-document new)]
+      (log/infof "Document %s (%s) has not been imported before. Creating a document for %s." document-id title product-number)
+      (products/insert-product document-id product-number (product-type-to-type product-type))
+      (versions/insert-initial-version new))))
+
 (defn import-new-document
-  "Import a new document from file `f`"
+  "Import a new `document`"
+  [{:keys [product-number product-type title] :as document}]
+  (cond
+    ;; If the XML indicates that this product is not produced with Daisy Producer ignore this file
+    (not (:daisyproducer? document)) (log/infof "Ignoring %s (%s)" product-number title)
+    ;; validate the product number
+    (not (s/valid? ::product-number product-number)) (throw (ex-info "The product-number is not valid" document))
+    ;; If the product-number has been imported before just update the meta data of the existing document
+    (documents/get-document-for-product-number product-number) (update-document document product-number)
+    ;; If the book has been produced for another product, update the meta data of the existing document and
+    ;; add the new product
+    (documents/get-document-for-source-or-title-and-source-edition document) (update-document-and-product document product-number)
+    ;; the book has not been produced before, add the document using the given metadata and add the product
+    :else (insert-document-and-product document)))
+
+(defn import-new-document-file
+  "Read a new document from file `f`. Returns the new document. Throws
+  an exception if the given file is not valid according to the
+  `abacus-export-schema`."
   [f]
   (let [errors (validation-errors f abacus-export-schema)]
     (if (empty? errors)
-      (let [{:keys [product-number product-type title] :as document} (read-file f)]
-        (cond
-          ;; If the XML indicates that this product is not produced with Daisy Producer ignore this file
-          (not (:daisyproducer? document)) (log/infof "Ignoring %s (%s)" product-number title)
-          ;; validate the product number
-          (not (s/valid? ::product-number product-number)) (throw (ex-info "The product-number is not valid" document))
-          ;; If the product-number has been imported before just update the meta data of the existing document
-          (documents/get-document-for-product-number product-number)
-          (let [{:keys [id title] :as existing} (documents/get-document-for-product-number product-number)]
-            (log/infof "Document %s (%s) for order number '%s' has already been imported." id title product-number)
-            (conman/with-transaction [db/*db*]
-              (update-document existing document)))
-          ;; If the book has been produced for another product, update the meta data of the existing document and
-          ;; add the new product
-          (documents/get-document-for-source-or-title-and-source-edition document)
-          (let [{:keys [source title source-edition]} document
-                {:keys [id title type] :as existing} (documents/get-document-for-source-or-title-and-source-edition document)]
-            (log/infof "Document %s (%s) has already been imported for a different product." id title)
-            (conman/with-transaction [db/*db*]
-              (update-document existing document)
-              (products/insert-product id product-number type)))
-          :else
-          ;; the book has not been produced before, add the document using the given metadata and add the product
-          (conman/with-transaction [db/*db*]
-            (let [new (documents/initialize-document document)
-                  document-id (documents/insert-document new)]
-              (log/infof "Document %s (%s) has not been imported before. Creating a document for %s." document-id title product-number)
-              (products/insert-product document-id product-number (product-type-to-type product-type))
-              (versions/insert-initial-version new)))))
+      (read-file f)
       (throw
        (ex-info "The provided xml is not valid"
                 {:error-id :invalid-xml
