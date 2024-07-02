@@ -62,6 +62,13 @@
          (string/includes? reihe "SJW")) (re-find #"\d+" reihe)
     :else ""))
 
+(defn- source
+  [{:keys [source]}]
+  (cond
+    (string/blank? source) ""
+    (= source "keine") ""
+    :else source))
+
 (defn- product-type
   [{:keys [product-number]}]
   (condp #(string/starts-with? %2 %1) product-number
@@ -76,20 +83,22 @@
 
 (defn clean-raw-document
   "Return a proper document based on a raw document"
-  [{:keys [language source aufwand verkaufstext date daisyproducer?] :as raw-document}]
+  [{:keys [language aufwand verkaufstext date daisyproducer?] :as raw-document}]
   (let [production-series-number (production-series-number raw-document)
         production-series (production-series raw-document)
         product-type (product-type raw-document)
+        source (source raw-document)
+        production-source (if (= aufwand "D") "electronicData" "")
         date (LocalDate/parse date)]
     (-> raw-document
         (dissoc :reihe :aufwand :verkaufstext :production-series-number)
         (assoc :publisher (get default-publisher language "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte"))
         (assoc :daisyproducer? (= daisyproducer? "ja"))
         (assoc :date date)
-        (cond-> production-series-number (assoc :production-series-number production-series-number))
-        (cond-> production-series (assoc :production-series production-series))
-        (cond-> (or (string/blank? source) (= source "keine")) (dissoc :source))
-        (cond-> (= aufwand "D") (assoc :production-source "electronicData"))
+        (assoc :source source)
+        (assoc :production-source production-source)
+        (assoc :production-series production-series)
+        (assoc :production-series-number production-series-number)
         (cond-> product-type (assoc :product-type product-type))
         (cond-> (not (string/blank? verkaufstext)) (assoc :author (-> verkaufstext (string/split #"\[xx\]") first string/trim)))
         (cond-> (not (string/blank? verkaufstext)) (assoc :title (-> verkaufstext (string/split #"\[xx\]") second string/trim))))))
