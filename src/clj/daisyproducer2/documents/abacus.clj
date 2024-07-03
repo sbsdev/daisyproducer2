@@ -108,7 +108,6 @@
   [zipper key]
   (let [path (key param-mapping)]
     (case key
-      :narrator (string/join "; " (apply xml-> zipper (concat root-path path)))
       (apply xml1-> zipper (concat root-path path)))))
 
 (defn read-xml
