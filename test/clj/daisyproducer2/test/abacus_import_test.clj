@@ -29,20 +29,7 @@
 (def date (gen/fmap (fn [[year month day]] (format "%d-%02d-%02d" year month day))
                     (gen/such-that valid-date-tuple? (gen/tuple (gen/choose 1900 2500) (gen/choose 1 12) (gen/choose 1 31)))))
 
-(def raw-gen (gen/tuple
-              product-number
-              gen/string
-              gen/string
-              language
-              sbs-isbn
-              date
-              (gen/return "")
-              (gen/return "")
-              gen/nat
-              reihe
-              aufwand
-              daisy_producer
-              ))
+(def raw-gen (gen/tuple product-number gen/string gen/string language sbs-isbn date (gen/return "") (gen/return "") gen/nat reihe aufwand daisy_producer))
 
 (defn- xml-sample
   [{:keys [product-number title creator source language date source-publisher source-edition production-series-number reihe aufwand daisyproducer?]}]
@@ -98,6 +85,10 @@
                                     (time/local-date "2011-12-23") "" "de" "DVA" "1. / 2011" "" "" "electronicData" true))
                (import-new-document-file sample)))))))
 
+(defn- normalize-whitespace
+  [s]
+  (string/replace s (re-pattern (str "[\\s\u00A0]+")) " "))
+
 (deftest abacus-import-with-properties
   (chuck/checking "ABACUS import is correct" 200
     [sample raw-gen]
@@ -106,6 +97,16 @@
       (is (:source imported))
       (is (#{:braille :large-print :ebook :etext} (:product-type imported)))
       (is (#{"" "PPP" "SJW"} (:production-series imported)))
-      #_(is (= (:creator input) (:author imported))))))
+      (is (#{"de" "de-CH" "it" "rm-sursilv"} (:language imported)))
+      ;; the xml import normalizes whitespace, so to compare actual
+      ;; and expected we also have to normalize
+      (is (= (normalize-whitespace (:creator input)) (:author imported)))
+      (is (= (normalize-whitespace (:title input)) (:title imported)))
+      ;; either the production-series-number is <> 0 and then the production-series is PPP or the
+      ;; production-series-number is = 0 and then the production-series is SJW or the
+      ;; production-series-number is empty
+      (is (or (and (not= (:production-series-number imported) 0) (= (:production-series imported) "PPP"))
+              (and (= (:production-series-number imported) 0) (= (:production-series imported) "SJW"))
+              (= (= (:production-series-number imported) "")))))))
 
 
