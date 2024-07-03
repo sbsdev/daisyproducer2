@@ -121,6 +121,8 @@
                   :dependencies [[binaryage/devtools "1.0.7"]
                                  [cider/piggieback "0.5.3"]
                                  [org.clojure/tools.namespace "1.5.0"]
+                                 [org.clojure/test.check "0.10.0"]
+                                 [com.gfredericks/test.chuck "0.2.14"]
                                  [pjstadig/humane-test-output "0.11.0"]
                                  [prone "2021-04-23"]
                                  [re-frisk "1.6.0"]
@@ -139,6 +141,8 @@
                   :injections [(require 'pjstadig.humane-test-output)
                                (pjstadig.humane-test-output/activate!)]}
    :project/test {:jvm-opts ["-Dconf=test-config.edn" ]
+                  :dependencies [[org.clojure/test.check "0.10.0"]
+                                 [com.gfredericks/test.chuck "0.2.14"]]
                   :resource-paths ["env/test/resources"] 
                   
                   

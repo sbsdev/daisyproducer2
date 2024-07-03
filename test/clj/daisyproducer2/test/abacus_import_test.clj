@@ -1,10 +1,13 @@
 (ns daisyproducer2.test.abacus-import-test
   (:require
+   [clojure.data.xml :as xml]
    [clojure.java.io :as io]
+   [clojure.string :as string]
    [clojure.test :refer :all]
+   [clojure.test.check.generators :as gen]
+   [com.gfredericks.test.chuck.clojure-test :as chuck]
    [daisyproducer2.documents.abacus :refer :all]
-   [java-time.api :as time]
-   [clojure.data.xml :as xml]))
+   [java-time.api :as time]))
 
 (defrecord Raw [product-number title creator language source date source-publisher source-edition production-series-number reihe aufwand daisyproducer?])
 (defrecord Imported [product-number product-type
@@ -12,6 +15,36 @@
                      source-publisher source-edition
                      production-series production-series-number production-source
                      daisyproducer?])
+
+(def sbs-identifier (gen/fmap string/join (gen/tuple (gen/return "SBS") (gen/choose 0 9) (gen/choose 0 9)
+                                                     (gen/choose 0 9) (gen/choose 0 9) (gen/choose 0 9) (gen/choose 0 9))))
+
+(def isbn (gen/fmap (partial string/join "-") (gen/tuple (gen/elements [978 979])
+                                                         (gen/choose 0 99999)
+                                                         (gen/choose 0 9999999)
+                                                         (gen/choose 0 999999)
+                                                         (gen/one-of [(gen/choose 0 9) (gen/return "x") (gen/return "X")]))))
+
+(def sbs-isbn (gen/one-of [(gen/return "keine") sbs-identifier isbn]))
+(def product-number (gen/fmap string/join (gen/tuple (gen/elements ["PS" "GD" "EB" "ET"]) (gen/choose 1000 9999999))))
+(def language (gen/elements ["de" "de-CH" "it" "rm-sursilv"]))
+(def aufwand (gen/elements ["" "D"]))
+(def daisy_producer (gen/elements ["ja" "nein"]))
+(def reihe (gen/one-of [gen/string (gen/fmap string/join (gen/tuple (gen/return "SJW") (gen/choose 0 99999)))]))
+(def raw-gen (gen/tuple
+              product-number
+              gen/string
+              gen/string
+              language
+              sbs-isbn
+              (gen/return "2024-11-11")
+              (gen/return "")
+              (gen/return "")
+              gen/nat
+              reihe
+              aufwand
+              daisy_producer
+              ))
 
 (defn- xml-sample
   [{:keys [product-number title creator source language date source-publisher source-edition production-series-number reihe aufwand daisyproducer?]}]
@@ -66,3 +99,15 @@
         (is (= (into {} (->Imported "EB11111" :ebook "Eine für de Thesi" "Gwerder, Anna" "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte"
                                     (time/local-date "2011-12-23") "" "de" "DVA" "1. / 2011" "" "" "electronicData" true))
                (import-new-document-file sample)))))))
+
+(deftest abacus-import-with-properties
+  (chuck/checking "ABACUS import is correct" 200
+    [sample raw-gen]
+    (let [input (apply ->Raw sample)
+          imported (read-xml (xml/sexp-as-element (xml-sample input)))]
+      (is (:source imported))
+      (is (#{:braille :large-print :ebook :etext} (:product-type imported)))
+      (is (#{"" "PPP" "SJW"} (:production-series imported)))
+      #_(is (= (:creator input) (:author imported))))))
+
+
