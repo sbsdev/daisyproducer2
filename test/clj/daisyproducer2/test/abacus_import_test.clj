@@ -5,6 +5,7 @@
    [clojure.string :as string]
    [clojure.test :refer :all]
    [clojure.test.check.generators :as gen]
+   [com.gfredericks.test.chuck.generators :as chuck-gen]
    [com.gfredericks.test.chuck.clojure-test :as chuck]
    [daisyproducer2.documents.abacus :refer :all]
    [java-time.api :as time]))
@@ -16,21 +17,14 @@
                      production-series production-series-number production-source
                      daisyproducer?])
 
-(def sbs-identifier (gen/fmap string/join (gen/tuple (gen/return "SBS") (gen/choose 0 9) (gen/choose 0 9)
-                                                     (gen/choose 0 9) (gen/choose 0 9) (gen/choose 0 9) (gen/choose 0 9))))
-
-(def isbn (gen/fmap (partial string/join "-") (gen/tuple (gen/elements [978 979])
-                                                         (gen/choose 0 99999)
-                                                         (gen/choose 0 9999999)
-                                                         (gen/choose 0 999999)
-                                                         (gen/one-of [(gen/choose 0 9) (gen/return "x") (gen/return "X")]))))
-
+(def sbs-identifier (chuck-gen/string-from-regex #"SBS[0-9]{6}"))
+(def isbn (chuck-gen/string-from-regex #"(978-|979-)?[0-9]{1,5}-[0-9]{1,7}-[0-9]{1,6}-[0-9xX]"))
 (def sbs-isbn (gen/one-of [(gen/return "keine") sbs-identifier isbn]))
-(def product-number (gen/fmap string/join (gen/tuple (gen/elements ["PS" "GD" "EB" "ET"]) (gen/choose 1000 9999999))))
+(def product-number (chuck-gen/string-from-regex #"(PS|GD|EB|ET)[0-9]{4,7}"))
 (def language (gen/elements ["de" "de-CH" "it" "rm-sursilv"]))
 (def aufwand (gen/elements ["" "D"]))
 (def daisy_producer (gen/elements ["ja" "nein"]))
-(def reihe (gen/one-of [gen/string (gen/fmap string/join (gen/tuple (gen/return "SJW") (gen/choose 0 99999)))]))
+(def reihe (chuck-gen/string-from-regex #"SJW[0-9]+"))
 (def raw-gen (gen/tuple
               product-number
               gen/string
