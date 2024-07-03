@@ -25,13 +25,17 @@
 (def aufwand (gen/elements ["" "D"]))
 (def daisy_producer (gen/elements ["ja" "nein"]))
 (def reihe (chuck-gen/string-from-regex #"SJW[0-9]+"))
+(defn- valid-date-tuple? [[year month day]] (try (time/local-date year month day) true (catch Exception e false)))
+(def date (gen/fmap (fn [[year month day]] (format "%d-%02d-%02d" year month day))
+                    (gen/such-that valid-date-tuple? (gen/tuple (gen/choose 1900 2500) (gen/choose 1 12) (gen/choose 1 31)))))
+
 (def raw-gen (gen/tuple
               product-number
               gen/string
               gen/string
               language
               sbs-isbn
-              (gen/return "2024-11-11")
+              date
               (gen/return "")
               (gen/return "")
               gen/nat
