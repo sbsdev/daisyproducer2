@@ -1,5 +1,6 @@
 (ns daisyproducer2.documents.documents
   (:require [babashka.fs :as fs]
+            [clojure.string :as string]
             [daisyproducer2.config :refer [env]]
             [daisyproducer2.db.core :as db]
             [daisyproducer2.metrics :as metrics]
@@ -23,9 +24,9 @@
   (db/get-document-for-product-number {:product-number product-number}))
 
 (defn get-document-for-source-or-title-and-source-edition
-  [params]
-  (or (and (:source params) (db/get-document-for-source params))
-      (and (:title params) (:source-edition params) (db/get-document-for-title-and-source-edition params))))
+  [{:keys [source title source-edition] :as params}]
+  (or (and source (not (string/blank? source)) (db/get-document-for-source params))
+      (and title source-edition (db/get-document-for-title-and-source-edition params))))
 
 (defn initialize-document
   "Initialize a given `document` by adding a UUIDv7 to it."
