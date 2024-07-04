@@ -85,6 +85,26 @@
                                     (time/local-date "2011-12-23") "" "de" "DVA" "1. / 2011" "" "" "electronicData" true))
                (read-file sample)))))))
 
+(deftest abacus-import-document
+  (testing "ABACUS import"
+
+    (testing "Validation checks throw exceptions"
+
+      (let [sample (-> (->Raw "EB11111" "Eine für de Thesi" "Gwerder, Anna" "de" "" "2011-12-23" "DVA" "1. / 2011" 0 "" "" "ja")
+                       xml-sample
+                       xml/sexp-as-element
+                       read-xml)]
+        (is (thrown-with-msg? clojure.lang.ExceptionInfo #"The source is not valid" (import-new-document (assoc sample :source "faulty"))))
+        (is (thrown-with-msg? clojure.lang.ExceptionInfo #"The product-number is not valid" (import-new-document (assoc sample :product-number "faulty"))))))
+
+    (testing "Ignore documents which aren't meant for daiyproducer"
+
+      (let [sample (-> (->Raw "EB11111" "Eine für de Thesi" "Gwerder, Anna" "de" "" "2011-12-23" "DVA" "1. / 2011" 0 "" "" "nein")
+                       xml-sample
+                       xml/sexp-as-element
+                       read-xml)]
+        (is (= nil (import-new-document (assoc sample :source "faulty"))))))))
+
 (defn- normalize-whitespace
   [s]
   (string/replace s (re-pattern (str "[\\s\u00A0]+")) " "))
