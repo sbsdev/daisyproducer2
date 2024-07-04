@@ -54,7 +54,7 @@
         [:daisy_producer daisy-producer]
         [:Aufwand_A2 aufwand]]]]]]])
 
-(deftest abacus-import
+(deftest abacus-read-xml
   (testing "ABACUS import"
 
     (testing "Read XML"
@@ -76,7 +76,7 @@
           document
           (->Raw "EB11111" "Eine für de Thesi" "Gwerder, Anna" "de" "" "2011-12-23" "DVA" "1. / 2011" 0 "" "C" "nein"))))))
 
-(deftest abacus-import-file
+(deftest abacus-read-file
   (testing "ABACUS import"
 
     (testing "Read a file"
