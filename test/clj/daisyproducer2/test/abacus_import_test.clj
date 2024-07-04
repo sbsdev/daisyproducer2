@@ -83,7 +83,7 @@
       (let [sample (io/file (io/resource "SN_Alfresco_EB11111.xml"))]
         (is (= (into {} (->Imported "EB11111" :ebook "Eine für de Thesi" "Gwerder, Anna" "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte"
                                     (time/local-date "2011-12-23") "" "de" "DVA" "1. / 2011" "" "" "electronicData" true))
-               (import-new-document-file sample)))))))
+               (read-file sample)))))))
 
 (defn- normalize-whitespace
   [s]

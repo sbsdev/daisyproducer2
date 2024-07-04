@@ -122,13 +122,20 @@
       (into {})
       clean-raw-document)))
 
-(defn read-file
-  "Read an export file from ABACUS and return a map with all the data,
-  i.e. a document"
-  [file]
-  (read-xml (-> file io/file xml/parse)))
-
 (def ^:private abacus-export-schema "schema/abacus_export.rng")
+
+(defn read-file
+  "Read a new document from file `f`. Returns the new document. Throws
+  an exception if the given file is not valid according to the
+  `abacus-export-schema`."
+  [f]
+  (let [errors (validation-errors f abacus-export-schema)]
+    (when (not-empty errors)
+      (throw
+       (ex-info "The provided xml is not valid"
+                {:error-id :invalid-xml
+                 :errors errors})))
+    (read-xml (-> f io/file xml/parse))) )
 
 (def ^:private relevant-metadata-keys #{:title :author :date :source :source-date
                                         :source-publisher :source-edition
@@ -196,18 +203,5 @@
     (documents/get-document-for-source-or-title-and-source-edition document) (update-document-and-product document product-number)
     ;; the book has not been produced before, add the document using the given metadata and add the product
     :else (insert-document-and-product document)))
-
-(defn import-new-document-file
-  "Read a new document from file `f`. Returns the new document. Throws
-  an exception if the given file is not valid according to the
-  `abacus-export-schema`."
-  [f]
-  (let [errors (validation-errors f abacus-export-schema)]
-    (if (empty? errors)
-      (read-file f)
-      (throw
-       (ex-info "The provided xml is not valid"
-                {:error-id :invalid-xml
-                 :errors errors})))))
 
 (prometheus/instrument! metrics/registry #'import-new-document)
