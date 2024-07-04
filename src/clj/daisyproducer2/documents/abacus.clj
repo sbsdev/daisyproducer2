@@ -134,7 +134,7 @@
                                         :source-publisher :source-edition
                                         :production-series :production-series-number :production-source})
 
-(defn- metadata-changed?
+(defn metadata-changed?
   [old new]
   (let [old (medley/remove-vals nil? (select-keys old relevant-metadata-keys))
         new (medley/remove-vals nil? (select-keys new relevant-metadata-keys))]

@@ -110,3 +110,12 @@
               (= (= (:production-series-number imported) "")))))))
 
 
+(deftest meta-data-changed
+  (chuck/checking "The metadata is different" 200
+    [old-sample raw-gen
+     new-sample raw-gen]
+    (let [old (read-xml (xml/sexp-as-element (xml-sample (apply ->Raw old-sample))))
+          new (read-xml (xml/sexp-as-element (xml-sample (apply ->Raw new-sample))))]
+      (is (metadata-changed? old new)))))
+
+
