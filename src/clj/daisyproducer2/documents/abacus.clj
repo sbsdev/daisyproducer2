@@ -25,6 +25,7 @@
   (:import (java.time LocalDate)))
 
 (s/def ::product-number (s/and string? #(re-matches #"^(PS|GD|EB|ET)\d{4,7}$" %)))
+(s/def ::isbn (s/and string? (fn [s] (or (string/blank? s) (re-matches #"^SBS[0-9]{6}|(?:978-|979-)?\d{1,5}-\d{1,7}-\d{1,6}-[0-9xX]" s)))))
 
 (def ^:private root-path [:Task :Transaction :DocumentData])
 
@@ -188,19 +189,37 @@
       (products/insert-product document-id product-number (product-type-to-type product-type))
       (versions/insert-initial-version new))))
 
+(defn- invalid-isbn?
+  [{:keys [source]}]
+  (not (s/valid? ::isbn source)))
+
+(defn- invalid-product?
+  [{:keys [product-number]}]
+  (not (s/valid? ::product-number product-number)))
+
+(defn- product-seen-before?
+  [{:keys [product-number]}]
+  (some? (documents/get-document-for-product-number product-number)))
+
+(defn- source-or-title-source-edition-seen-before?
+  [document]
+  (some? (documents/get-document-for-source-or-title-and-source-edition document)))
+
 (defn import-new-document
   "Import a new `document`"
-  [{:keys [product-number product-type title] :as document}]
+  [{:keys [product-number title daisyproducer?] :as document}]
   (cond
     ;; If the XML indicates that this product is not produced with Daisy Producer ignore this file
-    (not (:daisyproducer? document)) (log/infof "Ignoring %s (%s)" product-number title)
+    (not daisyproducer?) (log/infof "Ignoring %s (%s)" product-number title)
+    ;; validate the source
+    (invalid-isbn? document) (throw (ex-info "The source is not valid" {:error-id :invalid-isbn :document document}))
     ;; validate the product number
-    (not (s/valid? ::product-number product-number)) (throw (ex-info "The product-number is not valid" document))
+    (invalid-product? document) (throw (ex-info "The product-number is not valid" {:error-id :invalid-product-number :document document}))
     ;; If the product-number has been imported before just update the meta data of the existing document
-    (documents/get-document-for-product-number product-number) (update-document document product-number)
+    (product-seen-before? document) (update-document document product-number)
     ;; If the book has been produced for another product, update the meta data of the existing document and
     ;; add the new product
-    (documents/get-document-for-source-or-title-and-source-edition document) (update-document-and-product document product-number)
+    (source-or-title-source-edition-seen-before? document) (update-document-and-product document product-number)
     ;; the book has not been produced before, add the document using the given metadata and add the product
     :else (insert-document-and-product document)))
 
