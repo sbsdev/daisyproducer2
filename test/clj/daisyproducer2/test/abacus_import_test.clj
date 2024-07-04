@@ -51,7 +51,7 @@
         [:auflageJahr source-edition]
         [:rucksackNr production-series-number]
         [:reihe reihe]
-        [:daisy_producer (if daisyproducer? "ja" "nein")]
+        [:daisy_producer daisyproducer?]
         [:Aufwand_A2 aufwand]]]]]]])
 
 (deftest abacus-import
