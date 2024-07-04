@@ -64,31 +64,35 @@
 * State diagram
 ** Import
 #+begin_src plantuml :file ABACUS_import.png
-@startuml
-  start
-  :Receive ABACUS XML;
-  :Validate;
-  :Extract data;
-  :Validate ISBN;
-  :Validate product_number;
-  if (Not for Daisyproducer?) then (no)
-    :Ignore file;
-  elseif (Existing document for product_number?) then (yes)
-	:Assert that there is only one document;
-	:Update the metadata in the db;
-	:Update the XML with the metadata;
-  elseif (Document with ISBN or same title and source_edition?) then (yes)
-      	:Assert that there is only one document;
-      	:Update the metadata in the db;
-      	:Update the XML with the metadata;
-      	:Create a product with given product_number, product_type and document;
-  else (no)
-      	:Create a new document in the db;
-      	:Create a product with given product_number, product_type and document;
-	:Create an initial default XML with the given metadata;
-  endif
-stop
-@enduml
+  @startuml
+    start
+    :Receive ABACUS XML;
+    if (XML valid?) then (no)
+      stop
+    endif
+    :Extract data;
+    if (For daisyproducer?) then (no)
+      stop
+    elseif (ISBN (source) valid?) then (no)
+      #pink:Throw error;
+      stop
+    elseif (product_number valid?) then (no)
+      #pink:Throw error;
+      stop
+    elseif (Product seen before?) then (yes)
+       :Update the metadata in the db;
+       :Update the XML with the metadata;
+    elseif (ISBN or Title+Edition seen before?) then (yes)
+       :Update the metadata in the db;
+       :Update the XML with the metadata;
+       :Create a new product;
+    else (no)
+       :Create a new document in the db;
+       :Create a new product;
+       :Create an initial default XML;
+    endif
+  stop
+  @enduml
 #+end_src
 
 #+RESULTS:
