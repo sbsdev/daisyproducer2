@@ -23,16 +23,20 @@
    :subject "dc:Subject"
    :title "dc:Title"})
 
-(defn- rename-meta-data-keys
+(defn- rename-keys
   [{:keys [identifier] :as meta-data}]
   (-> meta-data
       (set/rename-keys mapping)
       ;; the identifier also needs to be put in the dtb:uid metadata field
       (cond-> identifier (assoc "dtb:uid" identifier))))
 
+(defn- stringify-values
+  [meta-data]
+  (update-vals meta-data str))
+
 (defn update-meta-data
   [old new meta-data]
   (let [in (io/input-stream old)
         out (io/output-stream new)
-        meta-data (rename-meta-data-keys meta-data)]
+        meta-data (-> meta-data rename-keys stringify-values)]
     (MetaDataTransformer/transform in out meta-data)))
