@@ -89,7 +89,7 @@ DELETE FROM documents_document WHERE id = :id
 
 -- :name get-document-for-product-number :? :1
 -- :doc retrieve the document for the given `product-number`
-SELECT * FROM documents_document doc
+SELECT doc.* FROM documents_document doc
 JOIN documents_product prod
 ON doc.id = prod.document_id
 WHERE prod.identifier = :product-number
