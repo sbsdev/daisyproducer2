@@ -157,7 +157,7 @@
       (versions/insert-updated-version new))
     (log/infof "No change in meta data for %s" (:id new))))
 
-(defn- update-document
+(defn update-document
   [document product-number]
   (let [{:keys [id title] :as existing} (documents/get-document-for-product-number product-number)]
     (log/infof "Document %s (%s) for order number '%s' has already been imported." id title product-number)

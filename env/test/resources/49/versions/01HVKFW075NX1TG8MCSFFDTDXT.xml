@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE dtbook [<!ENTITY ndash "&#x2013;"><!ENTITY nbsp "&#x00A0;">]><?oxygen RNGSchema="http://xmlp/schema/dtbook-2005-3-sbs.rng" type="xml"?>
+<dtbook version="2005-3-sbs-minimal" xml:lang="de"
+  xmlns:brl="http://www.daisy.org/z3986/2009/braille/"
+  xmlns="http://www.daisy.org/z3986/2005/dtbook/">
+  <head>
+    <meta name="dc:Title" content="Übersetzungstest (MK)"/>
+    <meta name="dc:Creator" content=""/>
+    <meta name="dc:Subject" content=""/>
+    <meta name="dc:Description" content=""/>
+    <meta name="dc:Publisher"
+      content="Swiss Library for the Blind, Visually Impaired and Print Disabled"/>
+    <meta name="dc:Date" content="2011-02-17"/>
+    <meta name="dc:Type" content="Text"/>
+    <meta name="dc:Format" content="ANSI/NISO Z39.86-2005"/>
+    <meta name="dc:Identifier" content="ch-sbs-52b125df-c0fa-447e-960b-208aebb70580"/>
+    <meta name="dc:Source" content=""/>
+    <meta name="dc:Language" content="de"/>
+    <meta name="dc:Rights" content=""/>
+    <meta name="dtb:uid" content="ch-sbs-52b125df-c0fa-447e-960b-208aebb70580"/>
+    <meta name="dtb:sourceDate" content=""/>
+    <meta name="dtb:sourceEdition" content=""/>
+    <meta name="dtb:sourcePublisher" content=""/>
+    <meta name="dtb:sourceRights" content=""/>
+    <meta name="prod:series" content=""/>
+    <meta name="prod:seriesNumber" content=""/>
+    <meta name="prod:source" content=""/>
+  </head>
+  <book>
+    <frontmatter>
+      <doctitle>Titel</doctitle>
+      <docauthor>Autor</docauthor>
+      <level1 class="titlepage">
+        <level2>
+          <p>Roman / Erzählungen / Geschichten / etc.</p>
+          <p class="sourcePublisher">Verlag</p>
+        </level2>
+        <level2>
+          <p>Impressum</p>
+        </level2>
+      </level1>
+      <level1 class="toc">
+        <p>...</p>
+      </level1>
+    </frontmatter>
+    <bodymatter>
+      <level1>
+        <p> 30- und 40-jährige wyrta-wyrtb- und -wyrtc-wyrtd </p>
+        <p> -50 Grad bodytalk</p>
+<p>  traberkrankheitenelefanta aaabccc'weweee abéfsdfds abýchoda </p>
+      </level1>
+    </bodymatter>
+  </book>
+</dtbook>
