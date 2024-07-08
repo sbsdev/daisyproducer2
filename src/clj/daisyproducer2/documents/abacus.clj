@@ -21,8 +21,8 @@
             [daisyproducer2.documents.versions :as versions]
             [daisyproducer2.metrics :as metrics]
             [iapetos.collector.fn :as prometheus]
-            [medley.core :as medley])
-  (:import (java.time LocalDate)))
+            [java-time.api :as time]
+            [medley.core :as medley]))
 
 (s/def ::product-number (s/and string? #(re-matches #"^(PS|GD|EB|ET)\d{4,7}$" %)))
 (s/def ::isbn (s/and string? (fn [s] (or (string/blank? s) (re-matches #"^SBS[0-9]{6}|(?:978-|979-)?\d{1,5}-\d{1,7}-\d{1,6}-[0-9xX]" s)))))
@@ -90,7 +90,7 @@
         product-type (product-type raw-document)
         source (source raw-document)
         production-source (if (= aufwand "D") "electronicData" "")
-        date (LocalDate/parse date)]
+        date (time/local-date date)]
     (-> raw-document
         (dissoc :reihe :aufwand :verkaufstext :production-series-number)
         (assoc :publisher (get default-publisher language "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte"))
