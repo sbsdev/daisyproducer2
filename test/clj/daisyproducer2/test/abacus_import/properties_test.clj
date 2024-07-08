@@ -30,7 +30,7 @@
 (def date (gen/fmap (fn [[year month day]] (format "%d-%02d-%02d" year month day))
                     (gen/such-that valid-date-tuple? (gen/tuple (gen/choose 1900 2500) (gen/choose 1 12) (gen/choose 1 31)))))
 
-(def raw-gen (gen/tuple product-number gen/string gen/string language sbs-isbn date (gen/return "") (gen/return "") gen/nat reihe aufwand daisy_producer))
+(def import-gen (gen/tuple product-number gen/string gen/string language sbs-isbn date (gen/return "") (gen/return "") gen/nat reihe aufwand daisy_producer))
 
 (defn- xml-sample
   [{:keys [product-number title creator source language date
@@ -63,7 +63,7 @@
 
 (deftest abacus-import-with-properties
   (chuck/checking "ABACUS import is correct" 200
-    [sample raw-gen]
+    [sample import-gen]
     (let [input (apply ->Raw sample)
           imported (read-xml (xml/sexp-as-element (xml-sample input)))]
       (is (:source imported))
@@ -84,8 +84,8 @@
 
 (deftest meta-data-changed
   (chuck/checking "The metadata is different" 200
-    [old-sample raw-gen
-     new-sample raw-gen]
+    [old-sample import-gen
+     new-sample import-gen]
     (let [old (read-xml (xml/sexp-as-element (xml-sample (apply ->Raw old-sample))))
           new (read-xml (xml/sexp-as-element (xml-sample (apply ->Raw new-sample))))]
       (is (metadata-changed? old new)))))
