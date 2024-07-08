@@ -6,6 +6,7 @@
    [daisyproducer2.auth :as auth]
    [daisyproducer2.config :refer [env]]
    [daisyproducer2.db.core :as db]
+   [daisyproducer2.documents.abacus :as abacus]
    [daisyproducer2.documents.images :as images]
    [daisyproducer2.documents.preview :as preview]
    [daisyproducer2.documents.versions :as versions]
@@ -640,4 +641,33 @@
                                   :word string?}}
              :handler (fn [{{{:keys [word spelling]} :query} :parameters}]
                         (ok {:hyphenation (hyphenate/hyphenate word spelling)}))}}]]
+
+   ["/abacus"
+    {:swagger {:tags ["Abacus API"]}}
+
+    ["/import"
+     {:post {:summary "Add a production"
+             :parameters {:multipart {:file multipart/temp-file-part}}
+             :handler (fn [{{{:keys [file]} :multipart} :parameters}]
+                        (try
+                          (let [tempfile (:tempfile file)
+                                import (abacus/read-file tempfile)
+                                document-id (abacus/import-new-document import)]
+                            (let [url (str "/api/documents/" document-id)]
+                              (created url {:location url})))
+                          (catch clojure.lang.ExceptionInfo e
+                            (let [{:keys [error-id errors document]} (ex-data e)
+                                  message (ex-message e)
+                                  {:keys [filename tempfile]} file]
+                              (if (= error-id :input-ignored)
+                                (let [{:keys [product-number title]} document]
+                                  (log/infof "Ignoring %s (%s)" product-number title))
+                                (log/error message error-id errors filename (str tempfile)))
+                              (case error-id
+                                :input-ignored (no-content)
+                                :duplicate-key (bad-request {:status-text message})
+                                :invalid-xml (bad-request {:status-text "Upload of ABACUS XML failed" :errors errors})
+                                :invalid-isbn (bad-request {:status-text "The ISBN is not valid" :errors errors})
+                                :invalid-product-number (bad-request {:status-text "The product number is not valid" :errors errors})
+                                (internal-server-error {:status-text message}))))))}}]]
    ])

@@ -422,3 +422,437 @@ GET http://localhost:3000/archive/105/versions/01HPP0222GAKKFVZA94WN5RFE8.xml
 
 # Get an image
 GET http://localhost:3000/archive/105/images/lambda.jpg
+
+#################
+# ABACUS Import #
+#################
+##############
+# Abacus API #
+##############
+
+# Add a production
+POST http://localhost:3000/api/abacus/import
+Accept: application/json
+Content-Type: multipart/form-data; boundary=e82bc39c68f1417d9ea12c5456182f3c
+
+--e82bc39c68f1417d9ea12c5456182f3c
+Content-Disposition: form-data; name="file"; filename="SN1_DY99999.xml"
+Content-Type: application/xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<AbaConnectContainer>
+  <Task>
+    <Parameter/>
+    <Transaction>
+      <DocumentData command="mdaDocAdd">
+        <artikel_nr>PS86142</artikel_nr>
+        <title>Test - whout</title>
+        <MetaData>
+          <dc>
+            <title>Test - whout</title>
+            <creator>Test - Gubser, Paul</creator>
+            <source>978-3-570-15263-0</source>
+            <language>de</language>
+            <identifier>EB11111</identifier>
+            <date>2015-06-29</date>
+          </dc>
+          <sbs>
+            <KST>54430</KST>
+            <untertitel/>
+            <verlag>DVA</verlag>
+            <verlagsort>Altdorf</verlagsort>
+            <auflageJahr>1. / 2011</auflageJahr>
+            <printPageNumber>311</printPageNumber>
+            <prodStatus>IN ARBEIT</prodStatus>
+            <datenErhalten>13.12.2011 (pdf per Mail) / ts</datenErhalten>
+            <schriftart>Grossdruck s/w</schriftart>
+            <endformat/>
+            <drucker>OCCS250</drucker>
+            <doppelseitig>doppelseitig</doppelseitig>
+            <bindung/>
+            <breite>0</breite>
+            <zeilen>0</zeilen>
+            <auszug/>
+            <zoom/>
+            <qualitaet/>
+            <prodPageSS>0</prodPageSS>
+            <bpz/>
+            <ervNr>0</ervNr>
+            <laufzettelNr>501097</laufzettelNr>
+            <rucksackNr>0</rucksackNr>
+            <altersgruppe/>
+            <gdBuchNr>0</gdBuchNr>
+            <prodPagePS>0</prodPagePS>
+            <anzahlBaende>0</anzahlBaende>
+            <anzahlRelief>0</anzahlRelief>
+            <vorlageHaus>ja</vorlageHaus>
+            <katalogEintrag>ja</katalogEintrag>
+            <verlagVerzeichnis>nein</verlagVerzeichnis>
+            <daisy_producer>ja</daisy_producer>
+	    <Aufwand_A2>D</Aufwand_A2>
+          </sbs>
+          <ncc>
+            <setInfo>1</setInfo>
+          </ncc>
+        </MetaData>
+      </DocumentData>
+    </Transaction>
+  </Task>
+</AbaConnectContainer>
+--e82bc39c68f1417d9ea12c5456182f3c--
+
+# Modify a production
+POST http://localhost:3000/api/abacus/import
+Accept: application/json
+Content-Type: multipart/form-data; boundary=e82bc39c68f1417d9ea12c5456182f3c
+
+--e82bc39c68f1417d9ea12c5456182f3c
+Content-Disposition: form-data; name="file"; filename="SN1_DY99999.xml"
+Content-Type: application/xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<AbaConnectContainer>
+  <Task>
+    <Parameter/>
+    <Transaction>
+      <DocumentData command="mdaDocAdd">
+        <artikel_nr>PS86142</artikel_nr>
+        <title>Test - whout</title>
+        <MetaData>
+          <dc>
+            <title>Test - whout2</title>
+            <creator>Test - Gubser, Paul</creator>
+            <source>978-3-570-15263-0</source>
+            <language>de</language>
+            <identifier>EB11111</identifier>
+            <date>2015-06-29</date>
+          </dc>
+          <sbs>
+            <KST>54430</KST>
+            <untertitel/>
+            <verlag>DVA</verlag>
+            <verlagsort>Altdorf</verlagsort>
+            <auflageJahr>1. / 2011</auflageJahr>
+            <printPageNumber>311</printPageNumber>
+            <prodStatus>IN ARBEIT</prodStatus>
+            <datenErhalten>13.12.2011 (pdf per Mail) / ts</datenErhalten>
+            <schriftart>Grossdruck s/w</schriftart>
+            <endformat/>
+            <drucker>OCCS250</drucker>
+            <doppelseitig>doppelseitig</doppelseitig>
+            <bindung/>
+            <breite>0</breite>
+            <zeilen>0</zeilen>
+            <auszug/>
+            <zoom/>
+            <qualitaet/>
+            <prodPageSS>0</prodPageSS>
+            <bpz/>
+            <ervNr>0</ervNr>
+            <laufzettelNr>501097</laufzettelNr>
+            <rucksackNr>0</rucksackNr>
+            <altersgruppe/>
+            <gdBuchNr>0</gdBuchNr>
+            <prodPagePS>0</prodPagePS>
+            <anzahlBaende>0</anzahlBaende>
+            <anzahlRelief>0</anzahlRelief>
+            <vorlageHaus>ja</vorlageHaus>
+            <katalogEintrag>ja</katalogEintrag>
+            <verlagVerzeichnis>nein</verlagVerzeichnis>
+            <daisy_producer>ja</daisy_producer>
+	    <Aufwand_A2>D</Aufwand_A2>
+          </sbs>
+          <ncc>
+            <setInfo>1</setInfo>
+          </ncc>
+        </MetaData>
+      </DocumentData>
+    </Transaction>
+  </Task>
+</AbaConnectContainer>
+--e82bc39c68f1417d9ea12c5456182f3c--
+
+# Add a production which isn't meant for Daisyproducer2
+POST http://localhost:3000/api/abacus/import
+Accept: application/json
+Content-Type: multipart/form-data; boundary=e82bc39c68f1417d9ea12c5456182f3c
+
+--e82bc39c68f1417d9ea12c5456182f3c
+Content-Disposition: form-data; name="file"; filename="SN1_DY99999.xml"
+Content-Type: application/xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<AbaConnectContainer>
+  <Task>
+    <Parameter/>
+    <Transaction>
+      <DocumentData command="mdaDocAdd">
+        <artikel_nr>PS86142</artikel_nr>
+        <title>Test - whout</title>
+        <MetaData>
+          <dc>
+            <title>Test - whout</title>
+            <creator>Test - Gubser, Paul</creator>
+            <source>978-3-570-15263-0</source>
+            <language>de</language>
+            <identifier>EB11111</identifier>
+            <date>2015-06-29</date>
+          </dc>
+          <sbs>
+            <KST>54430</KST>
+            <untertitel/>
+            <verlag>DVA</verlag>
+            <verlagsort>Altdorf</verlagsort>
+            <auflageJahr>1. / 2011</auflageJahr>
+            <printPageNumber>311</printPageNumber>
+            <prodStatus>IN ARBEIT</prodStatus>
+            <datenErhalten>13.12.2011 (pdf per Mail) / ts</datenErhalten>
+            <schriftart>Grossdruck s/w</schriftart>
+            <endformat/>
+            <drucker>OCCS250</drucker>
+            <doppelseitig>doppelseitig</doppelseitig>
+            <bindung/>
+            <breite>0</breite>
+            <zeilen>0</zeilen>
+            <auszug/>
+            <zoom/>
+            <qualitaet/>
+            <prodPageSS>0</prodPageSS>
+            <bpz/>
+            <ervNr>0</ervNr>
+            <laufzettelNr>501097</laufzettelNr>
+            <rucksackNr>0</rucksackNr>
+            <altersgruppe/>
+            <gdBuchNr>0</gdBuchNr>
+            <prodPagePS>0</prodPagePS>
+            <anzahlBaende>0</anzahlBaende>
+            <anzahlRelief>0</anzahlRelief>
+            <vorlageHaus>ja</vorlageHaus>
+            <katalogEintrag>ja</katalogEintrag>
+            <verlagVerzeichnis>nein</verlagVerzeichnis>
+            <daisy_producer>nein</daisy_producer>
+	    <Aufwand_A2>D</Aufwand_A2>
+          </sbs>
+          <ncc>
+            <setInfo>1</setInfo>
+          </ncc>
+        </MetaData>
+      </DocumentData>
+    </Transaction>
+  </Task>
+</AbaConnectContainer>
+--e82bc39c68f1417d9ea12c5456182f3c--
+
+# Add a new product to a production
+POST http://localhost:3000/api/abacus/import
+Accept: application/json
+Content-Type: multipart/form-data; boundary=e82bc39c68f1417d9ea12c5456182f3c
+
+--e82bc39c68f1417d9ea12c5456182f3c
+Content-Disposition: form-data; name="file"; filename="SN1_DY99999.xml"
+Content-Type: application/xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<AbaConnectContainer>
+  <Task>
+    <Parameter/>
+    <Transaction>
+      <DocumentData command="mdaDocAdd">
+        <artikel_nr>ET86144</artikel_nr>
+        <title>Test - whout</title>
+        <MetaData>
+          <dc>
+            <title>Test - whout2</title>
+            <creator>Test - Gubser, Paul</creator>
+            <source>978-3-570-15263-0</source>
+            <language>de</language>
+            <identifier>EB11111</identifier>
+            <date>2015-06-29</date>
+          </dc>
+          <sbs>
+            <KST>54430</KST>
+            <untertitel/>
+            <verlag>DVA</verlag>
+            <verlagsort>Altdorf</verlagsort>
+            <auflageJahr>1. / 2011</auflageJahr>
+            <printPageNumber>311</printPageNumber>
+            <prodStatus>IN ARBEIT</prodStatus>
+            <datenErhalten>13.12.2011 (pdf per Mail) / ts</datenErhalten>
+            <schriftart>Grossdruck s/w</schriftart>
+            <endformat/>
+            <drucker>OCCS250</drucker>
+            <doppelseitig>doppelseitig</doppelseitig>
+            <bindung/>
+            <breite>0</breite>
+            <zeilen>0</zeilen>
+            <auszug/>
+            <zoom/>
+            <qualitaet/>
+            <prodPageSS>0</prodPageSS>
+            <bpz/>
+            <ervNr>0</ervNr>
+            <laufzettelNr>501097</laufzettelNr>
+            <rucksackNr>0</rucksackNr>
+            <altersgruppe/>
+            <gdBuchNr>0</gdBuchNr>
+            <prodPagePS>0</prodPagePS>
+            <anzahlBaende>0</anzahlBaende>
+            <anzahlRelief>0</anzahlRelief>
+            <vorlageHaus>ja</vorlageHaus>
+            <katalogEintrag>ja</katalogEintrag>
+            <verlagVerzeichnis>nein</verlagVerzeichnis>
+            <daisy_producer>ja</daisy_producer>
+	    <Aufwand_A2>D</Aufwand_A2>
+          </sbs>
+          <ncc>
+            <setInfo>1</setInfo>
+          </ncc>
+        </MetaData>
+      </DocumentData>
+    </Transaction>
+  </Task>
+</AbaConnectContainer>
+--e82bc39c68f1417d9ea12c5456182f3c--
+
+# Remove the isbn from a production
+POST http://localhost:3000/api/abacus/import
+Accept: application/json
+Content-Type: multipart/form-data; boundary=e82bc39c68f1417d9ea12c5456182f3c
+
+--e82bc39c68f1417d9ea12c5456182f3c
+Content-Disposition: form-data; name="file"; filename="SN1_DY99999.xml"
+Content-Type: application/xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<AbaConnectContainer>
+  <Task>
+    <Parameter/>
+    <Transaction>
+      <DocumentData command="mdaDocAdd">
+        <artikel_nr>ET86144</artikel_nr>
+        <title>Test - whout</title>
+        <MetaData>
+          <dc>
+            <title>Test - whout2</title>
+            <creator>Test - Gubser, Paul</creator>
+            <source>keine</source>
+            <language>de</language>
+            <identifier>EB11111</identifier>
+            <date>2015-06-29</date>
+          </dc>
+          <sbs>
+            <KST>54430</KST>
+            <untertitel/>
+            <verlag>DVA</verlag>
+            <verlagsort>Altdorf</verlagsort>
+            <auflageJahr>1. / 2011</auflageJahr>
+            <printPageNumber>311</printPageNumber>
+            <prodStatus>IN ARBEIT</prodStatus>
+            <datenErhalten>13.12.2011 (pdf per Mail) / ts</datenErhalten>
+            <schriftart>Grossdruck s/w</schriftart>
+            <endformat/>
+            <drucker>OCCS250</drucker>
+            <doppelseitig>doppelseitig</doppelseitig>
+            <bindung/>
+            <breite>0</breite>
+            <zeilen>0</zeilen>
+            <auszug/>
+            <zoom/>
+            <qualitaet/>
+            <prodPageSS>0</prodPageSS>
+            <bpz/>
+            <ervNr>0</ervNr>
+            <laufzettelNr>501097</laufzettelNr>
+            <rucksackNr>0</rucksackNr>
+            <altersgruppe/>
+            <gdBuchNr>0</gdBuchNr>
+            <prodPagePS>0</prodPagePS>
+            <anzahlBaende>0</anzahlBaende>
+            <anzahlRelief>0</anzahlRelief>
+            <vorlageHaus>ja</vorlageHaus>
+            <katalogEintrag>ja</katalogEintrag>
+            <verlagVerzeichnis>nein</verlagVerzeichnis>
+            <daisy_producer>ja</daisy_producer>
+	    <Aufwand_A2>D</Aufwand_A2>
+          </sbs>
+          <ncc>
+            <setInfo>1</setInfo>
+          </ncc>
+        </MetaData>
+      </DocumentData>
+    </Transaction>
+  </Task>
+</AbaConnectContainer>
+--e82bc39c68f1417d9ea12c5456182f3c--
+
+# Add the isbn again to the production
+POST http://localhost:3000/api/abacus/import
+Accept: application/json
+Content-Type: multipart/form-data; boundary=e82bc39c68f1417d9ea12c5456182f3c
+
+--e82bc39c68f1417d9ea12c5456182f3c
+Content-Disposition: form-data; name="file"; filename="SN1_DY99999.xml"
+Content-Type: application/xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<AbaConnectContainer>
+  <Task>
+    <Parameter/>
+    <Transaction>
+      <DocumentData command="mdaDocAdd">
+        <artikel_nr>ET86144</artikel_nr>
+        <title>Test - whout</title>
+        <MetaData>
+          <dc>
+            <title>Test - whout2</title>
+            <creator>Test - Gubser, Paul</creator>
+            <source>978-3-570-15263-0</source>
+            <language>de</language>
+            <identifier>EB11111</identifier>
+            <date>2015-06-29</date>
+          </dc>
+          <sbs>
+            <KST>54430</KST>
+            <untertitel/>
+            <verlag>DVA</verlag>
+            <verlagsort>Altdorf</verlagsort>
+            <auflageJahr>1. / 2011</auflageJahr>
+            <printPageNumber>311</printPageNumber>
+            <prodStatus>IN ARBEIT</prodStatus>
+            <datenErhalten>13.12.2011 (pdf per Mail) / ts</datenErhalten>
+            <schriftart>Grossdruck s/w</schriftart>
+            <endformat/>
+            <drucker>OCCS250</drucker>
+            <doppelseitig>doppelseitig</doppelseitig>
+            <bindung/>
+            <breite>0</breite>
+            <zeilen>0</zeilen>
+            <auszug/>
+            <zoom/>
+            <qualitaet/>
+            <prodPageSS>0</prodPageSS>
+            <bpz/>
+            <ervNr>0</ervNr>
+            <laufzettelNr>501097</laufzettelNr>
+            <rucksackNr>0</rucksackNr>
+            <altersgruppe/>
+            <gdBuchNr>0</gdBuchNr>
+            <prodPagePS>0</prodPagePS>
+            <anzahlBaende>0</anzahlBaende>
+            <anzahlRelief>0</anzahlRelief>
+            <vorlageHaus>ja</vorlageHaus>
+            <katalogEintrag>ja</katalogEintrag>
+            <verlagVerzeichnis>nein</verlagVerzeichnis>
+            <daisy_producer>ja</daisy_producer>
+	    <Aufwand_A2>D</Aufwand_A2>
+          </sbs>
+          <ncc>
+            <setInfo>1</setInfo>
+          </ncc>
+        </MetaData>
+      </DocumentData>
+    </Transaction>
+  </Task>
+</AbaConnectContainer>
+--e82bc39c68f1417d9ea12c5456182f3c--
+
