@@ -157,21 +157,20 @@
       (versions/insert-updated-version new))
     (log/infof "No change in meta data for %s" (:id new))))
 
-  [document product-number]
 (defn- update-document
+  [{:keys [product-number] :as import}]
   (let [{:keys [id title] :as existing} (documents/get-document-for-product-number product-number)]
     (log/infof "Document %s (%s) for order number '%s' has already been imported." id title product-number)
     (conman/with-transaction [db/*db*]
-      (update-document-and-version existing document))))
+      (update-document-and-version existing import))))
 
 (defn- update-document-and-product
-  [document product-number]
-  (let [{:keys [source title source-edition]} document
-        {:keys [id title type] :as existing} (documents/get-document-for-source-or-title-and-source-edition document)]
+  [{:keys [product-number product-type] :as import}]
+  (let [{:keys [id title] :as existing} (documents/get-document-for-source-or-title-and-source-edition import)]
     (log/infof "Document %s (%s) has already been imported for a different product." id title)
     (conman/with-transaction [db/*db*]
-      (update-document-and-version existing document)
-      (products/insert-product id product-number type))))
+      (update-document-and-version existing import)
+      (products/insert-product id product-number (product-type-to-type product-type)))))
 
 (def ^:private product-type-to-type
   {:braille 0
