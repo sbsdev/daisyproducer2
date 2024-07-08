@@ -206,20 +206,20 @@
 
 (defn import-new-document
   "Import a new `document`"
-  [{:keys [product-number title daisyproducer?] :as document}]
+  [{:keys [product-number title daisyproducer?] :as import}]
   (cond
     ;; If the XML indicates that this product is not produced with Daisy Producer ignore this file
     (not daisyproducer?) (log/infof "Ignoring %s (%s)" product-number title)
     ;; validate the source
-    (invalid-isbn? document) (throw (ex-info "The source is not valid" {:error-id :invalid-isbn :document document}))
+    (invalid-isbn? import) (throw (ex-info "The source is not valid" {:error-id :invalid-isbn :document import}))
     ;; validate the product number
-    (invalid-product? document) (throw (ex-info "The product-number is not valid" {:error-id :invalid-product-number :document document}))
+    (invalid-product? import) (throw (ex-info "The product-number is not valid" {:error-id :invalid-product-number :document import}))
     ;; If the product-number has been imported before just update the meta data of the existing document
-    (product-seen-before? document) (update-document document product-number)
+    (product-seen-before? import) (update-document import)
     ;; If the book has been produced for another product, update the meta data of the existing document and
     ;; add the new product
-    (source-or-title-source-edition-seen-before? document) (update-document-and-product document product-number)
+    (source-or-title-source-edition-seen-before? import) (update-document-and-product import)
     ;; the book has not been produced before, add the document using the given metadata and add the product
-    :else (insert-document-and-product document)))
+    :else (insert-document-and-product import)))
 
 (prometheus/instrument! metrics/registry #'import-new-document)
