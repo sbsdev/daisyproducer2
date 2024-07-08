@@ -162,7 +162,8 @@
   (let [{:keys [id title] :as existing} (documents/get-document-for-product-number product-number)]
     (log/infof "Document %s (%s) for order number '%s' has already been imported." id title product-number)
     (conman/with-transaction [db/*db*]
-      (update-document-and-version existing import))))
+      (update-document-and-version existing import))
+    id))
 
 (def ^:private product-type-to-type
   {:braille 0
@@ -177,9 +178,11 @@
     (log/infof "Document %s (%s) has already been imported for a different product." id title)
     (conman/with-transaction [db/*db*]
       (update-document-and-version existing import)
-      (products/insert-product id product-number (product-type-to-type product-type)))))
+      (products/insert-product id product-number (product-type-to-type product-type)))
+    id))
 
 (defn- insert-document-and-product
+  "Insert a new document, an initial version and an associated product. Returns the `id` of the new document"
   [{:keys [product-number product-type title] :as import}]
   (conman/with-transaction [db/*db*]
     (let [new (documents/initialize-document import)
@@ -187,7 +190,8 @@
           new (assoc new :id document-id)]
       (log/infof "Document %s (%s) has not been imported before. Creating a document for %s." document-id title product-number)
       (products/insert-product document-id product-number (product-type-to-type product-type))
-      (versions/insert-initial-version new))))
+      (versions/insert-initial-version new)
+      document-id)))
 
 (defn- invalid-isbn?
   [{:keys [source]}]
@@ -206,7 +210,7 @@
   (some? (documents/get-document-for-source-or-title-and-source-edition document)))
 
 (defn import-new-document
-  "Import a new `document`"
+  "Import a new `document`. Return the `id` of the new or updated document."
   [{:keys [product-number title daisyproducer?] :as import}]
   (cond
     ;; If the XML indicates that this product is not produced with Daisy Producer ignore this file
