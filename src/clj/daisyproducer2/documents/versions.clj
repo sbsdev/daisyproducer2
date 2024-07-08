@@ -2,6 +2,8 @@
   (:require [babashka.fs :as fs]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
+            [camel-snake-kebab.extras :refer [transform-keys]]
+            [camel-snake-kebab.core :refer [->snake_case]]
             [daisyproducer2.config :refer [env]]
             [daisyproducer2.db.core :as db]
             [daisyproducer2.documents.metadata-validation :as metadata-validation]
@@ -95,7 +97,7 @@
 (defn initial-content
   "Create the initial XML content from a set of metadata given in `document`"
   [document]
-  (parser/render-file "templates/DTBookTemplate.xml" document))
+  (parser/render-file "templates/DTBookTemplate.xml" (transform-keys ->snake_case document)))
 
 (defn insert-initial-version
   [{document-id :id :as document}]
