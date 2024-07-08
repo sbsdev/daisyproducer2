@@ -164,6 +164,13 @@
     (conman/with-transaction [db/*db*]
       (update-document-and-version existing import))))
 
+(def ^:private product-type-to-type
+  {:braille 0
+   :large-print 1
+   :ebook 2
+   :etext 3
+   })
+
 (defn- update-document-and-product
   [{:keys [product-number product-type] :as import}]
   (let [{:keys [id title] :as existing} (documents/get-document-for-source-or-title-and-source-edition import)]
@@ -171,13 +178,6 @@
     (conman/with-transaction [db/*db*]
       (update-document-and-version existing import)
       (products/insert-product id product-number (product-type-to-type product-type)))))
-
-(def ^:private product-type-to-type
-  {:braille 0
-   :large-print 1
-   :ebook 2
-   :etext 3
-   })
 
 (defn- insert-document-and-product
   [{:keys [product-number product-type title] :as import}]
