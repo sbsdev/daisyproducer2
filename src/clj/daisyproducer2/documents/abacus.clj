@@ -216,9 +216,9 @@
     ;; If the XML indicates that this product is not produced with Daisy Producer ignore this file
     (not daisyproducer?) (throw (ex-info "Import is not for Daisyproducer" {:error-id :input-ignored :document import}))
     ;; validate the source
-    (invalid-isbn? import) (throw (ex-info "The source is not valid" {:error-id :invalid-isbn :document import}))
+    (invalid-isbn? import) (throw (ex-info "The source is not valid" {:error-id :invalid-isbn :document import :errors [(:source import)]}))
     ;; validate the product number
-    (invalid-product? import) (throw (ex-info "The product-number is not valid" {:error-id :invalid-product-number :document import}))
+    (invalid-product? import) (throw (ex-info "The product-number is not valid" {:error-id :invalid-product-number :document import :errors [(:product-number import)] }))
     ;; If the product-number has been imported before just update the meta data of the existing document
     (product-seen-before? import) (update-document import)
     ;; If the book has been produced for another product, update the meta data of the existing document and
