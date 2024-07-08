@@ -151,11 +151,11 @@
 (defn- update-document-and-version
   [old new]
   (if (metadata-changed? old new)
-    (do
-      (log/infof "Updating %s due to changed meta data" (:id new))
+    (let [new (merge old new)]
+      (log/infof "Updating %s due to changed meta data" (:id old))
       (documents/update-document-meta-data new)
       (versions/insert-updated-version new))
-    (log/infof "No change in meta data for %s" (:id new))))
+    (log/infof "No change in meta data for %s" (:id old))))
 
 (defn- update-document
   [{:keys [product-number] :as import}]
