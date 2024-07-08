@@ -180,10 +180,11 @@
    })
 
 (defn- insert-document-and-product
-  [{:keys [product-number product-type title] :as document}]
+  [{:keys [product-number product-type title] :as import}]
   (conman/with-transaction [db/*db*]
-    (let [new (documents/initialize-document document)
-          document-id (documents/insert-document new)]
+    (let [new (documents/initialize-document import)
+          document-id (documents/insert-document new)
+          new (assoc new :id document-id)]
       (log/infof "Document %s (%s) has not been imported before. Creating a document for %s." document-id title product-number)
       (products/insert-product document-id product-number (product-type-to-type product-type))
       (versions/insert-initial-version new))))
