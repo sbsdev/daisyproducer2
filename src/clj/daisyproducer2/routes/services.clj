@@ -3,15 +3,16 @@
    [babashka.fs :as fs]
    [clojure.spec.alpha :as s]
    [clojure.string :refer [blank?]]
+   [clojure.tools.logging :as log]
    [daisyproducer2.auth :as auth]
    [daisyproducer2.config :refer [env]]
    [daisyproducer2.db.core :as db]
    [daisyproducer2.documents.abacus :as abacus]
+   [daisyproducer2.documents.documents :as documents]
    [daisyproducer2.documents.images :as images]
    [daisyproducer2.documents.preview :as preview]
-   [daisyproducer2.documents.versions :as versions]
-   [daisyproducer2.documents.documents :as documents]
    [daisyproducer2.documents.products :as products]
+   [daisyproducer2.documents.versions :as versions]
    [daisyproducer2.hyphenate :as hyphenate]
    [daisyproducer2.hyphenations :as hyphenations]
    [daisyproducer2.middleware :refer [wrap-authorized wrap-restricted]]
@@ -30,8 +31,7 @@
    [reitit.swagger :as swagger]
    [reitit.swagger-ui :as swagger-ui]
    [ring.util.http-response :refer :all]
-   [spec-tools.data-spec :as spec]
-   [clojure.tools.logging :as log]))
+   [spec-tools.data-spec :as spec]))
 
 (s/def ::grade (s/and int? #(<= 0 % 2)))
 (s/def ::type (s/and int? #(<= 0 % 5)))
