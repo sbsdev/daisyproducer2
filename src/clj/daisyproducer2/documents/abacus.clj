@@ -6,7 +6,7 @@
   imports the following notifications:
 
   - Import a document."
-  (:require [clojure.data.zip.xml :refer [text xml-> xml1->]]
+  (:require [clojure.data.zip.xml :refer [text xml1->]]
             [clojure.java.io :as io]
             [clojure.spec.alpha :as s]
             [clojure.string :as string]
