@@ -214,7 +214,7 @@
   [{:keys [product-number title daisyproducer?] :as import}]
   (cond
     ;; If the XML indicates that this product is not produced with Daisy Producer ignore this file
-    (not daisyproducer?) (log/infof "Ignoring %s (%s)" product-number title)
+    (not daisyproducer?) (throw (ex-info "Import is not for Daisyproducer" {:error-id :input-ignored :document import}))
     ;; validate the source
     (invalid-isbn? import) (throw (ex-info "The source is not valid" {:error-id :invalid-isbn :document import}))
     ;; validate the product number
