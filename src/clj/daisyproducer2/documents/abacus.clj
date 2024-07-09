@@ -138,6 +138,11 @@
                  :errors errors})))
     (read-xml (-> f io/file xml/parse))) )
 
+(defn- ignore-document
+  [{:keys [product-number title]}]
+  (log/infof "Ignoring %s (%s)" product-number title)
+  {:status :ignored})
+
 (def ^:private relevant-metadata-keys #{:title :author :date :source :source-date
                                         :source-publisher :source-edition
                                         :production-series :production-series-number :production-source})
@@ -163,7 +168,7 @@
     (log/infof "Document %s (%s) for order number '%s' has already been imported." id title product-number)
     (conman/with-transaction [db/*db*]
       (update-document-and-version existing import))
-    id))
+    {:document-id id :status :updated}))
 
 (def ^:private product-type-to-type
   {:braille 0
@@ -179,7 +184,7 @@
     (conman/with-transaction [db/*db*]
       (update-document-and-version existing import)
       (products/insert-product id product-number (product-type-to-type product-type)))
-    id))
+    {:document-id id :status :updated}))
 
 (defn- insert-document-and-product
   "Insert a new document, an initial version and an associated product. Returns the `id` of the new document"
@@ -191,7 +196,7 @@
       (log/infof "Document %s (%s) has not been imported before. Creating a document for %s." document-id title product-number)
       (products/insert-product document-id product-number (product-type-to-type product-type))
       (versions/insert-initial-version new)
-      document-id)))
+      {:document-id document-id :status :created})))
 
 (defn- invalid-isbn?
   [{:keys [source]}]
@@ -214,7 +219,7 @@
   [{:keys [product-number title daisyproducer?] :as import}]
   (cond
     ;; If the XML indicates that this product is not produced with Daisy Producer ignore this file
-    (not daisyproducer?) (log/infof "Ignoring %s (%s)" product-number title)
+    (not daisyproducer?) (ignore-document import)
     ;; validate the source
     (invalid-isbn? import) (throw (ex-info "The source is not valid" {:error-id :invalid-isbn :document import :errors [(:source import)]}))
     ;; validate the product number

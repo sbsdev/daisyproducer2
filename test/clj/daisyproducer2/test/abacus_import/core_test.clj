@@ -89,7 +89,8 @@
                        xml-sample
                        xml/sexp-as-element
                        read-xml)]
-        (is (= nil (import-new-document (assoc sample :source "faulty"))))))))
+        (is (= {:status :ignored}
+               (import-new-document (assoc sample :source "faulty"))))))))
 
 
 

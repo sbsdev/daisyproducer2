@@ -652,9 +652,12 @@
                         (try
                           (let [tempfile (:tempfile file)
                                 import (abacus/read-file tempfile)
-                                document-id (abacus/import-new-document import)]
-                            (let [url (str "/api/documents/" document-id)]
-                              (created url {:location url})))
+                                {:keys [document-id status]} (abacus/import-new-document import)]
+                            (case status
+                              :ignored (unprocessable-entity {:status :ignored :message "Document not for Daisyproducer"})
+                              :updated (ok {:updated document-id})
+                              :created (let [url (str "/api/documents/" document-id)]
+                                         (created url {:location url}))))
                           (catch clojure.lang.ExceptionInfo e
                             (let [{:keys [error-id errors document]} (ex-data e)
                                   message (ex-message e)
