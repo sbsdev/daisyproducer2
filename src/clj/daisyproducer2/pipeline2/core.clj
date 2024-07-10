@@ -157,7 +157,8 @@
        (catch Exception e#
          (throw (ex-info
                  (format "Failed to run Pipeline2 job because %s" (ex-message e#))
-                 {:error-id ::pipeline2-failure})))
+                 {:error-id ::pipeline2-failure}
+                 e#)))
        (finally
          (when ~job
            (job-delete (get-id ~job)))))))
