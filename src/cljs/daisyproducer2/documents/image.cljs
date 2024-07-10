@@ -228,7 +228,7 @@
 
 (defn- image-files []
   (let [get-value (fn [e] (-> e .-target .-files))
-        save!     #(rf/dispatch [::set-image-files (toArray %)])
+        save!     #(rf/dispatch-sync [::set-image-files (toArray %)])
         files     @(rf/subscribe [::image-files])
         names     @(rf/subscribe [::image-file-names])]
     [:p.control
