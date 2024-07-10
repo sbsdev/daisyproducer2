@@ -29,6 +29,13 @@
    (re-matches #"cn=daisyproducer.([a-z_.]+),cn=roles,cn=accounts,dc=sbszh,dc=ch")
    second))
 
+(defn- convert-legacy-role
+  "Convert legacy roles to the new roles"
+  [role]
+  (let [mapping {:edit_global_words :admin
+                 :edit_metadata :admin}]
+    (get mapping role)))
+
 (defn- add-groups [{memberships :memberOf :as user}]
   (let [groups (->> memberships
                    (map extract-group)
@@ -39,6 +46,7 @@
   (let [roles (->> memberships
                    (map extract-role)
                    (map keyword)
+                   (map convert-legacy-role)
                    (remove nil?)
                    set)]
     (assoc user :roles roles)))
