@@ -7,12 +7,12 @@
             [clojure.data.zip.xml :refer [xml1-> attr= attr text]])
   (:import org.xml.sax.SAXParseException))
 
-(defn get-metadata-path
+(defn- get-metadata-path
   "Return the path to the metadata for the given `field`"
   [field]
   [:head :meta (attr= :name field) (attr :content)])
 
-(defn get-element-path
+(defn- get-element-path
   "Return the path to the element for the given `field`"
   [field]
   [:book :frontmatter field text])
@@ -39,7 +39,7 @@
    :production-source [(get-metadata-path "prod:source")]
    })
 
-(defn get-path [loc path]
+(defn- get-path [loc path]
   (apply xml1-> loc path))
 
 (defn validate-paths
@@ -52,7 +52,7 @@
 (defn get-paths [loc paths]
   (map #(get-path loc %) paths))
 
-(defn error-message
+(defn- error-message
   "Return an error message for `key` that has the value `expected`
   instead of the values in `actuals`"
   [key expected actuals]
