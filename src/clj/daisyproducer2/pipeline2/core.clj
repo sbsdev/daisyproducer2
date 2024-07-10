@@ -86,7 +86,9 @@
         request (job-request script input options)
         auth (auth-query-params url)
         multipart (multipart-request (concat input data) request)
-        response (client/post url (merge multipart auth))]
+         ;; some jobs take a long time. Wait for 5 minutes
+        timeout {:socket-timeout (* 5 60 1000)}
+        response (client/post url (merge multipart auth timeout))]
     (when (client/success? response)
       (-> response :body xml/parse-str))))
 
