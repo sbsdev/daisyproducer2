@@ -482,8 +482,7 @@
                                   (spec/opt :limit) int?
                                   (spec/opt :offset) int?}}
              :handler (fn [{{{:keys [id]} :path
-                             {:keys [limit offset search]
-                              :or {limit default-limit offset 0}} :query} :parameters}]
+                             {:keys [limit offset search]} :query} :parameters}]
                         (ok (if (blank? search)
                               (images/get-images id limit offset)
                               (images/find-images id limit offset (db/search-to-sql search)))))}

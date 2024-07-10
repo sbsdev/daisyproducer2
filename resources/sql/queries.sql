@@ -213,7 +213,8 @@ SELECT * FROM documents_image
 WHERE document_id = :document-id
 AND LOWER(content) LIKE LOWER(:search)
 ORDER BY content
-LIMIT :limit OFFSET :offset
+--~ (when (:limit params) "LIMIT :limit")
+--~ (when (:offset params) "OFFSET :offset")
 
 -- :name get-image :? :1
 -- :doc retrieve an image for the given `id`
