@@ -42,15 +42,20 @@
 (defn- get-path [loc path]
   (apply xml1-> loc path))
 
-(defn validate-paths
+(defn- get-paths [loc paths]
+  (map #(get-path loc %) paths))
+
+(defn- path-valid?
+  [loc path value]
+  (let [xml-value (get-path loc path)
+        db-value value]
+    (= (str xml-value) (str db-value))))
+
+(defn- paths-valid?
   "Validate `paths` in `loc` against a given `value`. Return true if
   all paths contain the `value`"
-  [loc value paths]
-  (every? #(= (get-path loc %) (str value)) paths))
-;;  (every? #(or (= (get-path loc %) value) (and (nil? value) (string/blank? (get-path loc %)))) paths))
-
-(defn get-paths [loc paths]
-  (map #(get-path loc %) paths))
+  [loc paths value]
+  (every? #(path-valid? loc % value) paths))
 
 (defn- error-message
   "Return an error message for `key` that has the value `expected`
@@ -72,7 +77,7 @@
     (let [zipper (-> dtbook io/file xml/parse zip/xml-zip)]
       (for [[key paths] param-mapping
             :let [value (key production)]
-            :when (not (validate-paths zipper value paths))]
+            :when (not (paths-valid? zipper paths value))]
         (error-message key value (distinct (get-paths zipper paths)))))
     (catch SAXParseException e
       [(.getMessage e)])))
