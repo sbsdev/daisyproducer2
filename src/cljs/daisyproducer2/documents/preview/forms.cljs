@@ -35,6 +35,7 @@
      {:method :get
       :uri (str "/api/documents/" id "/preview/" (name format))
       :params values
+      :timeout 0 ;; some previews take a long time to complete
       :on-success [::success path format]
       :on-failure [::failure path format]})}))
 
