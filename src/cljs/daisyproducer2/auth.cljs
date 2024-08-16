@@ -31,7 +31,7 @@
             (assoc-in [:credentials :user] user)
             ;; since JSON converts sets into arrays we have to convert
             ;; it back to a set
-            (update-in [:credentials :user :roles] #(apply hash-set %)))
+            (update-in [:credentials :user :roles] (fn [roles] (->> roles (map keyword) (apply hash-set)))))
     :common/navigate-fx! [:documents]}))
 
 (rf/reg-event-db
