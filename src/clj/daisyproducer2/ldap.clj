@@ -30,11 +30,13 @@
    second))
 
 (defn- convert-legacy-role
-  "Convert legacy roles to the new roles"
+  "Convert legacy roles to the new roles. If the role is not found to be
+  one of the legacy roles, just return the role."
   [role]
-  (let [mapping {:edit_global_words :admin
-                 :edit_metadata :admin}]
-    (get mapping role)))
+  (case role
+    :edit_global_words :admin
+    :edit_metadata :admin
+    role))
 
 (defn- add-groups [{memberships :memberOf :as user}]
   (let [groups (->> memberships
