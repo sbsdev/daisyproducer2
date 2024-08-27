@@ -36,17 +36,23 @@
      [epub-name epub-path])))
 
 (defn sbsform
-  "Generate an SBSForm file for given `document-id` and return a tuple
+  "Generate an SBSForm file for given `document` and return a tuple
   containing the name and the path of the generated sbsform file. An
   exception is thrown if the document has no versions."
-  ([document-id opts]
-   (let [dtbook (-> (versions/get-latest document-id)
-                    (versions/get-content))
-         name (str document-id ".sbsform")
-         target-dir (fs/path (env :spool-dir))
-         path (str (fs/path target-dir name))]
-     (dtbook2sbsform/sbsform dtbook path opts)
-     [name path])))
+  [{document-id :id identifier :identifier} opts]
+  (let [dtbook (-> (versions/get-latest document-id)
+                   (versions/get-content))
+        name (str document-id ".sbsform")
+        target-dir (fs/path (env :spool-dir))
+        path (str (fs/path target-dir name))
+        ;; dtbook2sbsform also needs to know the identifier and
+        ;; whether the document has local words to generate the
+        ;; braille correctly
+        has-local-words? (boolean (seq (db/get-local-words {:id document-id :grade (:contraction opts)})))]
+    (dtbook2sbsform/sbsform dtbook path
+                            (merge opts {:document_identifier identifier
+                                         :use_local_dictionary has-local-words?}))
+    [name path]))
 
 (defn large-print
   "Generate an Large Print file for given `document-id` and return a

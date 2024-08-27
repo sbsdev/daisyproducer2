@@ -349,7 +349,7 @@
                              opts :query} :parameters}]
                         (if-let [doc (documents/get-document id)]
                           (try
-                            (let [[name _] (preview/sbsform id opts)]
+                            (let [[name _] (preview/sbsform doc opts)]
                               (let [url (str "/download/" name)]
                                 (created url {:location url})))
                             (catch clojure.lang.ExceptionInfo e
