@@ -305,7 +305,7 @@ AND homograph_disambiguation = :homograph-disambiguation
 -----------------
 
 -- :name get-local-words :? :*
--- :doc retrieve all local words for a given document `id` and `grade`. Optionally you can only get local words that match a `search` term. The words contain braille for both grades and the hyphenation if they exist. Optionally the results can be limited by `limit` and `offset`.
+-- :doc retrieve all local words for a given document `id` and `grade`. Accepted values of `grade` are as follows: 1 for uncontracted, 2 for contracted and 0 for both. Optionally you can only get local words that match a `search` term. The words contain braille for both grades and the hyphenation if they exist. Optionally the results can be limited by `limit` and `offset`.
 SELECT words.untranslated,
 --~ (when (#{0 1} (:grade params)) "words.uncontracted,")
 --~ (when (#{0 2} (:grade params)) "words.contracted,")
