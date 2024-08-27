@@ -143,7 +143,7 @@
   (log/infof "Ignoring %s (%s)" product-number title)
   {:status :ignored})
 
-(def ^:private relevant-metadata-keys #{:title :author :date :source :source-date
+(def ^:private relevant-metadata-keys #{:title :author :date :language :source :source-date
                                         :source-publisher :source-edition
                                         :production-series :production-series-number :production-source})
 
