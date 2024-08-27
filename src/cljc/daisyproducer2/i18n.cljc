@@ -312,8 +312,8 @@
                     :open-document "Open Document"
                     ;; Download Forms
                     :grade
-                    {:g0 "Vollschrift"
-                     :g1 "Basisschrift"
+                    {:g0 "Basisschrift"
+                     :g1 "Vollschrift"
                      :g2 "Kurzschrift"}
                     :accented-chars
                     {:basic "Alle nur mit Grundbuchstaben"
