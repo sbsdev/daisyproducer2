@@ -65,13 +65,14 @@ SET state_id = (CASE :state WHEN "open" THEN 7 WHEN "closed" THEN 8 END)
 WHERE id = :id
 
 -- :name update-document-meta-data :! :n
--- :doc update the meta data of a document with given `id`. Note: `publisher` and `language` cannot be updated.
+-- :doc update the meta data of a document with given `id`. Note: `publisher` cannot be updated.
 UPDATE documents_document
 SET title = :title,
     author = :author,
     date = :date,
     description = :description,
     rights = :rights,
+    language = :language,
     source = :source,
     subject = :subject,
     source_date = :source-date,
