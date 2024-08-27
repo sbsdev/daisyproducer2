@@ -41,6 +41,7 @@
                 <element name="language">
                   <choice>
                     <value>de</value>
+                    <value>de-1901</value>
                     <value>de-CH</value>
                     <value>it</value>
                     <value>rm-sursilv</value>
