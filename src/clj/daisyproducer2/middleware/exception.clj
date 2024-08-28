@@ -17,7 +17,7 @@
     exception/default-handlers
     {;; log stack-traces for all exceptions
      ::exception/wrap (fn [handler e request]
-                        (log/error e (.getMessage e))
+                        (log/error e (ex-message e))
                         (handler e request))
      ;; human-optimized validation messages
      ::coercion/request-coercion (coercion-error-handler 400)
