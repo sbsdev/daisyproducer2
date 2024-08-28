@@ -41,7 +41,7 @@
             ;; do the deletion using the old type, otherwise we will
             ;; not find it.
             type (:type word)
-            old-type (case type
+            old-type (case (int type)
                        1 2 ; if :type-name-hoffmann it was previously :type-name
                        3 4 ; if :type-place-langenthal it was previously :type-place
                        type)

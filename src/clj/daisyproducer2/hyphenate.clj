@@ -28,11 +28,11 @@
   :stop
   (when hyphenators
     (doseq [[_ hyphenator] hyphenators]
-      (.close hyphenator))))
+      (.close ^Hyphenator hyphenator))))
 
 (defn- hyphenate*
   "Hyphenate given `text` using a given `hyphenator`"
-  [text hyphenator]
+  [text ^Hyphenator hyphenator]
   (if (string/blank? text)
     ""
     (.hyphenate hyphenator text \- nil)))

@@ -29,7 +29,7 @@
   (let [tables-string (apply str (interpose \, tables))]
     (Translator. ^String tables-string)))
 
-(defn translate [word translator]
+(defn translate [word ^Translator translator]
   (let [length (count word)
         inter-character-attributes (int-array (repeat (- length 1) 0))]
     (try

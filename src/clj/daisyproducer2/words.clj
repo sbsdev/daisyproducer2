@@ -76,7 +76,7 @@
       (assoc :contracted (louis/translate untranslated (louis/translator (louis/get-tables 2 params)))))))
 
 (defn grades [grade]
-  (case grade ; convert grade into a list of grades
+  (case (int grade) ; convert grade into a list of grades
     (1 2) [grade] ; for grade 1 and 2 the list contains just that grade
     0 [1 2])) ; grade 0 really means both grades
 
@@ -104,7 +104,7 @@
       (rename-keys mapping)))
 
 (defn- value-to-boolean [v]
-  (case v
+  (case (int v)
     1 true
     0 false
     v))

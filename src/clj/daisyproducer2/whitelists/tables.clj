@@ -7,7 +7,8 @@
             [daisyproducer2.louis :as louis]
             [daisyproducer2.metrics :as metrics]
             [daisyproducer2.words :as words]
-            [iapetos.collector.fn :as prometheus]))
+            [iapetos.collector.fn :as prometheus])
+  (:import java.io.BufferedWriter))
 
 (def ascii-to-dots
   {\A "1"
@@ -184,7 +185,7 @@
         document-extension (if identifier (str "-" identifier) "")]
     (format "%s/sbs-de-%s-white%s.mod" tables-dir key document-extension)))
 
-(defn write-table [w grade translate words]
+(defn write-table [^BufferedWriter w grade translate words]
   (doseq [{:keys [untranslated uncontracted contracted homograph-disambiguation] :as word} words]
     (let [untranslated (if (words/is-homograph? word)
                          (string/replace homograph-disambiguation "|" words/braille-dummy-text)
