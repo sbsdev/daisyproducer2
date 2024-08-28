@@ -104,7 +104,7 @@
       (rename-keys mapping)))
 
 (defn- value-to-boolean [v]
-  (case (int v)
+  (case v
     1 true
     0 false
     v))
