@@ -1,8 +1,3 @@
--- (`product.document_id`, `product.identifier`) should be unique
-ALTER TABLE documents_product ADD CONSTRAINT UNIQUE product_document_id_identifier_unique (document_id, identifier);
-
---;;
-
 -- `product.identifier` should be unique
 ALTER TABLE documents_product ADD CONSTRAINT UNIQUE product_identifier_unique (identifier);
 
