@@ -1,0 +1,67 @@
+# -*- mode: restclient; -*-
+
+####################################################
+# Exploring the Alfresco Content Services REST API #
+####################################################
+
+##################
+# Authentication #
+##################
+
+:auth = Basic <>
+
+#############
+# Discovery #
+#############
+
+GET https://pam04.sbszh.ch/alfresco/api/discovery
+Authorization: :auth
+
+#####################
+# Already archived? #
+#####################
+
+:product-number = PS12345
+
+POST https://pam04.sbszh.ch/alfresco/api/-default-/public/search/versions/1/search
+Authorization: :auth
+
+{
+  "query": {
+    "query": "select * from sbs:produkt where sbs:pProduktNo = ':product-number' AND CONTAINS('PATH:\"/app:company_home/cm:Produktion/cm:Archiv//*\"')",
+    "language": "cmis"
+  }
+}
+
+########################
+# Get document content #
+########################
+
+# let's see if the product exists at all
+:product-number = PS12345
+
+POST https://pam04.sbszh.ch/alfresco/api/-default-/public/search/versions/1/search
+Authorization: :auth
+
+{
+  "query": {
+    "query": "select * from sbs:produkt where sbs:pProduktNo = ':product-number'",
+    "language": "cmis"
+  }
+}
+
+# get the parent of the product
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/e5f3e9a7-6906-42fc-bce9-c4c40e902249/parents
+Authorization: :auth
+
+# get the children with nodeType = sbs:daisyFile
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/51ced7b9-0b65-476b-a616-15039df5d708/children?where=(nodeType%3D'sbs%3AdaisyFile')
+Authorization: :auth
+
+# get the latest versions of daisyFile node. Since the versions are ordered in descending modified order the first one is always the latest version.
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/59dac01c-f146-407f-99d9-ea5c14da1ebb/versions?include=properties&maxItems=1
+Authorization: :auth
+
+# get the contect of the version
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/59dac01c-f146-407f-99d9-ea5c14da1ebb/versions/2.1/content
+Authorization: :auth
