@@ -1,9 +1,9 @@
 (ns daisyproducer2.documents.abacus
   "Import files from ABACUS
 
-  The interface to our ERP is crude: you basically read files from an
-  directory. The import from ABACUS is done via XML. The interface
-  imports the following notifications:
+  The interface to our ERP is crude: you basically read an XML file
+  containing the relevant information. The interface imports the
+  following notifications:
 
   - Import a document."
   (:require [clojure.data.zip.xml :refer [text xml1->]]
