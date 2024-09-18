@@ -65,3 +65,71 @@ Authorization: :auth
 # get the contect of the version
 GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/59dac01c-f146-407f-99d9-ea5c14da1ebb/versions/2.1/content
 Authorization: :auth
+
+############################
+# Search via ISBN directly #
+############################
+
+POST https://pam04.sbszh.ch/alfresco/api/-default-/public/search/versions/1/search
+Authorization: :auth
+
+{
+  "query": {
+    "query": "select * from sbs:buch where sbs:pISBN = '978-3-522-20096-7'",
+    "language": "cmis"
+  }
+}
+
+# get the children with nodeType = sbs:daisyFile
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/6218d262-731c-48eb-a6d5-2ae7b28c1c3f/children?where=(nodeType%3D'sbs%3AdaisyFile')
+Authorization: :auth
+
+# get the latest versions of daisyFile node. Since the versions are ordered in descending modified order the first one is always the latest version.
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/77b4de9a-0871-4c15-baf7-f48daddcfbb1/versions?include=properties&maxItems=1
+Authorization: :auth
+
+# get the contect of the version
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/77b4de9a-0871-4c15-baf7-f48daddcfbb1/versions/1.1/content
+Authorization: :auth
+
+# get all children
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/6218d262-731c-48eb-a6d5-2ae7b28c1c3f/children?where=(isFolder=true)&fields=name,id,nodeType
+Authorization: :auth
+
+#############################
+# Betty Bossy (with images) #
+#############################
+
+POST https://pam04.sbszh.ch/alfresco/api/-default-/public/search/versions/1/search
+Authorization: :auth
+
+{
+  "query": {
+    "query": "select * from sbs:buch where sbs:pISBN = ' 978-3-03815-104-3'",
+    "language": "cmis"
+  }
+}
+
+# get the children with nodeType = sbs:daisyFile
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/04517227-05ce-4051-a384-08a89a7527c0/children?where=(nodeType%3D'sbs%3AdaisyFile')
+Authorization: :auth
+
+# get the latest versions of daisyFile node. Since the versions are ordered in descending modified order the first one is always the latest version.
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/4b6f72d2-d184-41ba-8d01-6093eaa93ce2/versions?include=properties&maxItems=1
+Authorization: :auth
+
+# get the contect of the version
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/4b6f72d2-d184-41ba-8d01-6093eaa93ce2/versions/2.1/content
+Authorization: :auth
+
+# get all children of the book
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/04517227-05ce-4051-a384-08a89a7527c0/children?where=(nodeType='cm:folder')&fields=name,id,nodeType
+Authorization: :auth
+
+# get the image folder
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/04517227-05ce-4051-a384-08a89a7527c0/children?where=(name=Bilder)&fields=name,id,nodeType
+Authorization: :auth
+
+# get all children of the image folder
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/e02bd3cb-4be0-4d83-9787-cedbcdc86e39/children?fields=name,id,nodeType,content
+Authorization: :auth
