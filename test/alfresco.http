@@ -105,7 +105,7 @@ Authorization: :auth
 
 {
   "query": {
-    "query": "select * from sbs:buch where sbs:pISBN = ' 978-3-03815-104-3'",
+    "query": "select * from sbs:buch where sbs:pISBN = '978-3-03815-104-3'",
     "language": "cmis"
   }
 }
@@ -126,10 +126,23 @@ Authorization: :auth
 GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/04517227-05ce-4051-a384-08a89a7527c0/children?where=(nodeType='cm:folder')&fields=name,id,nodeType
 Authorization: :auth
 
-# get the image folder
-GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/04517227-05ce-4051-a384-08a89a7527c0/children?where=(name=Bilder)&fields=name,id,nodeType
+# get the image folder using the relativePath parameter
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/04517227-05ce-4051-a384-08a89a7527c0?relativePath=Bilder&fields=name,id,nodeType
 Authorization: :auth
 
-# get all children of the image folder
-GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/e02bd3cb-4be0-4d83-9787-cedbcdc86e39/children?fields=name,id,nodeType,content
+# get all image children of the image folder using the relativePath parameter
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/04517227-05ce-4051-a384-08a89a7527c0/children?relativePath=Bilder&where=(nodeType='sbs:graphic')&fields=name,id,nodeType
 Authorization: :auth
+
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/e02bd3cb-4be0-4d83-9787-cedbcdc86e39/children?where=(nodeType='sbs:graphic')&fields=name,id,nodeType,content
+Authorization: :auth
+
+# get the status of the download
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/downloads/6cf521f7-0632-4022-a5da-ebfa58554a87
+Authorization: :auth
+
+# get the content of the download
+GET https://pam04.sbszh.ch/alfresco/api/-default-/public/alfresco/versions/1/nodes/6cf521f7-0632-4022-a5da-ebfa58554a87/content
+Authorization: :auth
+
+# see https://docs.alfresco.com/content-services/6.1/develop/rest-api-guide/folders-files/#downloadfile

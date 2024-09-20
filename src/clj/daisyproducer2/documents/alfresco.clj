@@ -85,6 +85,37 @@
     (:body (client/get (str url "/alfresco/versions/1/nodes/" node-id "/versions/" version-id "/content")
                       {:basic-auth [user password]}))))
 
+(defn- images
+  "Return a list of image node-ids for a given book `node-id`"
+  [node-id]
+  (let [{:keys [url user password]} (env :alfresco)]
+    (-> (str url "/alfresco/versions/1/nodes/" node-id "/children")
+        (client/get
+         {:as :json
+          :basic-auth [user password]
+          :query-params {"relativePath" "Bilder"
+                         "where" "(nodeType='sbs:graphic')"
+                         ;; ignore the fact that this is paginated content. Just fetch
+                         ;; lots of items so that we most likely get them all
+                         "maxItems" 5000
+                         "fields" "id,content"}})
+        (get-in [:body :list :entries])
+        (->>
+         (filter (fn [item] (= (get-in item [:entry :content :mimeType]) "image/jpeg")))
+         (map #(get-in % [:entry :id]))))))
+
+(defn- image-content [ids]
+  (let [{:keys [url user password]} (env :alfresco)]
+    (client/post (str url "/alfresco/versions/1/downloads/")
+                 {:as :json
+                  :basic-auth [user password]
+                  :body (json/generate-string {:nodeIds (apply vector ids)})})
+    ;; grab the id of the download from the response
+    ;; wait until the download is ready, i.e. the response contains :status "DONE"
+    ;; then fetch the content
+    ;; all of this probably asynchronously
+    ))
+
 (defn content-for-product [product-id]
   (let [daisy-file-node (-> product-id product parent daisy-file)
         version (latest-version daisy-file-node)]
