@@ -291,7 +291,7 @@
                               ;; product-id
                               (if-let [spool-dir (get-in env [:ebook-spool-dir (:language doc)])]
                                 (when-not (= name "unknown.epub")
-                                  (fs/copy path spool-dir)))
+                                  (fs/copy path spool-dir {:replace-existing true})))
                               (let [url (str "/download/" name)]
                                 (created url {:location url})))
                             (catch clojure.lang.ExceptionInfo e
