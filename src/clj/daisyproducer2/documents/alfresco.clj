@@ -107,7 +107,7 @@
 
 (defn content-for-isbn [isbn]
   (let [daisy-file-node (-> isbn book daisy-file)]
-    (content daisy-file-node)))
+    (content-stream daisy-file-node)))
 
 (defn images-for-isbn [isbn]
   (let [book-node (book isbn)]
