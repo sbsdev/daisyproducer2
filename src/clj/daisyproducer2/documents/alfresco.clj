@@ -23,7 +23,8 @@
     [id count]))
 
 (defn- book
-  "Return the id of the book node for a given `isbn`"
+  "Return the id of the book node for a given `isbn`. If no book is
+  found for the given `isbn` return `nil`"
   [isbn]
   (let [{:keys [url user password]} (env :alfresco)
         query (format "select * from sbs:buch where sbs:pISBN = '%s' AND CONTAINS('PATH:\"/app:company_home/cm:Produktion/cm:Archiv//*\"')" isbn)
@@ -50,11 +51,14 @@
                                   {:as :json
                                    :basic-auth [user password]
                                    :query-params {"where" "(nodeType='sbs:daisyFile')"}}))]
-      (if (= count 1)
-        id
-        (throw
-         (ex-info (format "more than one daisy-file in archive for node '%s'" node-id)
-                  {:error-id :multiple-parents-in-archive}))))))
+      (cond
+        (zero? count) (throw
+                       (ex-info (format "no daisy-file found for node '%s'" node-id)
+                                {:error-id :no-daisy-file-for-book}))
+        (= count 1) id
+        :else (throw
+               (ex-info (format "multiple daisy-files found for node '%s'" node-id)
+                        {:error-id :multiple-daisy-files-for-book}))))))
 
 (defn- content
   "Return the content for a given `node-id`"
