@@ -856,3 +856,14 @@ Content-Type: application/xml
 </AbaConnectContainer>
 --e82bc39c68f1417d9ea12c5456182f3c--
 
+
+################
+# Alfresco API #
+################
+
+# Find out if a document is even archived
+GET http://localhost:3000/api/alfresco/329
+
+# Initiate a synchronization process
+POST http://localhost:3000/api/alfresco/329
+Authorization: :auth-token
