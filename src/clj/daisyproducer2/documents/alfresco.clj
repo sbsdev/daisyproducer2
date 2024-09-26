@@ -33,42 +33,12 @@
                                    {:as :json
                                     :basic-auth [user password]
                                     :body query-body}))]
-      (if (= count 1)
-        id
-        (throw
-         (ex-info (format "%s books in archive for ISBN '%s'" count isbn)
-                  {:error-id :multiple-books-in-archive}))))))
-
-(defn- product
-  "Return the id of the product node for a given `product-id`"
-  [product-id]
-  (let [{:keys [url user password]} (env :alfresco)
-        query (format "select * from sbs:produkt where sbs:pProduktNo = '%s' AND CONTAINS('PATH:\"/app:company_home/cm:Produktion/cm:Archiv//*\"')" product-id)
-        query-body (json/generate-string {:query {:query query :language "cmis"}})]
-    (let [[id count] (extract-paginated-result
-                      (client/post (str url "/search/versions/1/search")
-                                   {:as :json
-                                    :basic-auth [user password]
-                                    :body query-body}))]
-      (if (= count 1)
-        id
-        (throw
-         (ex-info (format "more than one product in archive for product '%s'" product-id)
-                  {:error-id :multiple-products-in-archive}))))))
-
-(defn- parent
-  "Return the id of the parent node for a given `node-id`"
-  [node-id]
-  (let [{:keys [url user password]} (env :alfresco)]
-    (let [[id count] (extract-paginated-result
-                      (client/get (str url "/alfresco/versions/1/nodes/" node-id "/parents")
-                                  {:as :json
-                                   :basic-auth [user password]}))]
-      (if (= count 1)
-        id
-        (throw
-         (ex-info (format "more than one parent in archive for node '%s'" node-id)
-                  {:error-id :multiple-parents-in-archive}))))))
+      (cond
+        (zero? count) nil
+        (= count 1) id
+        :else (throw
+               (ex-info (format "%s books in archive for ISBN '%s'" count isbn)
+                        {:error-id :multiple-books-in-archive}))))))
 
 (defn- daisy-file
   "Return the id of the daisyFile node for a given `node-id`. Typically
@@ -126,9 +96,6 @@
           [])
       (catch Object _ (throw+)))))
 
-(defn content-for-product [product-id]
-  (let [daisy-file-node (-> product-id product parent daisy-file)]
-    (content daisy-file-node)))
 
 (defn content-for-isbn [isbn]
   (let [daisy-file-node (-> isbn book daisy-file)]
