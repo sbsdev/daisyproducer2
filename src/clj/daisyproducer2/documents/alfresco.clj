@@ -8,11 +8,11 @@
   This namespace provides functionality to fetch content from the
   archive using the [Alfresco ReST
   API](https://docs.alfresco.com/content-services/latest/develop/rest-api-guide/)."
-
-  (:require [clj-http.client :as client]
+  (:require [cheshire.core :as json]
+            [clj-http.client :as client]
+            [clojure.string :refer [blank?]]
             [daisyproducer2.config :refer [env]]
-            [cheshire.core :as json])
-  (:use [slingshot.slingshot :only [try+ throw+]]))
+            [slingshot.slingshot :refer :all]))
 
 (defn- extract-paginated-result
   "Extract `count` and `id` from a paginated result as returned from the Alfresco REST API"
@@ -100,6 +100,10 @@
           [])
       (catch Object _ (throw+)))))
 
+(defn archived? [isbn]
+  (boolean
+   (when-not (blank? isbn)
+     (book isbn))))
 
 (defn content-for-isbn [isbn]
   (let [daisy-file-node (-> isbn book daisy-file)]
