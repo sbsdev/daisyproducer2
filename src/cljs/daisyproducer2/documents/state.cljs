@@ -63,7 +63,7 @@
         [:button.button.is-success
          {:on-click (fn [e] (rf/dispatch [::update-state document "closed"]))}
          [:span.icon {:aria-hidden true}
-          [:i.mi.mi-close]]
+          [:i.mi.mi-check]]
          [:span (tr [:close])]]
         [:button.button.is-success.is-light
          {:on-click (fn [e] (rf/dispatch [::update-state document "open"]))}
