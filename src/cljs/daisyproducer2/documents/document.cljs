@@ -20,6 +20,11 @@
  (fn [db _]
    (-> db :current-document)))
 
+(rf/reg-sub
+ ::current-is-german
+ :<- [::current]
+ (fn [current] (#{"de" "de-1901"} (-> current :language))))
+
 (rf/reg-event-db
   ::set-current
   (fn [db [_ document]]
@@ -59,18 +64,21 @@
     [:li [:a {:href uri :on-click on-click} title]]))
 
 (defn tabs [{:keys [id]}]
-  [:div.block
-   [:div.tabs.is-boxed
-    [:ul
-     [tab-link (str "#/documents/" id) (tr [:details]) :document]
-     [tab-link-with-total (str "#/documents/" id "/unknown") (tr [:unknown-words]) :document-unknown
-      (fn [_] (rf/dispatch [::unknown/fetch-words id]) (rf/dispatch [::unknown/fetch-words-total id]))]
-     [tab-link (str "#/documents/" id "/local") (tr [:local-words]) :document-local (fn [_] (rf/dispatch [::local/fetch-words id]))]
-     [tab-link (str "#/documents/" id "/versions") (tr [:versions]) :document-versions (fn [_] (rf/dispatch [::version/fetch-versions id]))]
-     [tab-link (str "#/documents/" id "/images") (tr [:images]) :document-images (fn [_] (rf/dispatch [::image/fetch-images id]))]
-     [tab-link (str "#/documents/" id "/markup") (tr [:markup]) :document-markup (fn [_] (rf/dispatch [::markup/fetch-latest-version id]))]
-     [tab-link (str "#/documents/" id "/preview") (tr [:preview]) :document-preview]
-     ]]])
+  (let [german? @(rf/subscribe [::current-is-german])]
+    [:div.block
+     [:div.tabs.is-boxed
+      [:ul
+       [tab-link (str "#/documents/" id) (tr [:details]) :document]
+       ;; only show the unknown and local words for German books
+       (when german?
+         [tab-link-with-total (str "#/documents/" id "/unknown") (tr [:unknown-words]) :document-unknown
+          (fn [_] (rf/dispatch [::unknown/fetch-words id]) (rf/dispatch [::unknown/fetch-words-total id]))]
+         [tab-link (str "#/documents/" id "/local") (tr [:local-words]) :document-local (fn [_] (rf/dispatch [::local/fetch-words id]))])
+       [tab-link (str "#/documents/" id "/versions") (tr [:versions]) :document-versions (fn [_] (rf/dispatch [::version/fetch-versions id]))]
+       [tab-link (str "#/documents/" id "/images") (tr [:images]) :document-images (fn [_] (rf/dispatch [::image/fetch-images id]))]
+       [tab-link (str "#/documents/" id "/markup") (tr [:markup]) :document-markup (fn [_] (rf/dispatch [::markup/fetch-latest-version id]))]
+       [tab-link (str "#/documents/" id "/preview") (tr [:preview]) :document-preview]
+       ]]]))
 
 (defn summary [{:keys [title author source-publisher state] :as document}]
   [:div.columns
