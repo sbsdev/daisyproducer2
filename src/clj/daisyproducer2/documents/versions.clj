@@ -80,7 +80,7 @@
         document (db/get-document {:id document-id})]
     ;; validate tempfile
     (let [validation-errors (validate-version tempfile document)]
-      (log/debugf "Vaidating %s" tempfile)
+      (log/debugf "Validating %s" tempfile)
       (when (seq validation-errors)
         (throw (ex-info "Failed to validate XML"
                         {:error-id :invalid-dtbook :errors validation-errors}))))
