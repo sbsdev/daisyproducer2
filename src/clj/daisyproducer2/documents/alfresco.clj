@@ -87,7 +87,6 @@
            {:as :json
             :basic-auth [user password]
             :query-params {"relativePath" "Bilder"
-                           "where" "(nodeType='sbs:graphic')"
                            ;; ignore the fact that this is paginated content. Just fetch
                            ;; lots of items so that we most likely get them all
                            "maxItems" 5000
