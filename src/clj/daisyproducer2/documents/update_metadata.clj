@@ -2,7 +2,8 @@
   (:require
    [clojure.java.io :as io]
    [clojure.set :as set])
-  (:import ch.sbs.MetaDataTransformer))
+  (:import ch.sbs.MetaDataTransformer
+           javax.xml.stream.XMLStreamException))
 
 (def mapping
   {:author "dc:Creator"
@@ -39,4 +40,9 @@
   (let [in (io/input-stream old)
         out (io/output-stream new)
         meta-data (-> meta-data rename-keys stringify-values)]
-    (MetaDataTransformer/transform in out meta-data)))
+    (try
+      (MetaDataTransformer/transform in out meta-data)
+      (catch XMLStreamException e
+        (throw (ex-info "Failed to updte XML metadata"
+                        {:error-id :failed-metadata-update}
+                        e))))))
