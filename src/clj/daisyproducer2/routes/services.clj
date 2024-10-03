@@ -8,12 +8,11 @@
    [daisyproducer2.config :refer [env]]
    [daisyproducer2.db.core :as db]
    [daisyproducer2.documents.abacus :as abacus]
-   [daisyproducer2.documents.alfresco :as alfresco]
+   [daisyproducer2.documents.alfresco.core :as alfresco]
    [daisyproducer2.documents.documents :as documents]
    [daisyproducer2.documents.images :as images]
    [daisyproducer2.documents.preview :as preview]
    [daisyproducer2.documents.products :as products]
-   [daisyproducer2.documents.update-metadata :as update-metadata]
    [daisyproducer2.documents.versions :as versions]
    [daisyproducer2.hyphenate :as hyphenate]
    [daisyproducer2.hyphenations :as hyphenations]
@@ -680,12 +679,11 @@
      {:get {:summary "Check whether a production has been archived before"
             :parameters {:path {:id int?}}
             :handler (fn [{{{:keys [id]} :path} :parameters}]
-                        (if-let [doc (documents/get-document id)]
-                          (let [isbn (:source doc)]
-                            (if (alfresco/archived? isbn)
-                              (ok {})
-                              (not-found)))
-                          (not-found)))}
+                       (if-let [doc (documents/get-document id)]
+                         (if (alfresco/archived? doc)
+                           (ok {})
+                           (not-found))
+                         (not-found)))}
 
       ;; see https://stackoverflow.com/q/16877968 for a discussion on which HTTP verb to use for
       ;; this more rpc like end point
@@ -695,17 +693,21 @@
              :parameters {:path {:id int?}}
              :handler (fn [{{{:keys [id]} :path} :parameters
                             {{uid :uid} :user} :identity}]
-                        (if-let [doc (documents/get-document id)]
-                          (let [isbn (:source doc)]
-                            (if (alfresco/archived? isbn)
-                              (let [reader (alfresco/content-for-isbn isbn)
-                                    tempfile (fs/create-temp-file {:prefix "alfresco"})
-                                    comment "Updated version due synchronization with archive"]
-                                (update-metadata/update-meta-data reader tempfile doc)
-                                (versions/insert-version id tempfile comment uid)
-                                (doseq [{:keys [name content]} (alfresco/images-for-isbn)]
-                                  (images/insert-image id name content))
-                                (no-content))
-                              (not-found)))
-                          (not-found)))}}]]
+                        (try
+                          (if-let [doc (documents/get-document id)]
+                            (if (alfresco/archived? doc)
+                              (do (alfresco/synchronize doc uid)
+                                  (no-content))
+                              (not-found))
+                            (not-found))
+                          (catch clojure.lang.ExceptionInfo e
+                            (let [{:keys [error-id errors document]} (ex-data e)
+                                  message (ex-message e)]
+                              (log/error message error-id errors)
+                              (case error-id
+                                :invalid-dtbook (internal-server-error {:status-text "DTBook XML from archive not valid" :errors errors})
+                                (internal-server-error {:status-text message}))))
+                          (catch java.nio.file.FileSystemException e
+                            (log/error (str e))
+                            (internal-server-error {:status-text (str e)}))))}}]]
    ])
