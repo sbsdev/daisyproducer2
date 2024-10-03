@@ -1,4 +1,4 @@
-(ns daisyproducer2.documents.alfresco
+(ns daisyproducer2.documents.alfresco.client
   "Synchronize files with an Alfresco archive.
 
   Productions are created from XML files and images. During the

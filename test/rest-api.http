@@ -867,3 +867,15 @@ GET http://localhost:3000/api/alfresco/329
 # Initiate a synchronization process
 POST http://localhost:3000/api/alfresco/329
 Authorization: :auth-token
+
+# Synchronize a book with images (Betty Bossy cook book)
+POST http://localhost:3000/api/alfresco/768
+Authorization: :auth-token
+
+# Synchronize a book with images
+POST http://localhost:3000/api/alfresco/688
+Authorization: :auth-token
+
+# Synchronize a book with images
+POST http://localhost:3000/api/alfresco/768
+Authorization: :auth-token
