@@ -58,15 +58,16 @@
   [document]
   (let [admin? @(rf/subscribe [::auth/is-admin?])
         state @(rf/subscribe [::current-state])]
-    (when admin?
-      (if (= state "open")
-        [:button.button.is-success
-         {:on-click (fn [e] (rf/dispatch [::update-state document "closed"]))}
-         [:span.icon {:aria-hidden true}
-          [:i.mi.mi-verified]]
-         [:span (tr [:close])]]
-        [:button.button.is-success.is-light
-         {:on-click (fn [e] (rf/dispatch [::update-state document "open"]))}
-         [:span.icon {:aria-hidden true}
-          [:i.mi.mi-refresh]]
-         [:span (tr [:reopen])]]))))
+    (if (= state "open")
+      [:button.button.is-success
+       {:on-click (fn [e] (rf/dispatch [::update-state document "closed"]))
+        :disabled (not admin?)}
+       [:span.icon {:aria-hidden true}
+        [:i.mi.mi-verified]]
+       [:span (tr [:close])]]
+      [:button.button.is-success.is-light
+       {:on-click (fn [e] (rf/dispatch [::update-state document "open"]))
+        :disabled (not admin?)}
+       [:span.icon {:aria-hidden true}
+        [:i.mi.mi-refresh]]
+       [:span (tr [:reopen])]])))
