@@ -19,7 +19,7 @@
     (let [search (get-search db)
           spelling (get-spelling db)
           offset (pagination/offset db :hyphenation)]
-      {:db (assoc-in db [:loading :hyphenation] true)
+      {:db (notifications/set-loading db :hyphenation)
        :http-xhrio {:method          :get
                     :uri             "/api/hyphenations"
                     :params          {:spelling spelling
@@ -28,7 +28,7 @@
                                       :limit pagination/page-size}
                     :response-format (ajax/json-response-format {:keywords? true})
                     :on-success      [::fetch-hyphenations-success]
-                    :on-failure      [::fetch-hyphenations-failure :fetch-hyphenations]}})))
+                    :on-failure      [::fetch-hyphenations-failure]}})))
 
 (rf/reg-event-db
  ::fetch-hyphenations-success
@@ -43,10 +43,10 @@
 
 (rf/reg-event-db
  ::fetch-hyphenations-failure
- (fn [db [_ request-type response]]
+ (fn [db [_ response]]
    (-> db
-       (assoc-in [:errors request-type] (get response :status-text))
-       (assoc-in [:loading :hyphenation] false))))
+       (notifications/set-errors :fetch-hyphenations (get response :status-text))
+       (notifications/clear-loading :hyphenation))))
 
 (rf/reg-event-fx
   ::fetch-suggested-hyphenation
@@ -59,7 +59,7 @@
                                       :word word}
                     :response-format (ajax/json-response-format {:keywords? true})
                     :on-success      [::fetch-suggested-hyphenation-success]
-                    :on-failure      [::fetch-suggested-hyphenation-failure :fetch-suggested-hyphenation]}})))
+                    :on-failure      [::fetch-suggested-hyphenation-failure]}})))
 
 (rf/reg-event-db
  ::fetch-suggested-hyphenation-success
@@ -70,8 +70,8 @@
 
 (rf/reg-event-db
  ::fetch-suggested-hyphenation-failure
- (fn [db [_ request-type response]]
-   (assoc-in db [:errors request-type] (get response :status-text))))
+ (fn [db [_ response]]
+   (notifications/set-errors db :fetch-suggested-hyphenation (get response :status-text))))
 
 (rf/reg-event-fx
   ::save-hyphenation
@@ -130,8 +130,8 @@
  ::ack-failure
  (fn [db [_ id request-type response]]
    (-> db
-       (assoc-in [:errors request-type] (or (get-in response [:response :status-text])
-                                            (get response :status-text)))
+       (notifications/set-errors request-type (or (get-in response [:response :status-text])
+                                                  (get response :status-text)))
        (notifications/clear-button-state id request-type))))
 
 (rf/reg-sub ::spelling (fn [db _] (get-spelling db)))

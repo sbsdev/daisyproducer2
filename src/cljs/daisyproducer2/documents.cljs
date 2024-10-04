@@ -4,32 +4,33 @@
     [re-frame.core :as rf]
     [daisyproducer2.documents.document :as document]
     [daisyproducer2.documents.state :as state]
+    [daisyproducer2.words.notifications :as notifications]
     [daisyproducer2.i18n :refer [tr]]))
 
 (rf/reg-event-fx
   ::fetch-documents
   (fn [{:keys [db]} [_ search]]
-    {:db (assoc-in db [:loading :documents] true)
+    {:db (notifications/set-loading db :documents)
      :http-xhrio {:method          :get
                   :uri             "/api/documents"
                   :response-format (ajax/json-response-format {:keywords? true})
                   :params          {:search (if (nil? search) "" search)}
                   :on-success      [::fetch-documents-success]
-                  :on-failure      [::fetch-documents-failure :fetch-documents]}}))
+                  :on-failure      [::fetch-documents-failure]}}))
 
 (rf/reg-event-db
  ::fetch-documents-success
  (fn [db [_ documents]]
    (-> db
-       (assoc-in [:loading :documents] false)
+       (notifications/clear-loading :documents)
        (assoc-in [:documents] documents))))
 
 (rf/reg-event-db
  ::fetch-documents-failure
- (fn [db [_ request-type response]]
+ (fn [db [_ response]]
    (-> db
-       (assoc-in [:errors request-type] (get response :status-text))
-       (assoc-in [:loading :documents] false))))
+       (notifications/set-errors :fetch-documents (get response :status-text))
+       (notifications/clear-loading :documents))))
 
 (rf/reg-event-fx
   ::init-documents

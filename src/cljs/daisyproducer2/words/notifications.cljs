@@ -27,6 +27,12 @@
  :<- [::errors]
  (fn [errors] (seq errors)))
 
+(defn set-loading [db id]
+  (assoc-in db [:loading id] true))
+
+(defn clear-loading [db id]
+  (assoc-in db [:loading id] false))
+
 (defn set-button-state [db id which]
   (assoc-in db [:loading :buttons id which] true))
 

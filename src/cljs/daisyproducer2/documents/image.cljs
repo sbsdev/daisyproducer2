@@ -207,8 +207,8 @@
  ::ack-failure-image
  (fn [db [_ document name response]]
    (-> db
-       (assoc-in [:errors :save] (or (get-in response [:response :status-text])
-                                     (get response :status-text)))
+       (notifications/set-errors :save (or (get-in response [:response :status-text])
+                                           (get response :status-text)))
        ;; FIXME: are we not doing a dispatch to the images list view when an
        ;; error happens?
        (progress/update-progress :upload))))

@@ -17,7 +17,7 @@
   (fn [{:keys [db]} [_ id]]
     (let [grade (grade/get-grade db)
           offset (pagination/offset db :unknown)]
-      {:db (assoc-in db [:loading :unknown] true)
+      {:db (notifications/set-loading db :unknown)
        :http-xhrio {:method          :get
                     :uri             (str "/api/documents/" id "/unknown-words")
                     :params          {:grade grade
@@ -25,7 +25,7 @@
                                       :limit pagination/page-size}
                     :response-format (ajax/json-response-format {:keywords? true})
                     :on-success      [::fetch-words-success]
-                    :on-failure      [::fetch-words-failure :fetch-words]}})))
+                    :on-failure      [::fetch-words-failure]}})))
 
 (rf/reg-event-db
  ::fetch-words-success
@@ -36,16 +36,16 @@
      (-> db
          (assoc-in [:words :unknown] (zipmap (map :uuid words) words))
          (pagination/update-next :unknown next?)
-         (assoc-in [:loading :unknown] false)
+         (notifications/clear-loading :unknown)
          ;; clear all button loading states
          (update-in [:loading] dissoc :buttons)))))
 
 (rf/reg-event-db
  ::fetch-words-failure
- (fn [db [_ request-type response]]
+ (fn [db [_ response]]
    (-> db
-       (assoc-in [:errors request-type] (get response :status-text))
-       (assoc-in [:loading :unknown] false))))
+       (notifications/set-errors :fetch-words (get response :status-text))
+       (notifications/clear-loading :unknown))))
 
 (rf/reg-event-fx
   ::save-word
@@ -87,8 +87,8 @@
  ::ack-failure
  (fn [db [_ id request-type response]]
    (-> db
-       (assoc-in [:errors request-type] (or (get-in response [:response :status-text])
-                                            (get response :status-text)))
+       (notifications/set-errors request-type (or (get-in response [:response :status-text])
+                                                  (get response :status-text)))
        (notifications/clear-button-state id request-type))))
 
 (rf/reg-event-fx
@@ -180,7 +180,7 @@
 (rf/reg-event-db
  ::fetch-words-total-failure
  (fn [db [_ request-type response]]
-   (assoc-in db [:errors request-type] (get response :status-text))))
+   (notifications/set-errors db request-type (get response :status-text))))
 
 (rf/reg-event-db
  ::decrement-words-total

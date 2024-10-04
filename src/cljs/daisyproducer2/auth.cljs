@@ -37,7 +37,7 @@
 (rf/reg-event-db
  ::login-failure
  (fn [db [_ request-type response]]
-   (assoc-in db [:errors request-type] (get-in response [:response :message]))))
+   (notifications/set-errors db request-type (get-in response [:response :message]))))
 
 (rf/reg-sub
  ::authenticated?

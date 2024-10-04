@@ -29,7 +29,7 @@
                                        (not (string/blank? search)) (assoc :search search))
                     :response-format (ajax/json-response-format {:keywords? true})
                     :on-success      [::fetch-words-success]
-                    :on-failure      [::fetch-words-failure :fetch-words]}})))
+                    :on-failure      [::fetch-words-failure]}})))
 
 (rf/reg-event-db
  ::fetch-words-success
@@ -46,10 +46,10 @@
 
 (rf/reg-event-db
  ::fetch-words-failure
- (fn [db [_ request-type response]]
+ (fn [db [_ response]]
    (-> db
-       (assoc-in [:errors request-type] (get response :status-text))
-       (assoc-in [:loading :local] false))))
+       (notifications/set-errors :fetch-words (get response :status-text))
+       (notifications/clear-loading :local))))
 
 (rf/reg-event-fx
   ::save-word
@@ -117,8 +117,8 @@
  ::ack-failure
  (fn [db [_ id request-type response]]
    (-> db
-       (assoc-in [:errors request-type] (or (get-in response [:response :status-text])
-                                            (get response :status-text)))
+       (notifications/set-errors request-type (or (get-in response [:response :status-text])
+                                                  (get response :status-text)))
        (notifications/clear-button-state id request-type))))
 
 (rf/reg-sub ::search (fn [db [_ document-id]] (get-search db document-id) ))

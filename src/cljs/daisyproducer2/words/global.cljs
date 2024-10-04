@@ -17,7 +17,7 @@
   (fn [{:keys [db]} [_]]
     (let [search (get-search db)
           offset (pagination/offset db :global)]
-      {:db (assoc-in db [:loading :global] true)
+      {:db (notifications/set-loading db :global)
        :http-xhrio {:method          :get
                     :uri             "/api/words"
                     :params          (if (string/blank? search)
@@ -25,7 +25,7 @@
                                        {:offset offset :limit pagination/page-size :search search})
                     :response-format (ajax/json-response-format {:keywords? true})
                     :on-success      [::fetch-words-success]
-                    :on-failure      [::fetch-words-failure :fetch-global-words]}})))
+                    :on-failure      [::fetch-words-failure]}})))
 
 (rf/reg-event-db
  ::fetch-words-success
@@ -36,16 +36,16 @@
      (-> db
          (assoc-in [:words :global] (zipmap (map :uuid words) words))
          (pagination/update-next :global next?)
-         (assoc-in [:loading :global] false)
+         (notifications/clear-loading :global)
          ;; clear all button loading states
          (update-in [:loading] dissoc :buttons)))))
 
 (rf/reg-event-db
  ::fetch-words-failure
- (fn [db [_ request-type response]]
+ (fn [db [_ response]]
    (-> db
-       (assoc-in [:errors request-type] (get response :status-text))
-       (assoc-in [:loading :global] false))))
+       (notifications/set-errors :fetch-global-words (get response :status-text))
+       (notifications/clear-loading :global))))
 
 (rf/reg-event-fx
   ::save-word
@@ -109,8 +109,8 @@
  ::ack-failure
  (fn [db [_ id request-type response]]
    (-> db
-       (assoc-in [:errors request-type] (or (get-in response [:response :status-text])
-                                            (get response :status-text)))
+       (notifications/set-errors request-type (or (get-in response [:response :status-text])
+                                                  (get response :status-text)))
        (notifications/clear-button-state id request-type))))
 
 (rf/reg-sub
