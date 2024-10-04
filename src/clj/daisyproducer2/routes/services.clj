@@ -698,7 +698,7 @@
                             (if (alfresco/archived? doc)
                               (do (alfresco/synchronize doc uid)
                                   (no-content))
-                              (not-found))
+                              (not-found {:errors ["No archived version of document was found"]}))
                             (not-found))
                           (catch clojure.lang.ExceptionInfo e
                             (let [{:keys [error-id errors document]} (ex-data e)
