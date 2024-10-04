@@ -57,6 +57,7 @@
                     :closed "Finished"
                     :close "Close"
                     :reopen "Reopen"
+                    :synchronize "Synchronize with archive"
                     ;;
                     :title "Title"
                     :author "Author"
@@ -254,6 +255,7 @@
                     :closed "Fertig"
                     :close "Abschliessen"
                     :reopen "Wiedereröffnen"
+                    :synchronize "Letzte Version vom Archive holen"
                     ;;
                     :title "Titel"
                     :author "Autor"

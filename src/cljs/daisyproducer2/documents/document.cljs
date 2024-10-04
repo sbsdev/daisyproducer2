@@ -2,6 +2,7 @@
   (:require [ajax.core :as ajax]
             [clojure.string :as string]
             [daisyproducer2.documents.state :as state]
+            [daisyproducer2.documents.details :as details]
             [daisyproducer2.documents.image :as image]
             [daisyproducer2.documents.product :as product]
             [daisyproducer2.documents.version :as version]
@@ -13,6 +14,7 @@
             [daisyproducer2.words.grade :as grade]
             [daisyproducer2.words.local :as local]
             [daisyproducer2.words.unknown :as unknown]
+            [daisyproducer2.words.notifications :as notifications]
             [re-frame.core :as rf]))
 
 (rf/reg-sub
@@ -82,17 +84,13 @@
        ]]]))
 
 (defn summary [{:keys [title author source-publisher state] :as document}]
-  [:div.columns
-   [:div.column
-    [:div.block
+  [:div.block
      [:table.table.is-striped.is-fullwidth
       [:tbody
        [:tr [:th {:width 200} (tr [:title])] [:td title]]
        [:tr [:th (tr [:author])] [:td author]]
        [:tr [:th (tr [:source-publisher])] [:td source-publisher]]
-       [:tr [:th (tr [:state])] [:td [state/state state]]]]]]]
-   [:div.column.is-narrow
-    [state/button document]]])
+       [:tr [:th (tr [:state])] [:td [state/state state]]]]]])
 
 (defn details [document]
   [:div.block
@@ -106,13 +104,25 @@
        ^{:key k}
        [:tr [:th (tr [k])] [:td v]])]]])
 
+(defn buttons [document]
+  (let [errors? @(rf/subscribe [::notifications/errors?])]
+    (if errors?
+      [notifications/error-notification]
+      [:div.block
+       [:div.field.is-grouped
+        [:p.control
+         [state/button document]]
+        [:p.control
+         [details/synchronize-button document]]]])))
+
 (defn page []
   (let [document @(rf/subscribe [::current])]
     [:section.section>div.container>div.content
      [summary document]
      [tabs document]
      [details document]
-     [product/products document]]))
+     [product/products document]
+     [buttons document]]))
 
 (defn unknown []
   (let [document @(rf/subscribe [::current])]
