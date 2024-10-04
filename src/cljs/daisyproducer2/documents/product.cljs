@@ -58,7 +58,8 @@
         errors? @(rf/subscribe [::notifications/errors?])
         products? @(rf/subscribe [::products?])]
     (cond
-      errors? [notifications/error-notification]
+      errors? nil ;; errors are shown centrally
+      loading? [notifications/loading-spinner]
       products? [:div.block
                  [:table.table.is-striped
                   [:thead
