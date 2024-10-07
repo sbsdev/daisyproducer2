@@ -78,7 +78,7 @@
       ;; production-series-number is = 0 and then the production-series is SJW or the
       ;; production-series-number is empty
       (is (or (and (not= (:production-series-number imported) 0) (= (:production-series imported) "PPP"))
-              (and (zero? (:production-series-number imported)) (= (:production-series imported) "SJW"))
+              (and (= (:production-series-number imported) 0) (= (:production-series imported) "SJW"))
               (= (= (:production-series-number imported) "")))))))
 
 
