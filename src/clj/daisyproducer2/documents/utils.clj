@@ -5,7 +5,7 @@
   [[tempfile opts] & body]
   `(let [~tempfile (fs/create-temp-file ~opts)]
      (try
-       ~@body
+       (do ~@body)
        (finally
          (fs/delete ~tempfile)))))
 
@@ -13,6 +13,6 @@
   [[tempdir opts] & body]
   `(let [~tempdir (fs/create-temp-dir ~opts)]
      (try
-       ~@body
+       (do ~@body)
        (finally
          (fs/delete-tree ~tempdir)))))
