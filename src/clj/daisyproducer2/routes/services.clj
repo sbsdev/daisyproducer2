@@ -191,7 +191,7 @@
                                    :homograph-disambiguation string?}}
                :handler (fn [{{word :body} :parameters}]
                           (let [deleted (global/delete-word word)]
-                            (if (>= deleted 1)
+                            (if (pos? deleted)
                               (no-content)
                               (not-found))))}}]]
 
@@ -238,7 +238,7 @@
                                    :spelling ::spelling}}
                :handler (fn [{{word :body} :parameters}]
                           (let [deleted (local/delete-word word)]
-                            (if (>= deleted 1)
+                            (if (pos? deleted)
                               (no-content) ; we found something and deleted it
                               (not-found))))}}] ; couldn't find and delete the requested resource
 
@@ -273,7 +273,7 @@
                                 :isignored boolean?}}
            :handler (fn [{{word :body} :parameters}]
                       (let [modified (unknown/put-word word)]
-                        (if (> modified 0)
+                        (if (pos? modified)
                           (no-content)
                           (not-found))))}}]
 
@@ -350,9 +350,9 @@
                              opts :query} :parameters}]
                         (if-let [doc (documents/get-document id)]
                           (try
-                            (let [[name _] (preview/sbsform doc opts)]
-                              (let [url (str "/download/" name)]
-                                (created url {:location url})))
+                            (let [[name _] (preview/sbsform doc opts)
+                                  url (str "/download/" name)]
+                              (created url {:location url}))
                             (catch clojure.lang.ExceptionInfo e
                               (log/error (ex-message e))
                               (internal-server-error {:status-text (ex-message e)}))
@@ -377,9 +377,9 @@
                              opts :query} :parameters}]
                         (if-let [doc (documents/get-document id)]
                           (try
-                            (let [[name _] (preview/large-print id opts)]
-                              (let [url (str "/download/" name)]
-                                (created url {:location url})))
+                            (let [[name _] (preview/large-print id opts)
+                                  url (str "/download/" name)]
+                              (created url {:location url}))
                             (catch clojure.lang.ExceptionInfo e
                               (log/error (ex-message e))
                               (internal-server-error {:status-text (ex-message e)}))
@@ -402,9 +402,9 @@
                              opts :query} :parameters}]
                         (if-let [doc (documents/get-document id)]
                           (try
-                            (let [[name _] (preview/open-document id opts)]
-                              (let [url (str "/download/" name)]
-                                (created url {:location url})))
+                            (let [[name _] (preview/open-document id opts)
+                                  url (str "/download/" name)]
+                              (created url {:location url}))
                             (catch clojure.lang.ExceptionInfo e
                               (log/error (ex-message e))
                               (internal-server-error {:status-text (ex-message e)}))
@@ -469,7 +469,7 @@
                  :parameters {:path {:id int? :version-id int?}}
                  :handler (fn [{{{:keys [id version-id]} :path} :parameters}]
                             (let [deleted (versions/delete-version id version-id)]
-                              (if (> deleted 0)
+                              (if (pos? deleted)
                                 (no-content) ; we found something and deleted it
                                 (not-found))))}}]]
 
@@ -509,7 +509,7 @@
                 :handler (fn [{{{:keys [id]} :path} :parameters
                                {{uid :uid} :user} :identity}]
                            (let [deleted (images/delete-all-images id)]
-                             (if (> deleted 0)
+                             (if (pos? deleted)
                               (ok {:deleted deleted}) ; we found something and deleted it
                               (not-found))))}}]
      ["/:image-id"
@@ -525,7 +525,7 @@
                 :parameters {:path {:id int? :image-id int?}}
                 :handler (fn [{{{:keys [id image-id]} :path} :parameters}]
                            (let [deleted (images/delete-image id image-id)]
-                             (if (> deleted 0)
+                             (if (pos? deleted)
                               (no-content) ; we found something and deleted it
                               (not-found))))}}]]
     ["/products"
@@ -567,7 +567,7 @@
                 :parameters {:path {:id int? :product-id int?}}
                 :handler (fn [{{{:keys [product-id]} :path} :parameters}]
                            (let [deleted (products/delete-product product-id)]
-                             (if (> deleted 0)
+                             (if (pos? deleted)
                               (no-content) ; we found something and deleted it
                               (not-found))))}}]]]
 
@@ -593,7 +593,7 @@
                                :spelling ::spelling}}
            :handler (fn [{{word :body} :parameters}]
                       (let [modified (confirm/put-word word)]
-                        (if (> modified 0)
+                        (if (pos? modified)
                           (no-content)
                           (not-found))))}}]
 
@@ -628,7 +628,7 @@
                                    :hyphenation string?}}
                :handler (fn [{{{:keys [word spelling]} :body} :parameters}]
                           (let [deleted (hyphenations/delete-hyphenation word spelling)]
-                            (if (> deleted 0)
+                            (if (pos? deleted)
                               (no-content) ; we found something and deleted it
                               ;; if there was no deletion it can mean that either the hyphenation doesn't
                               ;; exist or and this is more likely that the associated word still exists in

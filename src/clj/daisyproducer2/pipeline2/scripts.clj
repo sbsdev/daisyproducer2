@@ -5,7 +5,7 @@
   (:require
    [clojure.java.io :as io]
    [clojure.set :as set]
-   [clojure.string :as string]
+   [clojure.string :as str]
    [daisyproducer2.pipeline2.core :as pipeline2]
    [medley.core :refer [update-existing]]))
 
@@ -17,7 +17,7 @@
     (let [completed (pipeline2/wait-for job)
           results (pipeline2/get-results completed)
           epub-stream (->> results
-                           (filter #(string/ends-with? % ".epub"))
+                           (filter #(str/ends-with? % ".epub"))
                            first
                            pipeline2/get-stream)]
       (with-open [in epub-stream
@@ -56,7 +56,7 @@
       (let [completed (pipeline2/wait-for job)
             results (pipeline2/get-results completed)
             odt-stream (->> results
-                            (filter #(string/ends-with? % ".odt"))
+                            (filter #(str/ends-with? % ".odt"))
                             first
                             pipeline2/get-stream)]
         (with-open [in odt-stream

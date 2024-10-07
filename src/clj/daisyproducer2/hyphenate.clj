@@ -5,7 +5,7 @@
   hyphenation dictionaries in the file system the hyphenators list
   needs to be reloaded."
   (:require [clojure.java.io :as io]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [clojure.tools.logging :as log]
             [daisyproducer2.config :refer [env]]
             [mount.core :refer [defstate]])
@@ -33,7 +33,7 @@
 (defn- hyphenate*
   "Hyphenate given `text` using a given `hyphenator`"
   [text ^Hyphenator hyphenator]
-  (if (string/blank? text)
+  (if (str/blank? text)
     ""
     (.hyphenate hyphenator text \- nil)))
 

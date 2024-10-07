@@ -6,7 +6,7 @@
   (:require
    [babashka.fs :as fs]
    [babashka.process :as process]
-   [clojure.string :as string]
+   [clojure.string :as str]
    [clojure.tools.logging :as log]
    [clojure.java.io :as io]))
 
@@ -49,7 +49,7 @@
 
 (defn- stringify-opts
   [[k v]]
-  (let [opt-key (string/replace (name k) #"-" "_")]
+  (let [opt-key (str/replace (name k) #"-" "_")]
     (cond
       (boolean? v) (format "?%s=%s" opt-key (if v "true()" "false()"))
       (integer? v) (format "?%s=%s" opt-key v)

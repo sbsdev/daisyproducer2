@@ -54,18 +54,17 @@
          (assoc-in [:errors id :errors] errors)))))
 
 (defn error-notification []
-  (let [errors @(rf/subscribe [::errors])]
-    (when errors
-      [:div.block
-       (for [[k v] errors]
-         ^{:key k}
-         [:div.notification.is-danger
-          [:button.delete
-           {:on-click (fn [e] (rf/dispatch [::ack-error k]))}]
-          [:p [:strong (:message v)]]
-          (if (seq (:errors v))
-            [:ul
-             (for [e (:errors v)]
-               ^{:key e}
-               [:li (str e)])]
-            [:p (str v)])])])))
+  (when-let [errors @(rf/subscribe [::errors])]
+    [:div.block
+     (for [[k v] errors]
+       ^{:key k}
+       [:div.notification.is-danger
+        [:button.delete
+         {:on-click (fn [e] (rf/dispatch [::ack-error k]))}]
+        [:p [:strong (:message v)]]
+        (if (seq (:errors v))
+          [:ul
+           (for [e (:errors v)]
+             ^{:key e}
+             [:li (str e)])]
+          [:p (str v)])])]))

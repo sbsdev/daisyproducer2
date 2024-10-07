@@ -7,7 +7,7 @@
    [daisyproducer2.pagination :as pagination]
    [daisyproducer2.validation :as validation]
    [daisyproducer2.words.notifications :as notifications]
-   [clojure.string :as string]))
+   [clojure.string :as str]))
 
 (defn- get-search [db] (get-in db [:search :hyphenation]))
 (defn- get-spelling [db] (get-in db [:current :spelling] 1))
@@ -209,7 +209,7 @@
                      :on-key-down #(when (= (.-which %) 27) (reset!))}]]]))
 
 (defn lookup-button [label href search]
-  (let [disabled (when (string/blank? search) "disabled")]
+  (let [disabled (when (str/blank? search) "disabled")]
     [:a.button {:href (str href search)
                 :disabled disabled
                 :target "_blank" }
@@ -285,7 +285,7 @@
         save! #(rf/dispatch [::set-corrected %])]
     (fn []
       (let [corrected @(rf/subscribe [::corrected])
-            blank? (string/blank? corrected)
+            blank? (str/blank? corrected)
             valid? (or blank? @(rf/subscribe [::valid?]))
             same-as-suggested? (and (not blank?) @(rf/subscribe [::same-as-suggested?]))
             klass (when (or (not valid?) same-as-suggested?) "is-danger")]

@@ -1,6 +1,6 @@
 (ns daisyproducer2.documents.document
   (:require [ajax.core :as ajax]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [daisyproducer2.documents.state :as state]
             [daisyproducer2.documents.details :as details]
             [daisyproducer2.documents.image :as image]
@@ -100,20 +100,19 @@
            :let [v (case k
                      :spelling (words/spelling-brief-string (get document k))
                      (get document k))]
-           :when (not (string/blank? v))]
+           :when (not (str/blank? v))]
        ^{:key k}
        [:tr [:th (tr [k])] [:td v]])]]])
 
 (defn buttons [document]
-  (let [errors? @(rf/subscribe [::notifications/errors?])]
-    (if errors?
-      [notifications/error-notification]
-      [:div.block
-       [:div.field.is-grouped
-        [:p.control
-         [state/button document]]
-        [:p.control
-         [details/synchronize-button document]]]])))
+  (if-let [errors? @(rf/subscribe [::notifications/errors?])]
+    [notifications/error-notification]
+    [:div.block
+     [:div.field.is-grouped
+      [:p.control
+       [state/button document]]
+      [:p.control
+       [details/synchronize-button document]]]]))
 
 (defn page []
   (let [document @(rf/subscribe [::current])]

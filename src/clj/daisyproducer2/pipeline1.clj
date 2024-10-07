@@ -8,7 +8,7 @@
    [babashka.fs :as fs]
    [babashka.process :as process]
    [clojure.set :as set]
-   [clojure.string :as s]
+   [clojure.string :as str]
    [clojure.tools.logging :as log]
    [daisyproducer2.config :refer [env]]
    [medley.core :refer [update-existing]]))
@@ -22,16 +22,16 @@
 
 (defn- clean-line [line file]
   (-> line
-      (s/replace "[ERROR, Validator]" "")
-      (s/replace (str "Location: file:" file) "Line:")
-      s/trim))
+      (str/replace "[ERROR, Validator]" "")
+      (str/replace (str "Location: file:" file) "Line:")
+      str/trim))
 
 (defn- filter-output [output file]
   (->> output
-       s/split-lines
+       str/split-lines
        ;; make sure we merge continuation lines with their log line
        (partition-by continuation-line?)
-       (map s/join)
+       (map str/join)
        (filter #(re-matches #"^\[ERROR, Validator\].*" %))
        (map #(clean-line % file))))
 
@@ -43,7 +43,7 @@
   ;; the pipeline1 validator is not so brilliant when it comes to
   ;; returning error conditions. For that reason we check for
   ;; existence of the input file before hand
-  (if (not (and (fs/exists? file) (fs/readable? file)))
+  (if-not (and (fs/exists? file) (fs/readable? file))
     [(format "Input file '%s' does not exist or is not readable" file)]
     (let [args ["daisy-pipeline"
                 (str (fs/path (env :pipeline1-install-path)

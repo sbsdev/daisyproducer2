@@ -1,6 +1,6 @@
 (ns daisyproducer2.whitelists.tables
   (:require [clojure.java.io :as io]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [clojure.tools.logging :as log]
             [daisyproducer2.config :refer [env]]
             [daisyproducer2.db.core :as db]
@@ -172,7 +172,7 @@
   (->>
    s
    (map ascii-to-dots)
-   (string/join "-")))
+   (str/join "-")))
 
 (defn table-filename
   [grade {:keys [identifier] :as document} {:keys [name? place?] :as opts}]
@@ -188,13 +188,13 @@
 (defn write-table [^BufferedWriter w grade translate words]
   (doseq [{:keys [untranslated uncontracted contracted homograph-disambiguation] :as word} words]
     (let [untranslated (if (words/is-homograph? word)
-                         (string/replace homograph-disambiguation "|" words/braille-dummy-text)
+                         (str/replace homograph-disambiguation "|" words/braille-dummy-text)
                          untranslated)
           braille (if (= grade 1) uncontracted contracted)
           ;; Remove the braille dummy text from the braille as
           ;; liblouis does not produce braille with dummy text
           ;; FIXME: Why are we keeping the dummy text in the db? If it is just trown away anyway?
-          braille (string/replace braille words/braille-dummy-text "")]
+          braille (str/replace braille words/braille-dummy-text "")]
       (when (not= braille (translate untranslated))
         (let [line (format "word %s\t%s" untranslated (to-dots braille))]
           (.write w line)

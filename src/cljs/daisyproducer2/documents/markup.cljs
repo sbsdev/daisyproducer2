@@ -158,20 +158,19 @@
         :on-change #(save! (get-value %))}]]]))
 
 (defn markup-notification []
-  (let [problems @(rf/subscribe [::markup-validation])]
-    (when problems
-      (let [{:keys [message errors]} problems]
-        [:div.block
-         [:div.notification.is-danger
-          [:button.delete
-           {:on-click (fn [e] (rf/dispatch [::ack-validation]))}]
-          [:p [:strong message]]
-          (if (seq errors)
-            [:ul
-             (for [e errors]
-               ^{:key e}
-               [:li (str e)])]
-            [:p (str errors)])]]))))
+  (when-let [problems @(rf/subscribe [::markup-validation])]
+    (let [{:keys [message errors]} problems]
+      [:div.block
+       [:div.notification.is-danger
+        [:button.delete
+         {:on-click (fn [e] (rf/dispatch [::ack-validation]))}]
+        [:p [:strong message]]
+        (if (seq errors)
+          [:ul
+           (for [e errors]
+             ^{:key e}
+             [:li (str e)])]
+          [:p (str errors)])]])))
 
 (defn markup [{id :id :as document}]
   (let [loading? @(rf/subscribe [::notifications/loading? :markup])

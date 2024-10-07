@@ -2,7 +2,7 @@
   (:require [clojure.core.async :as async]
             [clojure.java.io :as io]
             [clojure.java.shell :refer [sh]]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [clojure.tools.logging :as log]
             [daisyproducer2.db.core :as db]
             [daisyproducer2.hyphenate :as hyphenate]
@@ -28,10 +28,10 @@
   "Prepare a hyphenation string for consumption by libhyphen"
   [s]
   (-> s
-   (string/replace #"(.)" "$18") ; place "8" between each char
-   (string/replace #"^(.*)$" ".$1.") ; suround with .
-   (string/replace "8-8" "9") ; give hyphens more weight
-   (string/replace "8." "."))) ; drop the last 8
+   (str/replace #"(.)" "$18") ; place "8" between each char
+   (str/replace #"^(.*)$" ".$1.") ; suround with .
+   (str/replace "8-8" "9") ; give hyphens more weight
+   (str/replace "8." "."))) ; drop the last 8
 
 (defn- get-hyphenations [spelling]
   (->>
@@ -42,8 +42,8 @@
     (fn [{:keys [word hyphenation]}]
       (= (hyphenate/hyphenate word spelling) hyphenation)))
    (map :hyphenation)
-   (remove string/blank?) ; drop empty ones
-   (map string/lower-case) ; make sure it's lowercase
+   (remove str/blank?) ; drop empty ones
+   (map str/lower-case) ; make sure it's lowercase
    sort
    (map prepare-for-libhyphen)))
 
@@ -54,8 +54,8 @@
       (doseq [line (line-seq original)]
         ;; newer versions of substrings.pl cannot handle '#'-style comments, so replace with '%'
         (let [sanitized (-> line
-                            (string/replace #"^# " "% ")
-                            (string/replace #"^##" "%#"))]
+                            (str/replace #"^# " "% ")
+                            (str/replace #"^##" "%#"))]
           (.write w sanitized)
           (.newLine w))))
     (doseq [word words]
@@ -77,7 +77,7 @@
   ;; redirect the output of substrings.pl to /dev/null. Otherwise it can happen that we
   ;; blow the memory. Idea taken from https://stackoverflow.com/a/7027280
   (sh "sh" "-c"
-      (string/join " " [substrings-program infile outfile "> /dev/null"])))
+      (str/join " " [substrings-program infile outfile "> /dev/null"])))
 
 (defn- export*
   "Export all hyphenation patterns from the database and prepare for

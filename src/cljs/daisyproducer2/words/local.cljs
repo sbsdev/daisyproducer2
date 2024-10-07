@@ -1,6 +1,6 @@
 (ns daisyproducer2.words.local
   (:require [ajax.core :as ajax]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [daisyproducer2.auth :as auth]
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.pagination :as pagination]
@@ -26,7 +26,7 @@
                     :params          (cond-> {:grade grade
                                               :offset offset
                                               :limit pagination/page-size}
-                                       (not (string/blank? search)) (assoc :search search))
+                                       (not (str/blank? search)) (assoc :search search))
                     :response-format (ajax/json-response-format {:keywords? true})
                     :on-success      [::fetch-words-success]
                     :on-failure      [::fetch-words-failure]}})))
@@ -34,8 +34,7 @@
 (rf/reg-event-db
  ::fetch-words-success
  (fn [db [_ words]]
-   (let [words (->> words
-                    (map #(assoc % :uuid (str (random-uuid)))))
+   (let [words (map #(assoc % :uuid (str (random-uuid))) words)
          next? (-> words count (= pagination/page-size))]
      (-> db
          (assoc-in [:words :local] (zipmap (map :uuid words) words))
@@ -55,9 +54,8 @@
   ::save-word
   (fn [{:keys [db]} [_ id]]
     (let [word (get-in db [:words :local id])
-          cleaned (-> word
-                      (select-keys [:untranslated :uncontracted :contracted :type :homograph-disambiguation
-                                    :document-id :islocal :hyphenated :spelling]))
+          cleaned (select-keys word [:untranslated :uncontracted :contracted :type :homograph-disambiguation
+                                     :document-id :islocal :hyphenated :spelling])
           document-id (:document-id word)]
       {:db (notifications/set-button-state db id :save)
        :http-xhrio {:method          :put
@@ -74,9 +72,8 @@
   ::delete-word
   (fn [{:keys [db]} [_ id]]
     (let [word (get-in db [:words :local id])
-          cleaned (-> word
-                      (select-keys [:untranslated :uncontracted :contracted :type :homograph-disambiguation
-                                    :document-id :hyphenated :spelling]))
+          cleaned (select-keys word [:untranslated :uncontracted :contracted :type :homograph-disambiguation
+                                     :document-id :hyphenated :spelling])
           document-id (:document-id word)]
       {:db (notifications/set-button-state db id :delete)
        :http-xhrio {:method          :delete

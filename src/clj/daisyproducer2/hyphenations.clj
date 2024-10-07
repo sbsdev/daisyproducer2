@@ -17,7 +17,7 @@
 (defn delete-hyphenation [word spelling]
   (log/debug "Delete hyphenation" word)
   (let [deleted (db/delete-hyphenation {:word word :spelling spelling})]
-    (when (> deleted 0)
+    (when (pos? deleted)
       (hyphenations/export))
     deleted))
 

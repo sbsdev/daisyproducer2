@@ -1,6 +1,5 @@
 (ns daisyproducer2.documents.product
   (:require [ajax.core :as ajax]
-            [clojure.string :as string]
             [daisyproducer2.auth :as auth]
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.ajax :refer [as-transit]]

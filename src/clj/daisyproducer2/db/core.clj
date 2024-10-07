@@ -2,7 +2,7 @@
   (:require
     [next.jdbc.date-time]
     [next.jdbc.result-set]
-    [clojure.string :as string]
+    [clojure.string :as str]
     [clojure.tools.logging :as log]
     [conman.core :as conman]
     [camel-snake-kebab.extras :refer [transform-keys]]
@@ -29,9 +29,9 @@
   (let [prepend #(str %2 %1)
         append #(str %1 %2)]
     (cond-> s
-      (not (string/starts-with? s "^")) (prepend "%")
-      (not (string/ends-with? s "$")) (append "%")
-      true (string/replace #"[$^]" ""))))
+      (not (str/starts-with? s "^")) (prepend "%")
+      (not (str/ends-with? s "$")) (append "%")
+      true (str/replace #"[$^]" ""))))
 
 (defn get-generated-key
   "Extract the generated key from the return value of an insert statement.

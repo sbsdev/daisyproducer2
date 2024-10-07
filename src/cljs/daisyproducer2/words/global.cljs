@@ -1,6 +1,6 @@
 (ns daisyproducer2.words.global
   (:require [ajax.core :as ajax]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [daisyproducer2.auth :as auth]
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.pagination :as pagination]
@@ -20,7 +20,7 @@
       {:db (notifications/set-loading db :global)
        :http-xhrio {:method          :get
                     :uri             "/api/words"
-                    :params          (if (string/blank? search)
+                    :params          (if (str/blank? search)
                                        {:offset offset :limit pagination/page-size}
                                        {:offset offset :limit pagination/page-size :search search})
                     :response-format (ajax/json-response-format {:keywords? true})
@@ -51,8 +51,7 @@
   ::save-word
   (fn [{:keys [db]} [_ id]]
     (let [word (get-in db [:words :global id])
-          cleaned (-> word
-                      (select-keys [:untranslated :uncontracted :contracted :type :homograph-disambiguation]))]
+          cleaned (select-keys word [:untranslated :uncontracted :contracted :type :homograph-disambiguation])]
       {:db (notifications/set-button-state db id :save)
        :http-xhrio {:method          :put
                     :format          (ajax/json-request-format)
@@ -68,8 +67,7 @@
   ::delete-word
   (fn [{:keys [db]} [_ id]]
     (let [word (get-in db [:words :global id])
-          cleaned (-> word
-                      (select-keys [:untranslated :uncontracted :contracted :type :homograph-disambiguation]))]
+          cleaned (select-keys word [:untranslated :uncontracted :contracted :type :homograph-disambiguation])]
       {:db (notifications/set-button-state db id :delete)
        :http-xhrio {:method          :delete
                     :format          (ajax/json-request-format)
@@ -130,7 +128,7 @@
    (fn [{:keys [db]} [_ new-search-value]]
      (let [length (count new-search-value)]
        (cond-> {:db (assoc-in db [:search :global] new-search-value)}
-         (or (= length 0) (> length 2))
+         (or (zero? length) (> length 2))
          ;; do not fetch the productions from the server for very small strings,
          ;; unless the string has been reset to the empty string
          (assoc :dispatch-n

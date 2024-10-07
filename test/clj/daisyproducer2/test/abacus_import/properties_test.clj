@@ -1,7 +1,7 @@
 (ns daisyproducer2.test.abacus-import.properties-test
   (:require
    [clojure.data.xml :as xml]
-   [clojure.string :as string]
+   [clojure.string :as str]
    [clojure.test :refer :all]
    [clojure.test.check.generators :as gen]
    [com.gfredericks.test.chuck.clojure-test :as chuck]
@@ -24,13 +24,13 @@
 (def product-number (chuck-gen/string-from-regex #"(PS|GD|EB|ET)[0-9]{4,7}"))
 (def language (gen/elements ["de" "de-CH" "it" "rm-sursilv"]))
 (def aufwand (gen/elements ["" "D"]))
-(def daisy_producer (gen/elements ["ja" "nein"]))
+(def daisy-producer (gen/elements ["ja" "nein"]))
 (def reihe (chuck-gen/string-from-regex #"SJW[0-9]+"))
 (defn- valid-date-tuple? [[year month day]] (try (time/local-date year month day) true (catch Exception e false)))
 (def date (gen/fmap (fn [[year month day]] (format "%d-%02d-%02d" year month day))
                     (gen/such-that valid-date-tuple? (gen/tuple (gen/choose 1900 2500) (gen/choose 1 12) (gen/choose 1 31)))))
 
-(def import-gen (gen/tuple product-number gen/string gen/string language sbs-isbn date (gen/return "") (gen/return "") gen/nat reihe aufwand daisy_producer))
+(def import-gen (gen/tuple product-number gen/string gen/string language sbs-isbn date (gen/return "") (gen/return "") gen/nat reihe aufwand daisy-producer))
 
 (defn- xml-sample
   [{:keys [product-number title creator source language date
@@ -59,7 +59,7 @@
 
 (defn- normalize-whitespace
   [s]
-  (string/replace s (re-pattern (str "[\\s\u00A0]+")) " "))
+  (str/replace s (re-pattern (str "[\\s\u00A0]+")) " "))
 
 (deftest abacus-import-with-properties
   (chuck/checking "ABACUS import is correct" 200
@@ -78,7 +78,7 @@
       ;; production-series-number is = 0 and then the production-series is SJW or the
       ;; production-series-number is empty
       (is (or (and (not= (:production-series-number imported) 0) (= (:production-series imported) "PPP"))
-              (and (= (:production-series-number imported) 0) (= (:production-series imported) "SJW"))
+              (and (zero? (:production-series-number imported)) (= (:production-series imported) "SJW"))
               (= (= (:production-series-number imported) "")))))))
 
 

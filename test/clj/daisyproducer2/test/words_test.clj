@@ -26,8 +26,8 @@
              #{"┊hęllo" "┊wie" "gehts'┊" "heute┊"})))
 
     (testing "Filtering special words"
-      (is (= (filter-special-words "...HĘllo Leute ...wie gehts'... euch hEute... wahrlich gross- äh, nein gross-artig")
-             " Leute   euch  wahrlich  äh, nein gross-artig")))
+      (is (= " Leute   euch  wahrlich  äh, nein gross-artig"
+             (filter-special-words "...HĘllo Leute ...wie gehts'... euch hEute... wahrlich gross- äh, nein gross-artig"))))
 
     (testing "Extracting plain words"
       (is (= (extract-words "...HĘllo Leute ...wie gehts'... euch hEute... wahrlich gross- äh, nein gross-artig")

@@ -30,8 +30,7 @@
 (rf/reg-event-db
  ::fetch-words-success
  (fn [db [_ words]]
-   (let [words (->> words
-                    (map #(assoc % :uuid (str (random-uuid)))))
+   (let [words (map #(assoc % :uuid (str (random-uuid))) words)
          next? (-> words count (= pagination/page-size))]
      (-> db
          (assoc-in [:words :unknown] (zipmap (map :uuid words) words))
@@ -51,9 +50,8 @@
   ::save-word
   (fn [{:keys [db]} [_ id]]
     (let [word (get-in db [:words :unknown id])
-          cleaned (-> word
-                   (select-keys [:untranslated :uncontracted :contracted :type :homograph-disambiguation
-                                 :document-id :islocal :hyphenated :spelling]))
+          cleaned (select-keys word [:untranslated :uncontracted :contracted :type :homograph-disambiguation
+                                     :document-id :islocal :hyphenated :spelling])
           document-id (:document-id word)]
       {:db (notifications/set-button-state db id :save)
        :http-xhrio {:method          :put

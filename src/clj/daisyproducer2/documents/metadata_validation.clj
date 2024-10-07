@@ -1,7 +1,7 @@
 (ns daisyproducer2.documents.metadata-validation
   "Validate the metadata of DTBook XML files"
   (:require [clojure.java.io :as io]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [clojure.xml :as xml]
             [clojure.zip :as zip]
             [clojure.data.zip.xml :refer [xml1-> attr= attr text]])
@@ -61,9 +61,9 @@
   "Return an error message for `key` that has the value `expected`
   instead of the values in `actuals`"
   [key expected actuals]
-  (let [name (string/capitalize (name key))]
+  (let [name (str/capitalize (name key))]
     (str name " should be '" expected "' instead of "
-         (string/join
+         (str/join
           " and "
           (map #(if (some? %) (str "'" % "'") "undefined") 
                actuals)))))

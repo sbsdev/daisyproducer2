@@ -153,7 +153,7 @@
   [[job job-create-form] & body]
   `(let [~job ~job-create-form]
      (try
-       ~@body
+       (do ~@body)
        (catch Exception e#
          (throw (ex-info
                  (format "Failed to run Pipeline2 job because %s" (ex-message e#))

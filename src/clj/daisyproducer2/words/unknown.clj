@@ -1,7 +1,7 @@
 (ns daisyproducer2.words.unknown
   (:require [clojure.java.io :as io]
             [clojure.set :refer [union]]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [clojure.tools.logging :as log]
             [conman.core :as conman]
             [daisyproducer2.db.core :as db]
@@ -41,12 +41,12 @@
    (sequence text)
    ;; drop everything that is not a letter, space or punctuation
    (map #(if (valid-char? %) % " "))
-   (string/join)))
+   (str/join)))
 
 (defn- extract-xpath [xml xpath]
   (->>
    (xpath/select compiler xml xpath {})
-   (map (comp str string/lower-case))
+   (map (comp str str/lower-case))
    set))
 
 (defn extract-homographs [xml]
@@ -64,8 +64,8 @@
   (->> xml
    str
    (re-seq re)
-   (map string/lower-case)
-   (map #(string/replace % to-replace words/braille-dummy-text))
+   (map str/lower-case)
+   (map #(str/replace % to-replace words/braille-dummy-text))
    set))
 
 (defn extract-ellipsis-words [xml]
@@ -83,19 +83,19 @@
 
 (defn filter-special-words [text]
   (-> text
-      (string/replace ellipsis-re "")
-      (string/replace supplement-hyphen-re "")))
+      (str/replace ellipsis-re "")
+      (str/replace supplement-hyphen-re "")))
 
 (defn extract-words [xml]
   (-> xml
    str
    filter-special-words
    filter-text
-   (string/split #"(?U)[^\w']")
+   (str/split #"(?U)[^\w']")
    (->>
     ;; drop words shorter than 3 chars
     (remove (fn [word] (< (count word) 3)))
-    (map string/lower-case)
+    (map str/lower-case)
     set)))
 
 (defn get-names
@@ -113,7 +113,7 @@
 (defn get-homographs
   [xml document-id]
   (let [words (-> xml filter-braille extract-homographs)
-        tuples (map (fn [w] [(string/replace w "|" "") 5 w document-id]) words)]
+        tuples (map (fn [w] [(str/replace w "|" "") 5 w document-id]) words)]
     tuples))
 
 (defn get-plain

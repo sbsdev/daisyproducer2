@@ -1,5 +1,5 @@
 (ns daisyproducer2.words.local
-  (:require [clojure.string :as string]
+  (:require [clojure.string :as str]
             [clojure.tools.logging :as log]
             [daisyproducer2.db.core :as db]
             [daisyproducer2.metrics :as metrics]
@@ -22,7 +22,7 @@
   (let [document (db/get-document {:id id})
         spelling (:spelling document)
         params (cond-> {:id id :limit limit :offset offset :grade grade}
-                 (not (string/blank? search)) (assoc :search (db/search-to-sql search)))
+                 (not (str/blank? search)) (assoc :search (db/search-to-sql search)))
         words (db/get-local-words params)]
     (->> words
          (map words/int-fields-to-boolean)

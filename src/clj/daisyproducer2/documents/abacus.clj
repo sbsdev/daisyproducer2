@@ -9,7 +9,7 @@
   (:require [clojure.data.zip.xml :refer [text xml1->]]
             [clojure.java.io :as io]
             [clojure.spec.alpha :as s]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [clojure.tools.logging :as log]
             [clojure.xml :as xml]
             [clojure.zip :as zip]
@@ -25,7 +25,7 @@
             [medley.core :as medley]))
 
 (s/def ::product-number (s/and string? #(re-matches #"^(PS|GD|EB|ET)\d{4,7}$" %)))
-(s/def ::isbn (s/and string? (fn [s] (or (string/blank? s) (re-matches #"^SBS[0-9]{6}|(?:978-|979-)?\d{1,5}-\d{1,7}-\d{1,6}-[0-9xX]" s)))))
+(s/def ::isbn (s/and string? (fn [s] (or (str/blank? s) (re-matches #"^SBS[0-9]{6}|(?:978-|979-)?\d{1,5}-\d{1,7}-\d{1,6}-[0-9xX]" s)))))
 
 (def ^:private root-path [:Task :Transaction :DocumentData])
 
@@ -50,8 +50,8 @@
   (cond
     (not= production-series-number "0") "PPP"
     (and (= production-series-number "0")
-         (not (string/blank? reihe))
-         (string/includes? reihe "SJW")) "SJW"
+         (not (str/blank? reihe))
+         (str/includes? reihe "SJW")) "SJW"
     :else ""))
 
 (defn- production-series-number
@@ -59,20 +59,20 @@
   (cond
     (not= production-series-number "0") production-series-number
     (and (= production-series-number "0")
-         (not (string/blank? reihe))
-         (string/includes? reihe "SJW")) (re-find #"\d+" reihe)
+         (not (str/blank? reihe))
+         (str/includes? reihe "SJW")) (re-find #"\d+" reihe)
     :else ""))
 
 (defn- source
   [{:keys [source]}]
   (cond
-    (string/blank? source) ""
+    (str/blank? source) ""
     (= source "keine") ""
     :else source))
 
 (defn- product-type
   [{:keys [product-number]}]
-  (condp #(string/starts-with? %2 %1) product-number
+  (condp #(str/starts-with? %2 %1) product-number
     "PS" :braille
     "GD" :large-print
     "EB" :ebook
@@ -101,8 +101,8 @@
         (assoc :production-series production-series)
         (assoc :production-series-number production-series-number)
         (cond-> product-type (assoc :product-type product-type))
-        (cond-> (not (string/blank? verkaufstext)) (assoc :author (-> verkaufstext (string/split #"\[xx\]") first string/trim)))
-        (cond-> (not (string/blank? verkaufstext)) (assoc :title (-> verkaufstext (string/split #"\[xx\]") second string/trim))))))
+        (cond-> (not (str/blank? verkaufstext)) (assoc :author (-> verkaufstext (str/split #"\[xx\]") first str/trim)))
+        (cond-> (not (str/blank? verkaufstext)) (assoc :title (-> verkaufstext (str/split #"\[xx\]") second str/trim))))))
 
 (defn extract-value
   "Extract values from a `zipper` from an ABACUS export file for `key`"

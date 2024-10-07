@@ -1,6 +1,6 @@
 (ns daisyproducer2.documents.documents
   (:require [babashka.fs :as fs]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [daisyproducer2.config :refer [env]]
             [daisyproducer2.db.core :as db]
             [daisyproducer2.metrics :as metrics]
@@ -25,7 +25,7 @@
 
 (defn get-document-for-source-or-title-and-source-edition
   [{:keys [source title source-edition] :as params}]
-  (or (and source (not (string/blank? source)) (db/get-document-for-source params))
+  (or (and source (not (str/blank? source)) (db/get-document-for-source params))
       (and title source-edition (db/get-document-for-title-and-source-edition params))))
 
 (defn initialize-document

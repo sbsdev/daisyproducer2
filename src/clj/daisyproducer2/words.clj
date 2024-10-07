@@ -1,6 +1,6 @@
 (ns daisyproducer2.words
   (:require [clojure.set :refer [rename-keys]]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [daisyproducer2.hyphenate :as hyphenate]
             [daisyproducer2.louis :as louis]
             [daisyproducer2.validation :as validation]))
@@ -32,9 +32,9 @@
         append #(str %1 %2)]
     (when (some? s)
       (cond-> s
-        (not (string/starts-with? s start))
+        (not (str/starts-with? s start))
         (prepend start)
-        (not (string/ends-with? s end))
+        (not (str/ends-with? s end))
         (append end)))))
 
 (defn complement-ellipsis-braille
@@ -42,8 +42,8 @@
   on whether `:untranslated` starts or ends with the dummy text, the
   dummy text is also added to `:uncontracted` and `:contracted`."
   [{:keys [untranslated uncontracted contracted] :as word}]
-  (let [starts-with-dummy? (string/starts-with? untranslated braille-dummy-text)
-        ends-with-dummy? (string/ends-with? untranslated braille-dummy-text)
+  (let [starts-with-dummy? (str/starts-with? untranslated braille-dummy-text)
+        ends-with-dummy? (str/ends-with? untranslated braille-dummy-text)
         uncontracted (cond-> uncontracted
                        starts-with-dummy?
                        (complement-string braille-dummy-text "")
@@ -67,7 +67,7 @@
         ;; for homographs we have to use the homograph-disambiguation
         ;; to get the braille
         untranslated (if (is-homograph? word)
-                       (string/replace homograph-disambiguation "|" braille-dummy-text)
+                       (str/replace homograph-disambiguation "|" braille-dummy-text)
                        untranslated)]
     (cond-> word
       (and (contains? word :uncontracted) (nil? (:uncontracted word)))

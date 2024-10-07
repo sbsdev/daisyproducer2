@@ -3,8 +3,7 @@
     [re-frame.core :as rf]
     [ajax.core :as ajax]
     [reitit.frontend.easy :as rfe]
-    [reitit.frontend.controllers :as rfc]
-    [clojure.string :as string]))
+    [reitit.frontend.controllers :as rfc]))
 
 ;;;;;;;;;;;;;;;;;
 ;; Dispatchers ;;

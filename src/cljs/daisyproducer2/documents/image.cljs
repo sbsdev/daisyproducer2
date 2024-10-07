@@ -1,6 +1,6 @@
 (ns daisyproducer2.documents.image
   (:require [ajax.core :as ajax]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [daisyproducer2.auth :as auth]
             [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.ajax :refer [as-transit]]
@@ -18,7 +18,7 @@
        :http-xhrio (as-transit
                     {:method          :get
                      :uri             (str "/api/documents/" document-id "/images")
-                     :params          (if (string/blank? search) {} {:search search})
+                     :params          (if (str/blank? search) {} {:search search})
                      :on-success      [::fetch-images-success]
                      :on-failure      [::fetch-images-failure]})})))
 
@@ -220,7 +220,7 @@
 (rf/reg-sub
  ::image-file-names
  :<- [::image-files]
- (fn [files] (->> files (map #(.-name %)) (string/join ", "))))
+ (fn [files] (->> files (map #(.-name %)) (str/join ", "))))
 
 (rf/reg-event-db
   ::set-image-files
@@ -280,7 +280,7 @@
   [:tr
    [:td
     (let [href (str "/archive/" content)
-          file-name (last (string/split content #"/"))]
+          file-name (last (str/split content #"/"))]
       [:a {:href href :target "_blank"} file-name])]
    [:td {:width "5%"} [buttons uuid]]])
 

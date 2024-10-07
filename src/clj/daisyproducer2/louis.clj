@@ -1,5 +1,6 @@
 (ns daisyproducer2.louis
-  (:require [clojure.tools.logging :as log])
+  (:require [clojure.tools.logging :as log]
+            [clojure.string :as str])
   (:import (org.liblouis Translator)))
 
 (def base-tables ["sbs-wordsplit.dis" "sbs-de-core6.cti" "sbs-de-accents.cti",
@@ -26,12 +27,12 @@
      :else grade2-tables)))
 
 (defn translator [tables]
-  (let [tables-string (apply str (interpose \, tables))]
+  (let [tables-string (str/join \, tables)]
     (Translator. ^String tables-string)))
 
 (defn translate [word ^Translator translator]
   (let [length (count word)
-        inter-character-attributes (int-array (repeat (- length 1) 0))]
+        inter-character-attributes (int-array (repeat (dec length) 0))]
     (try
       (.getBraille (.translate translator word nil nil inter-character-attributes))
       ;; log the params that caused the exception and bubble it up

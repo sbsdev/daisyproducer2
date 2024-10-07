@@ -1,6 +1,6 @@
 (ns daisyproducer2.documents.version
   (:require [ajax.core :as ajax]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [cljs-time.format :as tf]
             [cljs-time.coerce :as tc]
             [daisyproducer2.auth :as auth]
@@ -19,7 +19,7 @@
        :http-xhrio (as-transit
                     {:method          :get
                      :uri             (str "/api/documents/" document-id "/versions")
-                     :params          (if (string/blank? search) {} {:search search})
+                     :params          (if (str/blank? search) {} {:search search})
                      :on-success      [::fetch-versions-success]
                      :on-failure      [::fetch-versions-failure]})})))
 
@@ -72,7 +72,7 @@
 (rf/reg-event-fx
   ::ack-add-version
   (fn [{:keys [db]} [_ document]]
-    {:db (-> db (notifications/clear-button-state :version :save))
+    {:db (notifications/clear-button-state db :version :save)
      :dispatch-n (list
                   [::fetch-versions (:id document)]
                   [:common/navigate! :document-versions document])}))
@@ -150,7 +150,7 @@
        [version-comment]
        [:div.control
         [:button.button.is-success
-         {:disabled (or (string/blank? comment) (nil? file) (not authenticated?))
+         {:disabled (or (str/blank? comment) (nil? file) (not authenticated?))
           :class klass
           :on-click (fn [e] (rf/dispatch [::add-version document file comment]))}
          [:span.icon {:aria-hidden true} [:i.mi.mi-backup]]
