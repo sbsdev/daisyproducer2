@@ -28,37 +28,34 @@
   [isbn]
   (let [{:keys [url user password]} (env :alfresco)
         query (format "select * from sbs:buch where sbs:pISBN = '%s' AND CONTAINS('PATH:\"/app:company_home/cm:Produktion/cm:Archiv//*\"')" isbn)
-        query-body (json/generate-string {:query {:query query :language "cmis"}})]
-    (let [[id count] (extract-paginated-result
-                      (client/post (str url "/search/versions/1/search")
-                                   {:as :json
-                                    :basic-auth [user password]
-                                    :body query-body}))]
-      (cond
-        (zero? count) nil
-        (= count 1) id
-        :else (throw
-               (ex-info (format "%s books in archive for ISBN '%s'" count isbn)
-                        {:error-id :multiple-books-in-archive}))))))
+        query-body (json/generate-string {:query {:query query :language "cmis"}})
+        response (client/post (str url "/search/versions/1/search")
+                              {:as :json :basic-auth [user password] :body query-body})
+        [id count] (extract-paginated-result response)]
+    (cond
+      (zero? count) nil
+      (= count 1) id
+      :else (throw
+             (ex-info (format "%s books in archive for ISBN '%s'" count isbn)
+                      {:error-id :multiple-books-in-archive})))))
 
 (defn- daisy-file
   "Return the id of the daisyFile node for a given `node-id`. Typically
   the given `node-id` refers to a node with type 'sbs:buch'."
   [node-id]
-  (let [{:keys [url user password]} (env :alfresco)]
-    (let [[id count] (extract-paginated-result
-                      (client/get (str url "/alfresco/versions/1/nodes/" node-id "/children")
-                                  {:as :json
-                                   :basic-auth [user password]
-                                   :query-params {"where" "(nodeType='sbs:daisyFile')"}}))]
-      (cond
-        (zero? count) (throw
-                       (ex-info (format "no daisy-file found for node '%s'" node-id)
-                                {:error-id :no-daisy-file-for-book}))
-        (= count 1) id
-        :else (throw
-               (ex-info (format "multiple daisy-files found for node '%s'" node-id)
-                        {:error-id :multiple-daisy-files-for-book}))))))
+  (let [{:keys [url user password]} (env :alfresco)
+        response (client/get (str url "/alfresco/versions/1/nodes/" node-id "/children")
+                             {:as :json :basic-auth [user password]
+                              :query-params {"where" "(nodeType='sbs:daisyFile')"}})
+        [id count] (extract-paginated-result response)]
+    (cond
+      (zero? count) (throw
+                     (ex-info (format "no daisy-file found for node '%s'" node-id)
+                              {:error-id :no-daisy-file-for-book}))
+      (= count 1) id
+      :else (throw
+             (ex-info (format "multiple daisy-files found for node '%s'" node-id)
+                      {:error-id :multiple-daisy-files-for-book})))))
 
 (defn- content
   "Return the content for a given `node-id`"
