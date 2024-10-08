@@ -150,7 +150,18 @@
                                       (no-content)
                                       (catch clojure.lang.ExceptionInfo e
                                         (log/error (ex-message e))
-                                        (internal-server-error {:status-text (ex-message e)}))))))}}]]]
+                                        (internal-server-error {:status-text (ex-message e)}))))))}
+
+       :delete {:summary "Delete a document including associated words, versions, images and products"
+               :middleware [wrap-restricted wrap-authorized]
+               :swagger {:security [{:apiAuth []}]}
+               :authorized #{:admin :it}
+                :parameters {:path {:id int?}}
+               :handler (fn [{{{:keys [id]} :path} :parameters}]
+                          (let [deleted (documents/delete-document id)]
+                            (if (pos? deleted)
+                              (no-content)
+                              (not-found))))}}]]]
 
    ["/words"
     {:swagger {:tags ["Global Words"]}}

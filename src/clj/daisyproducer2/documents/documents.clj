@@ -1,6 +1,7 @@
 (ns daisyproducer2.documents.documents
   (:require [babashka.fs :as fs]
             [clojure.string :as str]
+            [clojure.tools.logging :as log]
             [daisyproducer2.config :refer [env]]
             [daisyproducer2.db.core :as db]
             [daisyproducer2.metrics :as metrics]
@@ -33,13 +34,17 @@
   [document]
   (assoc document :identifier (uuid/uuid)))
 
+(defn- document-path [id]
+  (let [document-root (env :document-root)
+        path (fs/path document-root (str id))
+        absolute-path (fs/absolutize path)]
+    absolute-path))
+
 (defn insert-document
   [{:keys [id] :as document}]
-  (let [document-root (env :document-root)
-        path (fs/path (str id))
-        absolute-path (fs/absolutize (fs/path document-root path))]
+  (let [path (document-path id)]
     ;; make sure path exists
-    (fs/create-dirs (fs/parent absolute-path))
+    (fs/create-dirs (fs/parent path))
       ;; and store the document in the db
     (-> (db/insert-document document)
         db/get-generated-key)))
@@ -51,7 +56,14 @@
 (defn delete-document
   "Delete a document given an `id`. Return the number of rows affected."
   [id]
-  (db/delete-document {:id id}))
+  (let [path (document-path id)
+        deletions (db/delete-document {:id id})]
+    ;; remove all versions and images in the file system
+    (when-not (fs/delete-tree path)
+      ;; if a path does not exist we simply log that fact, but do not
+      ;; raise an exception
+      (log/errorf "Attempting to delete non-existing document path %s" path))
+    deletions))
 
 (prometheus/instrument! metrics/registry #'get-documents)
 (prometheus/instrument! metrics/registry #'get-document)

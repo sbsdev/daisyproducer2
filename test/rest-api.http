@@ -67,7 +67,10 @@ Content-Type: application/json
 }
 
 # Delete a document
-# doesn't seem to be implemented
+DELETE http://localhost:3000/api/documents/769
+Authorization: :auth-token
+
+# Delete a non-existing document
 DELETE http://localhost:3000/api/documents/31411
 Authorization: :auth-token
 
