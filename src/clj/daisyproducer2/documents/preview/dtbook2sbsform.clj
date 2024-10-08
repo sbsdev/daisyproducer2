@@ -8,7 +8,8 @@
    [babashka.process :as process]
    [clojure.string :as str]
    [clojure.tools.logging :as log]
-   [clojure.java.io :as io]))
+   [clojure.java.io :as io]
+   [daisyproducer2.config :refer [env]]))
 
 (def ^:private executable "/opt/dtbook2sbsform/dtbook2sbsform.sh")
 
@@ -37,10 +38,11 @@
 
 (defn- hyphenate
   [dtbook]
-  (process/shell
-   {:out :string
-    :pre-start-fn log-process}
-   "/usr/bin/java" "-jar" "/usr/local/share/java/dtbook-hyphenator.jar" dtbook))
+  (let [java (env :java17)]
+    (process/shell
+     {:out :string
+      :pre-start-fn log-process}
+     java "-jar" "/usr/local/share/java/dtbook-hyphenator.jar" dtbook)))
 
 (defn- hyphenate-and-translate
   [dtbook output-path opts]
