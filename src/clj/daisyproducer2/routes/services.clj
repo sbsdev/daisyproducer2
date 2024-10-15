@@ -274,7 +274,7 @@
                          (-> {} ok (header "X-Result-Count" total))))}
 
       :put {:summary "Update an unknown word"
-            :middleware [wrap-restricted wrap-authorized]
+            :middleware [wrap-restricted]
             :swagger {:security [{:apiAuth []}]}
             :parameters {:body {:untranslated string?
                                 :type ::type
