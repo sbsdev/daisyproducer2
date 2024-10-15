@@ -41,6 +41,7 @@
   (let [java (env :java17)]
     (process/shell
      {:out :string
+      :extra-env {"LANG" "en_US.UTF-8"}
       :pre-start-fn log-process}
      java "-jar" "/usr/local/share/java/dtbook-hyphenator.jar" dtbook)))
 
