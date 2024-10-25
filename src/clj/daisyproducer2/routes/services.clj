@@ -2,7 +2,7 @@
   (:require
    [babashka.fs :as fs]
    [clojure.spec.alpha :as s]
-   [clojure.string :refer [blank?]]
+   [clojure.string :refer [blank?] :as str]
    [clojure.tools.logging :as log]
    [daisyproducer2.auth :as auth]
    [daisyproducer2.config :refer [env]]
@@ -299,11 +299,12 @@
                           (try
                             (let [[name path] (preview/epub id)]
                               ;; copy the result to a spool dir for the online player if there is a
-                              ;; spool dir defined for the language and if the epub has a known
-                              ;; product-id
+                              ;; spool dir defined for the language and if the epub name contains a
+                              ;; valid product-id
                               (if-let [spool-dir (get-in env [:ebook-spool-dir (:language doc)])]
-                                (when-not (= name "unknown.epub")
-                                  (fs/copy path spool-dir {:replace-existing true})))
+                                (let [product-id (str/replace name #".epub$" "")]
+                                  (when (s/valid? ::product-number product-id)
+                                    (fs/copy path spool-dir {:replace-existing true}))))
                               (let [url (str "/download/" name)]
                                 (created url {:location url})))
                             (catch clojure.lang.ExceptionInfo e
