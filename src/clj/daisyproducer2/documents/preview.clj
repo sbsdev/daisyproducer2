@@ -41,16 +41,17 @@
   "Generate an SBSForm file for given `document` and return a tuple
   containing the name and the path of the generated sbsform file. An
   exception is thrown if the document has no versions."
-  [{document-id :id identifier :identifier} opts]
+  [{document-id :id identifier :identifier} {:keys [contraction] :as opts}]
   (let [dtbook (-> (versions/get-latest document-id)
                    (versions/get-content))
-        name (str document-id ".sbsform")
+        extension (if (= contraction 2) ".bk" ".bv")
+        name (str document-id extension)
         target-dir (fs/path (env :spool-dir))
         path (str (fs/path target-dir name))
         ;; dtbook2sbsform also needs to know the identifier and
         ;; whether the document has local words to generate the
         ;; braille correctly
-        has-local-words? (boolean (seq (db/get-local-words {:id document-id :grade (:contraction opts)})))]
+        has-local-words? (boolean (seq (db/get-local-words {:id document-id :grade contraction})))]
     (dtbook2sbsform/sbsform dtbook path
                             (merge opts {:document_identifier identifier
                                          :use_local_dictionary has-local-words?}))
