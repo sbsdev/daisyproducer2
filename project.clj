@@ -3,7 +3,7 @@
   :description "FIXME: write description"
   :url "https://github.com/sbsdev/daisyproducer2"
 
-  :dependencies [[babashka/fs "0.5.21"]
+  :dependencies [[babashka/fs "0.5.22"]
                  [babashka/process "0.5.22"]
                  [buddy/buddy-auth "3.0.323"]
                  [buddy/buddy-core "1.11.423" :exclusions [commons-codec]]
@@ -41,7 +41,7 @@
                  [luminus-migrations "0.7.5"]
                  [luminus-transit "0.1.6"]
                  [markdown-clj "1.12.1"]
-                 [dev.weavejester/medley "1.8.0"]
+                 [dev.weavejester/medley "1.8.1"]
                  [me.flowthing/sigel "1.0.3"]
                  [metosin/jsonista "0.3.8"]
                  [metosin/muuntaja "0.6.10"]
@@ -50,7 +50,7 @@
                  [mount "0.1.18"]
                  [mysql/mysql-connector-java "8.0.33"]
                  [nrepl "1.1.2"]
-                 [org.apache.pdfbox/pdfbox "3.0.2"]
+                 [org.apache.pdfbox/pdfbox "3.0.3"] ;; to calculate the number of pages in a pdf
                  [org.clojars.pntblnk/clj-ldap "0.0.17"]
                  [org.clojure/clojure "1.11.3"]
                  [org.clojure/clojurescript "1.11.60" :scope "provided"]
@@ -120,8 +120,8 @@
    :project/dev  {:jvm-opts ["-Dconf=dev-config.edn" ]
                   :dependencies [[binaryage/devtools "1.0.7"]
                                  [cider/piggieback "0.5.3"]
-                                 [org.clojure/tools.namespace "1.5.0"]
-                                 [org.clojure/test.check "0.10.0"]
+                                 [org.clojure/tools.namespace "1.5.0" :exclusions [org.clojure/tools.reader]]
+                                 [org.clojure/test.check "1.1.1"]
                                  [com.gfredericks/test.chuck "0.2.14"]
                                  [pjstadig/humane-test-output "0.11.0"]
                                  [prone "2021-04-23"]
@@ -141,7 +141,7 @@
                   :injections [(require 'pjstadig.humane-test-output)
                                (pjstadig.humane-test-output/activate!)]}
    :project/test {:jvm-opts ["-Dconf=test-config.edn" ]
-                  :dependencies [[org.clojure/test.check "0.10.0"]
+                  :dependencies [[org.clojure/test.check "1.1.1"]
                                  [com.gfredericks/test.chuck "0.2.14"]]
                   :resource-paths ["env/test/resources"] 
                   
