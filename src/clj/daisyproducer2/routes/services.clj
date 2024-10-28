@@ -305,7 +305,7 @@
                                 (let [product-id (str/replace name #".epub$" "")]
                                   (when (s/valid? ::product-number product-id)
                                     (fs/copy path spool-dir {:replace-existing true}))))
-                              (let [url (str "/download/" name)]
+                              (let [url (format "/download/%s/epub/%s" id name)]
                                 (created url {:location url})))
                             (catch clojure.lang.ExceptionInfo e
                               (log/error (ex-message e))
@@ -363,7 +363,8 @@
                         (if-let [doc (documents/get-document id)]
                           (try
                             (let [[name _] (preview/sbsform doc opts)
-                                  url (str "/download/" name)]
+                                  contraction (:contraction opts)
+                                  url (format "/download/%s/braille/%s/%s" id contraction name)]
                               (created url {:location url}))
                             (catch clojure.lang.ExceptionInfo e
                               (log/error (ex-message e))
@@ -390,7 +391,8 @@
                         (if-let [doc (documents/get-document id)]
                           (try
                             (let [[name _] (preview/large-print id opts)
-                                  url (str "/download/" name)]
+                                  font-size (or (:font-size opts) 17)
+                                  url (format "/download/%s/large-print/%s/%s" id font-size name)]
                               (created url {:location url}))
                             (catch clojure.lang.ExceptionInfo e
                               (log/error (ex-message e))
@@ -415,7 +417,7 @@
                         (if-let [doc (documents/get-document id)]
                           (try
                             (let [[name _] (preview/open-document id opts)
-                                  url (str "/download/" name)]
+                                  url (format "/download/%s/open-document/%s" id name)]
                               (created url {:location url}))
                             (catch clojure.lang.ExceptionInfo e
                               (log/error (ex-message e))
