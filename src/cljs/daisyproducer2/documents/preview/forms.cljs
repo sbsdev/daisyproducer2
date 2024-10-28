@@ -136,7 +136,7 @@
                                :include-macros true :show-original-page-numbers true
                                :show-v-forms true :downshift-ordinals true
                                :enable-capitalization false
-                               :detailed-accented-chars :swiss :footnote-placement :standard}
+                               :detailed-accented-characters :swiss :footnote-placement :standard}
               :path [:form :braille]
               :prevent-default? true
               :clean-on-unmount? true
@@ -165,7 +165,7 @@
         (checkbox props {:name :show-v-forms :text (tr [:forms/show-v-forms])})
         (checkbox props {:name :downshift-ordinals :text (tr [:forms/downshift-ordinals])})
         (checkbox props {:name :enable-capitalization :text (tr [:forms/enable-capitalization])})
-        (dropdown props {:name :detailed-accented-chars :label (tr [:forms/accented-chars])
+        (dropdown props {:name :detailed-accented-characters :label (tr [:forms/accented-chars])
                                :options [{:swiss (tr [:accented-chars/swiss])} {:basic (tr [:accented-chars/basic])}]})
         (dropdown props {:name :footnote-placement :label (tr [:forms/footnote-placement])
                                :options [{:standard (tr [:footnote-placement/standard])} {:end-vol (tr [:footnote-placement/end-vol])}

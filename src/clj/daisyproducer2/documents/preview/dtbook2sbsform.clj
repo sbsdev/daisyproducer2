@@ -50,6 +50,11 @@
   (-> (hyphenate dtbook)
       (translate dtbook output-path opts)))
 
+(defn- legacy-opt-values [opts]
+  (let [mapping {:basic :de-accents
+                 :swiss :de-accents-ch}]
+    (update opts :detailed-accented-characters #(get mapping %1 %1))))
+
 (defn- stringify-opts
   [[k v]]
   (let [opt-key (str/replace (name k) #"-" "_")]
@@ -65,7 +70,9 @@
   versions."
   [dtbook output-path opts]
   (let [hyphenation? (:hyphenation opts)
-        opts (map stringify-opts opts)]
+        opts (->> opts
+                  legacy-opt-values
+                  (map stringify-opts))]
     (if hyphenation?
       (hyphenate-and-translate dtbook output-path opts)
       (translate dtbook output-path opts))))

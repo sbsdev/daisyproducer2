@@ -356,7 +356,7 @@
                                   :show-v-forms boolean?
                                   :downshift-ordinals boolean?
                                   :enable-capitalization boolean?
-                                  :detailed-accented-chars ::accented-chars
+                                  :detailed-accented-characters ::accented-chars
                                   :footnote-placement ::footnote-placement}}
              :handler (fn [{{{:keys [id]} :path
                              opts :query} :parameters}]
