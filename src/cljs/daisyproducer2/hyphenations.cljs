@@ -222,8 +222,8 @@
      [:label.label (tr [:lookup-hyphenation])]
      [:div.buttons
       [lookup-button "Duden" "http://www.duden.de/suchen/dudenonline/" search]
-      [lookup-button "TU Chemnitz" "http://dict.tu-chemnitz.de/?query=" search]
-      [lookup-button "PONS" "http://de.pons.eu/dict/search/results/?l=dede&q=" search]]]))
+      [lookup-button "DWDS" "https://www.dwds.de/wb/" search]
+      [lookup-button "PONS" "https://de.pons.com/übersetzung/deutsch-englisch/" search]]]))
 
 (defn word []
   (let [get-value (fn [e] (-> e .-target .-value))
