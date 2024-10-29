@@ -78,8 +78,10 @@
           empty? (-> db (get-in [:words :unknown]) count (< 1))]
       (if empty?
         {:db db :dispatch-n [[::fetch-words document-id]
-                             [::decrement-words-total id]]}
-        {:db db :dispatch [::decrement-words-total id]}))))
+                             [::decrement-words-total id]
+                             [::increment-local-words-total]]}
+        {:db db :dispatch-n [[::decrement-words-total id]
+                             [::increment-local-words-total]]}))))
 
 (rf/reg-event-db
  ::ack-failure
@@ -187,6 +189,12 @@
 (rf/reg-event-db
  ::increment-words-total
  (fn [db [_]] (update-in db [:totals :unknown] inc)))
+
+;; I know this should be in the ::local namespace but then we get
+;; circular dependencies
+(rf/reg-event-db
+ ::increment-local-words-total
+ (fn [db [_]] (update-in db [:totals :local] inc)))
 
 (rf/reg-sub
  ::words-total
