@@ -294,10 +294,10 @@
 (defn open-document [{id :id}]
   [fork/form {:initial-values {:math :both
                                :phonetics true
-                               :image-inclusion :linked
+                               :image-inclusion :link
                                :line-numbers true
                                :page-numbers true
-                               :floating-page-numbers true
+                               :floating-page-numbers false
                                :answer-markup "_.."}
               :path [:form :open-document]
               :prevent-default? true
