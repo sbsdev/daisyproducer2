@@ -62,8 +62,11 @@
       [:li [:a {:href uri :on-click on-click} title tag]])))
 
 (defn tab-link [uri title page on-click]
-  (if-let [is-active (= page @(rf/subscribe [:common/page-id]))]
-    [:li.is-active [:a title]]
+  ;; in some cases the page is actually a set of pages. In that case
+  ;; we want the tab to be clickable
+  (if-let [is-active (or (= page @(rf/subscribe [:common/page-id]))
+                         (page @(rf/subscribe [:common/page-id])))]
+    [:li.is-active [:a (when (set? page) {:href uri :on-click on-click}) title]]
     [:li [:a {:href uri :on-click on-click} title]]))
 
 (defn tabs [{:keys [id]}]
@@ -82,7 +85,11 @@
        [tab-link (str "#/documents/" id "/versions") (tr [:versions]) :document-versions (fn [_] (rf/dispatch [::version/fetch-versions id]))]
        [tab-link (str "#/documents/" id "/images") (tr [:images]) :document-images (fn [_] (rf/dispatch [::image/fetch-images id]))]
        [tab-link (str "#/documents/" id "/markup") (tr [:markup]) :document-markup (fn [_] (rf/dispatch [::markup/fetch-latest-version id]))]
-       [tab-link (str "#/documents/" id "/preview") (tr [:preview]) :document-preview]
+       [tab-link (str "#/documents/" id "/preview") (tr [:preview]) #{:document-preview :document-preview-braille
+                                                                      :document-preview-large-print-library :document-preview-large-print-sale
+                                                                      :document-preview-large-print-configurable
+                                                                      :document-preview-epub :document-preview-epub-in-player
+                                                                      :document-preview-open-document}]
        ]]]))
 
 (defn summary [{:keys [title author source-publisher state] :as document}]
