@@ -332,6 +332,16 @@ ORDER BY words.untranslated
 --~ (when (:limit params) "LIMIT :limit")
 --~ (when (:offset params) "OFFSET :offset")
 
+-- :name get-all-local-words-total :? :1
+-- :doc given a `document-id` and a `:grade` retrieve the total of all local words for it. If `:grade` is 0 then return words for both grade 1 and 2. Otherwise just return the local words for the given grade.
+SELECT count(*) AS total
+FROM dictionary_localword AS words
+WHERE words.document_id = :document-id
+-- either uncontracted or contracted should always be non-null so no
+-- need to query for either being non-null in the case of grade 0
+--~ (when (= (:grade params) 1) "AND words.uncontracted IS NOT NULL")
+--~ (when (= (:grade params) 2) "AND words.contracted IS NOT NULL")
+
 -- :name get-local-word :? :1
 -- :doc retrieve a local word record given `document-id`, `untranslated`, `type` and `homograph-disambiguation`.
 SELECT *

@@ -370,6 +370,17 @@ Content-Type: application/json
 	"homograph-disambiguation": ""
 }
 
+###############
+# Local words #
+###############
+
+# Get all local words
+GET http://localhost:3000/api/documents/644/words?grade=0
+
+# Get the total number of unknown words
+HEAD http://localhost:3000/api/documents/644/words?grade=0
+
+
 #################
 # Unknown words #
 #################

@@ -223,6 +223,14 @@
                          (ok words)
                          (not-found)))}
 
+      :head {:summary "Get the total number of local words for a given document. The total is returned as a special Response Header \"X-Result-Count\""
+            :parameters {:path {:id int?}
+                         :query {:grade ::grade}}
+            :handler (fn [{{{:keys [id]} :path
+                            {:keys [grade]} :query} :parameters}]
+                       (let [{total :total} (db/get-all-local-words-total {:document-id id :grade grade})]
+                         (-> {} ok (header "X-Result-Count" total))))}
+
       :put {:summary "Update or create a local word for a given document"
             :middleware [wrap-restricted]
             :swagger {:security [{:apiAuth []}]}
