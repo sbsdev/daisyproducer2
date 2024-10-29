@@ -10,7 +10,7 @@
             [daisyproducer2.words.grade :as grade]
             [daisyproducer2.words.input-fields :as fields]
             [daisyproducer2.words.notifications :as notifications]
-            [daisyproducer2.words.unknown :as unknown]
+            [daisyproducer2.words.totals :as totals]
             [re-frame.core :as rf]))
 
 (defn- get-search [db document-id] (get-in db [:search :local document-id]))
@@ -108,9 +108,9 @@
           empty? (-> db (get-in [:words :local]) count (< 1))]
       (if empty?
         {:db db :dispatch-n [[::fetch-words document-id]
-                             [::unknown/increment-words-total document-id]
+                             [::totals/increment-unknown-words]
                              [::decrement-words-total]]}
-        {:db db :dispatch-n [[::unknown/increment-words-total document-id]
+        {:db db :dispatch-n [[::totals/increment-unknown-words]
                              [::decrement-words-total]]}))))
 
 (rf/reg-event-db

@@ -10,6 +10,7 @@
             [daisyproducer2.words.grade :as grade]
             [daisyproducer2.words.input-fields :as fields]
             [daisyproducer2.words.notifications :as notifications]
+            [daisyproducer2.words.totals :as totals]
             [re-frame.core :as rf]))
 
 (rf/reg-event-fx
@@ -79,9 +80,9 @@
       (if empty?
         {:db db :dispatch-n [[::fetch-words document-id]
                              [::decrement-words-total id]
-                             [::increment-local-words-total]]}
+                             [::totals/increment-local-words]]}
         {:db db :dispatch-n [[::decrement-words-total id]
-                             [::increment-local-words-total]]}))))
+                             [::totals/increment-local-words]]}))))
 
 (rf/reg-event-db
  ::ack-failure
@@ -185,16 +186,6 @@
 (rf/reg-event-db
  ::decrement-words-total
  (fn [db [_]] (update-in db [:totals :unknown] dec)))
-
-(rf/reg-event-db
- ::increment-words-total
- (fn [db [_]] (update-in db [:totals :unknown] inc)))
-
-;; I know this should be in the ::local namespace but then we get
-;; circular dependencies
-(rf/reg-event-db
- ::increment-local-words-total
- (fn [db [_]] (update-in db [:totals :local] inc)))
 
 (rf/reg-sub
  ::words-total
