@@ -1,5 +1,6 @@
 (ns daisyproducer2.words.local
   (:require [ajax.core :as ajax]
+            [ajax.protocols :as pr]
             [clojure.string :as str]
             [daisyproducer2.auth :as auth]
             [daisyproducer2.i18n :refer [tr]]
@@ -107,8 +108,10 @@
           empty? (-> db (get-in [:words :local]) count (< 1))]
       (if empty?
         {:db db :dispatch-n [[::fetch-words document-id]
-                             [::unknown/increment-words-total document-id]]}
-        {:db db :dispatch [::unknown/increment-words-total document-id]}))))
+                             [::unknown/increment-words-total document-id]
+                             [::decrement-words-total]]}
+        {:db db :dispatch-n [[::unknown/increment-words-total document-id]
+                             [::decrement-words-total]]}))))
 
 (rf/reg-event-db
  ::ack-failure
@@ -167,6 +170,40 @@
  ::valid?
  (fn [db [_ id]]
    (validation/word-valid? (get-in db [:words :local id]))))
+
+(rf/reg-event-fx
+  ::fetch-words-total
+  (fn [{:keys [db]} [_ id]]
+    (let [grade (grade/get-grade db)]
+      {:http-xhrio {:method          :head
+                    :format          (ajax/url-request-format)
+                    :uri             (str "/api/documents/" id "/words")
+                    :url-params      {:grade grade}
+                    ;; we are only interested in the headers of the response, not in the response
+                    ;; body itself. So we have to specify a special response format, see
+                    ;; https://github.com/JulianBirch/cljs-ajax/blob/master/docs/formats.md#non-standard-formats
+                    :response-format {:read (fn [resp] (pr/-get-response-header resp "x-result-count"))
+                                      :description "X-Result-Count header"}
+                    :on-success      [::fetch-words-total-success]
+                    :on-failure      [::fetch-words-total-failure :fetch-words]}})))
+
+(rf/reg-event-db
+ ::fetch-words-total-success
+ (fn [db [_ total]] (assoc-in db [:totals :local] (parse-long total))))
+
+(rf/reg-event-db
+ ::fetch-words-total-failure
+ (fn [db [_ request-type response]]
+   (notifications/set-errors db request-type (get response :status-text))))
+
+(rf/reg-event-db
+ ::decrement-words-total
+ (fn [db [_]] (update-in db [:totals :local] dec)))
+
+(rf/reg-sub
+ ::words-total
+ (fn [db _] (get-in db [:totals :local] 0)))
+
 
 (defn buttons [id]
   (let [valid? @(rf/subscribe [::valid? id])

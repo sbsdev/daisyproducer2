@@ -50,11 +50,12 @@
   (fn [{:keys [db]} [_ id]]
     {:dispatch-n [[::fetch-current id]
                   [::product/fetch-products id]
-                  [::unknown/fetch-words-total id]]}))
+                  [::unknown/fetch-words-total id]
+                  [::local/fetch-words-total id]]}))
 
 
-(defn tab-link-with-total [uri title page on-click]
-  (let [total @(rf/subscribe [::unknown/words-total])
+(defn tab-link-with-total [uri title page subscription on-click]
+  (let [total @(rf/subscribe subscription)
         tag [:span.tag.is-rounded total]]
     (if-let [is-active (= page @(rf/subscribe [:common/page-id]))]
       [:li.is-active [:a title tag]]
@@ -73,10 +74,11 @@
        [tab-link (str "#/documents/" id) (tr [:details]) :document]
        ;; only show the unknown and local words for German books
        (when german?
-         [tab-link-with-total (str "#/documents/" id "/unknown") (tr [:unknown-words]) :document-unknown
+         [tab-link-with-total (str "#/documents/" id "/unknown") (tr [:unknown-words]) :document-unknown [::unknown/words-total]
           (fn [_] (rf/dispatch [::unknown/fetch-words id]) (rf/dispatch [::unknown/fetch-words-total id]))])
        (when german?
-         [tab-link (str "#/documents/" id "/local") (tr [:local-words]) :document-local (fn [_] (rf/dispatch [::local/fetch-words id]))])
+         [tab-link-with-total (str "#/documents/" id "/local") (tr [:local-words]) :document-local [::local/words-total]
+          (fn [_] (rf/dispatch [::local/fetch-words id]) (rf/dispatch [::local/fetch-words-total id]))])
        [tab-link (str "#/documents/" id "/versions") (tr [:versions]) :document-versions (fn [_] (rf/dispatch [::version/fetch-versions id]))]
        [tab-link (str "#/documents/" id "/images") (tr [:images]) :document-images (fn [_] (rf/dispatch [::image/fetch-images id]))]
        [tab-link (str "#/documents/" id "/markup") (tr [:markup]) :document-markup (fn [_] (rf/dispatch [::markup/fetch-latest-version id]))]
