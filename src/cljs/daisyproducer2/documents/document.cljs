@@ -64,10 +64,10 @@
 (defn tab-link [uri title page on-click]
   ;; in some cases the page is actually a set of pages. In that case
   ;; we want the tab to be clickable
-  (if-let [is-active (or (= page @(rf/subscribe [:common/page-id]))
-                         (page @(rf/subscribe [:common/page-id])))]
-    [:li.is-active [:a (when (set? page) {:href uri :on-click on-click}) title]]
-    [:li [:a {:href uri :on-click on-click} title]]))
+  (let [current-page @(rf/subscribe [:common/page-id])]
+    (if-let [is-active (or (= page current-page) (contains? page current-page))]
+      [:li.is-active [:a (when (set? page) {:href uri :on-click on-click}) title]]
+      [:li [:a {:href uri :on-click on-click} title]])))
 
 (defn tabs [{:keys [id]}]
   (let [german? @(rf/subscribe [::current-is-german])]
