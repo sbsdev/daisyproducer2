@@ -112,12 +112,12 @@
   (let [authenticated? @(rf/subscribe [::auth/authenticated?])
         has-images? @(rf/subscribe [::images?])]
     [:div.buttons.has-addons.is-right
-     [:button.button.is-danger.has-tooltip-arrow
+     [:button.button.is-danger
       {:disabled (not (and authenticated? has-images?))
-       :data-tooltip (tr [:delete-all-images])
        :aria-label (tr [:delete-all-images])
        :on-click (fn [e] (rf/dispatch [::delete-all-images document-id]))}
-      [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]]]))
+      [:span.icon {:aria-hidden true} [:i.mi.mi-delete]]
+      [:span (tr [:delete-all-images])]]]))
 
 (rf/reg-sub ::search (fn [db [_ document-id]] (get-search db document-id) ))
 
@@ -142,13 +142,12 @@
 
 (defn image-upload [document-id]
   (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
-    [:a.button.is-primary.has-tooltip-arrow
+    [:a.button.is-primary
      {:href (str "#/documents/" document-id "/images/upload")
-      :data-tooltip (tr [:new-image])
       :aria-label (tr [:new-image])
       :disabled (not authenticated?)}
-     [:span.icon {:aria-hidden true}
-      [:i.mi {:class "mi-upload"}]]]))
+     [:span.icon {:aria-hidden true} [:i.mi.mi-upload]]
+     [:span (tr [:new-image])]]))
 
 (defn image-filter [document-id]
   [:div.field.is-horizontal

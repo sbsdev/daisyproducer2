@@ -179,13 +179,12 @@
 
 (defn version-upload [document-id]
   (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
-    [:a.button.is-primary.has-tooltip-arrow
+    [:a.button.is-primary
      {:href (str "#/documents/" document-id "/versions/upload")
-      :data-tooltip (tr [:new-version])
       :aria-label (tr [:new-version])
       :disabled (not authenticated?)}
-     [:span.icon {:aria-hidden true}
-      [:i.mi {:class "mi-upload"}]]]))
+     [:span.icon {:aria-hidden true} [:i.mi.mi-upload]]
+     [:span (tr [:new-version])]]))
 
 (defn version-filter [document-id]
   [:div.field.is-horizontal
