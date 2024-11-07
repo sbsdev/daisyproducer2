@@ -75,22 +75,21 @@
      [:div.tabs.is-boxed
       [:ul
        [tab-link (str "#/documents/" id) (tr [:details]) :document]
+       [tab-link (str "#/documents/" id "/versions") (tr [:versions]) :document-versions (fn [_] (rf/dispatch [::version/fetch-versions id]))]
+       [tab-link (str "#/documents/" id "/markup") (tr [:markup]) :document-markup (fn [_] (rf/dispatch [::markup/fetch-latest-version id]))]
+       [tab-link (str "#/documents/" id "/images") (tr [:images]) :document-images (fn [_] (rf/dispatch [::image/fetch-images id]))]
+       [tab-link (str "#/documents/" id "/preview") (tr [:preview]) #{:document-preview :document-preview-braille
+                                                                      :document-preview-large-print-library :document-preview-large-print-sale
+                                                                      :document-preview-large-print-configurable
+                                                                      :document-preview-epub :document-preview-epub-in-player
+                                                                      :document-preview-open-document}]
        ;; only show the unknown and local words for German books
        (when german?
          [tab-link-with-total (str "#/documents/" id "/unknown") (tr [:unknown-words]) :document-unknown [::unknown/words-total]
           (fn [_] (rf/dispatch [::unknown/fetch-words id]) (rf/dispatch [::unknown/fetch-words-total id]))])
        (when german?
          [tab-link-with-total (str "#/documents/" id "/local") (tr [:local-words]) :document-local [::local/words-total]
-          (fn [_] (rf/dispatch [::local/fetch-words id]) (rf/dispatch [::local/fetch-words-total id]))])
-       [tab-link (str "#/documents/" id "/versions") (tr [:versions]) :document-versions (fn [_] (rf/dispatch [::version/fetch-versions id]))]
-       [tab-link (str "#/documents/" id "/images") (tr [:images]) :document-images (fn [_] (rf/dispatch [::image/fetch-images id]))]
-       [tab-link (str "#/documents/" id "/markup") (tr [:markup]) :document-markup (fn [_] (rf/dispatch [::markup/fetch-latest-version id]))]
-       [tab-link (str "#/documents/" id "/preview") (tr [:preview]) #{:document-preview :document-preview-braille
-                                                                      :document-preview-large-print-library :document-preview-large-print-sale
-                                                                      :document-preview-large-print-configurable
-                                                                      :document-preview-epub :document-preview-epub-in-player
-                                                                      :document-preview-open-document}]
-       ]]]))
+          (fn [_] (rf/dispatch [::local/fetch-words id]) (rf/dispatch [::local/fetch-words-total id]))])]]]))
 
 (defn summary [{:keys [title author source-publisher state] :as document}]
   [:div.block
