@@ -209,9 +209,9 @@
                      :on-key-down #(when (= (.-which %) 27) (reset!))}]]]))
 
 (defn lookup-button [label href search]
-  (let [disabled (when (str/blank? search) "disabled")]
-    [:a.button {:href (str href search)
-                :disabled disabled
+  (let [disabled? (when (str/blank? search) "disabled")]
+    [:a.button {:href (when-not disabled? (str href search))
+                :disabled disabled?
                 :target "_blank" }
      label]))
 

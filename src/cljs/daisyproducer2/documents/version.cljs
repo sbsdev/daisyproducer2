@@ -180,7 +180,7 @@
 (defn version-upload [document-id]
   (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
     [:a.button.is-primary
-     {:href (str "#/documents/" document-id "/versions/upload")
+     {:href (when authenticated? (str "#/documents/" document-id "/versions/upload"))
       :aria-label (tr [:new-version])
       :disabled (not authenticated?)}
      [:span.icon {:aria-hidden true} [:i.mi.mi-upload]]

@@ -143,7 +143,7 @@
 (defn image-upload [document-id]
   (let [authenticated? @(rf/subscribe [::auth/authenticated?])]
     [:a.button.is-primary
-     {:href (str "#/documents/" document-id "/images/upload")
+     {:href (when authenticated? (str "#/documents/" document-id "/images/upload"))
       :aria-label (tr [:new-image])
       :disabled (not authenticated?)}
      [:span.icon {:aria-hidden true} [:i.mi.mi-upload]]
