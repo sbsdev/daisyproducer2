@@ -40,6 +40,5 @@
      {:class (when loading? "is-loading")
       :disabled (not authenticated?)
       :on-click (fn [e] (rf/dispatch [::synchronize id]))}
-     [:span.icon {:aria-hidden true}
-      [:i.material-icons "sync"]]
+     [:span.icon {:aria-hidden true} [:i.mi.mi-sync]]
      [:span (tr [:synchronize])]]))

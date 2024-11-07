@@ -126,8 +126,7 @@
         :class (when submitting? "is-loading")
         :disabled (disabled? name)}
        [:span label]
-       [:span.icon {:aria-hidden true}
-        [:i.material-icons "download"]]]]]]])
+       [:span.icon {:aria-hidden true} [:i.mi.mi-download]]]]]]])
 
 (defn braille [{id :id}]
   [fork/form {:initial-values {:cells-per-line 28 :lines-per-page 28

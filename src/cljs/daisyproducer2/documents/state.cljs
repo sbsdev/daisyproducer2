@@ -62,12 +62,10 @@
       [:button.button.is-success
        {:on-click (fn [e] (rf/dispatch [::update-state document "closed"]))
         :disabled (not admin?)}
-       [:span.icon {:aria-hidden true}
-        [:i.mi.mi-verified]]
+       [:span.icon {:aria-hidden true} [:i.mi.mi-verified]]
        [:span (tr [:close])]]
       [:button.button.is-success.is-light
        {:on-click (fn [e] (rf/dispatch [::update-state document "open"]))
         :disabled (not admin?)}
-       [:span.icon {:aria-hidden true}
-        [:i.mi.mi-refresh]]
+       [:span.icon {:aria-hidden true} [:i.mi.mi-refresh]]
        [:span (tr [:reopen])]])))

@@ -33,8 +33,7 @@
     [:a.button
      {:href (str "#/documents/" id "/preview/epub-in-player")}
      [:span (tr [:online-player])]
-     [:span.icon {:aria-hidden true}
-      [:i.mi.mi-open-in-new]]]]])
+     [:span.icon {:aria-hidden true} [:i.mi.mi-open-in-new]]]]])
 
 (defn- open-document-buttons [id]
   [:div.field
