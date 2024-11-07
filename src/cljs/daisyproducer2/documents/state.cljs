@@ -22,7 +22,7 @@
 
 (rf/reg-event-db
   ::set-current-state
-  (fn [db [_ state]] (assoc-in db [:current-document :state] state)))
+  (fn [db [_ state]] (assoc-in db [:current :document :state] state)))
 
 (rf/reg-event-fx
   ::update-state

@@ -11,7 +11,7 @@
 (rf/reg-event-fx
   ::set-grade
   (fn [{:keys [db]} [_ grade dispatch]]
-    (let [id (-> db :current-document :id)]
+    (let [id (-> db :current :document :id)]
       {:db (assoc db :current-grade (js/parseInt grade))
        :dispatch [dispatch id]})))
 

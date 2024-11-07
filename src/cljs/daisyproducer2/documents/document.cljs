@@ -20,7 +20,7 @@
 (rf/reg-sub
  ::current
  (fn [db _]
-   (-> db :current-document)))
+   (-> db :current :document)))
 
 (rf/reg-sub
  ::current-is-german
@@ -30,12 +30,12 @@
 (rf/reg-event-db
   ::set-current
   (fn [db [_ document]]
-    (assoc db :current-document document)))
+    (assoc-in db [:current :document] document)))
 
 (rf/reg-event-db
   ::clear-current
   (fn [db [_]]
-    (dissoc db :current-document)))
+    (update-in db [:current] dissoc :document)))
 
 (rf/reg-event-fx
   ::fetch-current
