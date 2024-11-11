@@ -167,12 +167,13 @@
 
 (defn buttons [id]
   (let [valid? @(rf/subscribe [::valid? id])
-        admin? @(rf/subscribe [::auth/is-admin?])]
+        roles @(rf/subscribe [::auth/user-roles])
+        authorized? (auth/intersect? roles #{:admin})]
     [:div.buttons.has-addons
      (if @(rf/subscribe [::notifications/button-loading? id :save])
        [:button.button.is-success.is-loading]
        [:button.button.is-success.has-tooltip-arrow
-        {:disabled (not (and valid? admin?))
+        {:disabled (not (and valid? authorized?))
          :data-tooltip (tr [:save])
          :aria-label (tr [:save])
          :on-click (fn [e] (rf/dispatch [::save-word id]))}
@@ -180,7 +181,7 @@
      (if @(rf/subscribe [::notifications/button-loading? id :delete])
        [:button.button.is-danger.is-loading]
        [:button.button.is-danger.has-tooltip-arrow
-        {:disabled (not admin?)
+        {:disabled (not authorized?)
          :data-tooltip (tr [:delete])
          :aria-label (tr [:delete])
          :on-click (fn [e] (rf/dispatch [::delete-word id]))}

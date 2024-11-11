@@ -52,20 +52,20 @@
          (notifications/set-errors :document message errors)
          (notifications/clear-button-state :document :update)))))
 
-
 (defn button
   "Button to change the state of a production"
   [document]
-  (let [admin? @(rf/subscribe [::auth/is-admin?])
+  (let [roles @(rf/subscribe [::auth/user-roles])
+        authorized? (auth/intersect? roles #{:admin :review})
         state @(rf/subscribe [::current-state])]
     (if (= state "open")
       [:button.button.is-success
        {:on-click (fn [e] (rf/dispatch [::update-state document "closed"]))
-        :disabled (not admin?)}
+        :disabled (not authorized?)}
        [:span.icon {:aria-hidden true} [:i.mi.mi-verified]]
        [:span (tr [:close])]]
       [:button.button.is-success.is-light
        {:on-click (fn [e] (rf/dispatch [::update-state document "open"]))
-        :disabled (not admin?)}
+        :disabled (not authorized?)}
        [:span.icon {:aria-hidden true} [:i.mi.mi-refresh]]
        [:span (tr [:reopen])]])))

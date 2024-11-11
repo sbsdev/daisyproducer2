@@ -32,7 +32,7 @@
 
 (defn navbar []
   (r/with-let [expanded? (r/atom false)]
-    (let [is-admin? @(rf/subscribe [::auth/is-admin?])]
+    (let [roles @(rf/subscribe [::auth/user-roles])]
       [:nav.navbar.is-info>div.container
        [:div.navbar-brand
         [:span.navbar-item {:style {:font-weight :bold}} "daisyproducer2"]
@@ -46,7 +46,8 @@
         [:div.navbar-start
          [nav-link "#/" (tr [:documents]) :documents]
          [nav-link "#/hyphenations" (tr [:hyphenations]) :hyphenations]
-         (when is-admin? [nav-link "#/confirm" (tr [:confirm]) :confirm])
+         (when (auth/intersect? roles #{:admin})
+           [nav-link "#/confirm" (tr [:confirm]) :confirm])
          [nav-link "#/words" (tr [:words]) :words]]
         [:div.navbar-end
          [:div.navbar-item

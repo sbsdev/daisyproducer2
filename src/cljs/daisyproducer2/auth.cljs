@@ -1,5 +1,6 @@
 (ns daisyproducer2.auth
   (:require [ajax.core :as ajax]
+            [clojure.set :as set]
             [daisyproducer2.events]
             [daisyproducer2.words.notifications :as notifications]
             [daisyproducer2.i18n :refer [tr]]
@@ -63,6 +64,14 @@
  ::user-given-name
  :<- [::user]
  (fn [user] (-> user :givenName)))
+
+(rf/reg-sub
+ ::user-roles
+ :<- [::user]
+ (fn [user] (-> user :roles)))
+
+(defn intersect? [user-roles roles]
+  (some? (not-empty (set/intersection user-roles roles))))
 
 (defn auth-header [db]
   (let [token (get-in db [:credentials :token])]
