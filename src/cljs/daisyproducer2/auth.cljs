@@ -4,7 +4,6 @@
             [daisyproducer2.events]
             [daisyproducer2.words.notifications :as notifications]
             [daisyproducer2.i18n :refer [tr]]
-            [daisyproducer2.utils :as utils]
             [re-frame.core :as rf]
             [reagent.core :as r]))
 
@@ -44,11 +43,6 @@
  ::authenticated?
  (fn [db [_ _]]
    (-> db :credentials some?)))
-
-(rf/reg-sub
- ::is-admin?
- (fn [db [_ _]]
-   (-> db :credentials :user utils/is-admin?)))
 
 (rf/reg-sub
  ::user
