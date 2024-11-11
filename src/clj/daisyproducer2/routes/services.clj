@@ -136,7 +136,7 @@
        :patch {:summary "Patch a document, e.g. update the state"
                :middleware [wrap-restricted wrap-authorized]
                :swagger {:security [{:apiAuth []}]}
-               :authorized #{:admin :it}
+               :authorized #{:admin :review}
                :parameters {:path {:id int?}
                             :body {:state ::state}}
                :handler (fn [{{{:keys [id]} :path {:keys [state]} :body} :parameters}]
@@ -155,7 +155,7 @@
        :delete {:summary "Delete a document including associated words, versions, images and products"
                :middleware [wrap-restricted wrap-authorized]
                :swagger {:security [{:apiAuth []}]}
-               :authorized #{:admin :it}
+               :authorized #{:admin}
                 :parameters {:path {:id int?}}
                :handler (fn [{{{:keys [id]} :path} :parameters}]
                           (let [deleted (documents/delete-document id)]
@@ -194,7 +194,7 @@
       :delete {:summary "Delete a global word"
                :middleware [wrap-restricted wrap-authorized]
                :swagger {:security [{:apiAuth []}]}
-               :authorized #{:admin :it}
+               :authorized #{:admin}
                :parameters {:body {:untranslated string?
                                    :type int?
                                    :uncontracted ::braille
@@ -234,6 +234,7 @@
       :put {:summary "Update or create a local word for a given document"
             :middleware [wrap-restricted]
             :swagger {:security [{:apiAuth []}]}
+            :authorized #{:user :admin}
             :parameters {:body {:untranslated string? :type int?
                                 (spec/opt :uncontracted) ::braille
                                 (spec/opt :contracted) ::braille
@@ -248,6 +249,7 @@
       :delete {:summary "Delete a local word for a given document"
                :middleware [wrap-restricted]
                :swagger {:security [{:apiAuth []}]}
+               :authorized #{:user :admin}
                :parameters {:body {:untranslated string? :type int?
                                    (spec/opt :uncontracted) ::braille
                                    (spec/opt :contracted) ::braille
@@ -284,6 +286,7 @@
       :put {:summary "Update an unknown word"
             :middleware [wrap-restricted]
             :swagger {:security [{:apiAuth []}]}
+            :authorized #{:user :admin}
             :parameters {:body {:untranslated string?
                                 :type ::type
                                 :homograph-disambiguation string?
@@ -459,6 +462,7 @@
        :post {:summary "Create a new version for a given document"
               :middleware [wrap-restricted]
               :swagger {:security [{:apiAuth []}]}
+              :authorized #{:user :admin}
               :parameters {:path {:id int?}
                            :multipart {:file multipart/temp-file-part
                                        :comment string?}}
@@ -488,6 +492,7 @@
         :delete {:summary "Delete a version"
                  :middleware [wrap-restricted]
                  :swagger {:security [{:apiAuth []}]}
+                 :authorized #{:admin}
                  :parameters {:path {:id int? :version-id int?}}
                  :handler (fn [{{{:keys [id version-id]} :path} :parameters}]
                             (let [deleted (versions/delete-version id version-id)]
@@ -512,6 +517,7 @@
        :post {:summary "Add a new image to a given document"
               :middleware [wrap-restricted]
               :swagger {:security [{:apiAuth []}]}
+              :authorized #{:user :admin}
               :parameters {:path {:id int?} :multipart {:file multipart/temp-file-part}}
               :handler (fn [{{{:keys [id]} :path {{:keys [filename tempfile]} :file} :multipart} :parameters
                              {{uid :uid} :user} :identity}]
@@ -527,6 +533,7 @@
        :delete {:summary "Delete all images of a given document"
                 :middleware [wrap-restricted]
                 :swagger {:security [{:apiAuth []}]}
+                :authorized #{:user :admin}
                 :parameters {:path {:id int?}}
                 :handler (fn [{{{:keys [id]} :path} :parameters
                                {{uid :uid} :user} :identity}]
@@ -544,6 +551,7 @@
        :delete {:summary "Delete an image"
                 :middleware [wrap-restricted]
                 :swagger {:security [{:apiAuth []}]}
+                :authorized #{:user :admin}
                 :parameters {:path {:id int? :image-id int?}}
                 :handler (fn [{{{:keys [id image-id]} :path} :parameters}]
                            (let [deleted (images/delete-image id image-id)]
@@ -565,6 +573,7 @@
        :post {:summary "Add a new product to a given document"
               :middleware [wrap-restricted]
               :swagger {:security [{:apiAuth []}]}
+              :authorized #{:admin}
               :parameters {:path {:id int?}
                            :body {:product-number ::product-number
                                   :type ::product-type}}
@@ -586,6 +595,7 @@
        :delete {:summary "Delete a product"
                 :middleware [wrap-restricted]
                 :swagger {:security [{:apiAuth []}]}
+                :authorized #{:admin}
                 :parameters {:path {:id int? :product-id int?}}
                 :handler (fn [{{{:keys [product-id]} :path} :parameters}]
                            (let [deleted (products/delete-product product-id)]
@@ -635,6 +645,7 @@
       :put {:summary "Update or create a hyphenation"
             :middleware [wrap-restricted]
             :swagger {:security [{:apiAuth []}]}
+            :authorized #{:user :admin}
             :parameters {:body {:word string?
                                 :hyphenation string?
                                 :spelling ::spelling}}
@@ -645,6 +656,7 @@
       :delete {:summary "Delete a hyphenation"
                :middleware [wrap-restricted]
                :swagger {:security [{:apiAuth []}]}
+               :authorized #{:user :admin}
                :parameters {:body {:word string?
                                    :spelling ::spelling
                                    :hyphenation string?}}
@@ -712,6 +724,7 @@
       :post {:summary "Update a production with content from the archive"
              :middleware [wrap-restricted]
              :swagger {:security [{:apiAuth []}]}
+             :authorized #{:user :admin}
              :parameters {:path {:id int?}}
              :handler (fn [{{{:keys [id]} :path} :parameters
                             {{uid :uid} :user} :identity}]
