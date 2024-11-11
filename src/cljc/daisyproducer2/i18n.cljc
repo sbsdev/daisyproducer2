@@ -255,7 +255,7 @@
                     :closed "Fertig"
                     :close "Abschliessen"
                     :reopen "Wiedereröffnen"
-                    :synchronize "Letzte Version vom Archive holen"
+                    :synchronize "Letzte Version vom Archiv holen"
                     ;;
                     :title "Titel"
                     :author "Autor"
