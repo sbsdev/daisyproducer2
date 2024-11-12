@@ -10,6 +10,11 @@ There are three roles
 - review :: A user that can close and reopen a production
 - admin :: Can do everything. Some of the end points are not exposed in the user interface. These can still be invoked via the REST API though
 
+* Role names
+- ~daisyproducer.user~
+- ~daisyproducer.review~
+- ~daisyproducer.admin~
+
 * Actions
 
 | Actions | URL                                        | Description                                                         | in UI | user | review | admin |
