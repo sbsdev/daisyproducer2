@@ -63,7 +63,7 @@
 
 * State diagram
 ** Import
-#+begin_src plantuml :file ABACUS_import.png
+#+begin_src plantuml :file ABACUS_import.png :results file graphics
   @startuml
     start
     :Receive ABACUS XML;
@@ -99,7 +99,7 @@
 [[file:ABACUS_import.png]]
 
 ** Alfresco synchronization
-#+begin_src plantuml :file Alfresco_sync.png
+#+begin_src plantuml :file Alfresco_sync.png :results file graphics
 @startuml
   start
   if (document has been archived before) then (yes)
