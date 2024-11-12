@@ -1,0 +1,53 @@
+#+options: ^:nil num:t pri:t toc:nil
+#+title: REST API and Roles
+
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://gongzhitaao.org/orgcss/org.css"/>
+
+* Roles
+
+There are three roles
+- user :: The standard user without any special privileges
+- review :: A user that can close and reopen a production
+- admin :: Can do everything. Some of the end points are not exposed in the user interface. These can still be invoked via the REST API though
+
+* Actions
+
+| Actions | URL                                        | Description                                                         | in UI | user | review | admin |
+|---------+--------------------------------------------+---------------------------------------------------------------------+-------+------+--------+-------|
+| GET     | /api/documents                             | Get all documents                                                   | X     | -    | -      | -     |
+| GET     | /api/documents/{id}                        | Get a document by ID                                                | X     | -    | -      | -     |
+| PATCH   | /api/documents/{id}                        | Patch a document, e.g. update the state                             | X     |      | X      | X     |
+| DELETE  | /api/documents/{id}                        | Delete a document including words, versions, images and products    |       |      |        | X     |
+| GET     | /api/words                                 | Get global words.                                                   | X     | -    | -      | -     |
+| PUT     | /api/words                                 | Update or create a global word                                      | X     |      |        | X     |
+| DELETE  | /api/words                                 | Delete a global word                                                | X     |      |        | X     |
+| GET     | /api/documents/{id}/words                  | Get all local words for a given document                            | X     | -    | -      | -     |
+| PUT     | /api/documents/{id}/words                  | Update or create a local word for a given document                  | X     | X    |        | X     |
+| DELETE  | /api/documents/{id}/words                  | Delete a local word for a given document                            | X     | X    |        | X     |
+| GET     | /api/documents/{id}/unknown-words          | Get all unknown words for a given document                          | X     | -    | -      | -     |
+| PUT     | /api/documents/{id}/unknown-words          | Update an unknown word (ignore)                                     | X     | X    |        | X     |
+| GET     | /api/documents/{id}/preview/epub           | Get an EPUB file for a document                                     | X     | -    | -      | -     |
+| GET     | /api/documents/{id}/preview/epub-in-player | Generate the EPUB and redirect to a view of it in the online player | X     | -    | -      | -     |
+| GET     | /api/documents/{id}/preview/braille        | Get a braille file for a document                                   | X     | -    | -      | -     |
+| GET     | /api/documents/{id}/preview/large-print    | Get a large print file for a document                               | X     | -    | -      | -     |
+| GET     | /api/documents/{id}/preview/open-document  | Get an OpenDocument Text Document (ODT) for a document              | X     | -    | -      | -     |
+| GET     | /api/documents/{id}/versions               | Get all versions of a given document                                | X     | -    | -      | -     |
+| POST    | /api/documents/{id}/versions               | Create a new version for a given document                           | X     | X    |        | X     |
+| GET     | /api/documents/{id}/versions/{version-id}  | Get a version                                                       | X     | -    | -      | -     |
+| DELETE  | /api/documents/{id}/versions/{version-id}  | Delete a version                                                    |       |      |        | X     |
+| GET     | /api/documents/{id}/images                 | Get all images of a given document                                  | X     | -    | -      | -     |
+| POST    | /api/documents/{id}/images                 | Add a new image to a given document                                 | X     | X    |        | X     |
+| DELETE  | /api/documents/{id}/images                 | Delete all images of a given document                               | X     | X    |        | X     |
+| GET     | /api/documents/{id}/images/{image-id}      | Get an image                                                        | X     | -    | -      | -     |
+| DELETE  | /api/documents/{id}/images/{image-id}      | Delete an image                                                     | X     | X    |        | X     |
+| POST    | /api/documents/{id}/products               | Add a new product to a given document                               |       |      |        | X     |
+| DELETE  | /api/documents/{id}/products/{product-id}  | Delete a product                                                    |       |      |        | X     |
+| GET     | /api/confirmable                           | Get all local words that are ready to be confirmed                  | X     | -    | -      | -     |
+| PUT     | /api/confirmable                           | Confirm a local word                                                | X     |      |        | X     |
+| GET     | /api/hyphenations                          | Get hyphenations by spelling                                        | X     | -    | -      | -     |
+| PUT     | /api/hyphenations                          | Update or create a hyphenation                                      | X     | X    |        | X     |
+| DELETE  | /api/hyphenations                          | Delete a hyphenation                                                | X     | X    |        | X     |
+| GET     | /api/hyphenations/suggested                | Get the suggested hyphenation for a given word and spelling         | X     | -    | -      | -     |
+| POST    | /api/abacus/import                         | Add a production                                                    |       | -    | -      | -     |
+| GET     | /api/alfresco/{id}                         | Check whether a production has been archived before                 |       | -    | -      | -     |
+| POST    | /api/alfresco/{id}                         | Update a production with content from the archive                   | X     | X    |        | X     |
