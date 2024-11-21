@@ -339,6 +339,12 @@ GET http://localhost:3000/api/documents/644/preview/open-document?asciimath=asci
 # Get the actual ODT artifact
 GET http://localhost:3000/download/644.odt
 
+# Get HTML
+GET http://localhost:3000/api/documents/644/preview/html
+
+# Get the actual html artifact
+GET http://localhost:3000/download/644/html/644.html
+
 #########
 # Words #
 #########

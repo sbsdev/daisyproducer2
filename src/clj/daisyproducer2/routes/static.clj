@@ -60,5 +60,9 @@
    ["/open-document/:file" {:parameters {:path {:id int?
                                                 :file string?}}
                             :handler (created-assets-handler
-                                      (fn [title _] (format "%s.odt" title)))}]])
+                                      (fn [title _] (format "%s.odt" title)))}]
+   ["/html/:file" {:parameters {:path {:id int?
+                                       :file string?}}
+                   :handler (created-assets-handler
+                             (fn [title _] (format "%s.html" title)))}]])
 

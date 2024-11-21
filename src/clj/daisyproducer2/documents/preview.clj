@@ -4,6 +4,7 @@
    [daisyproducer2.config :refer [env]]
    [daisyproducer2.db.core :as db]
    [daisyproducer2.documents.images :as images]
+   [daisyproducer2.documents.preview.dtbook2html :as dtbook2html]
    [daisyproducer2.documents.preview.dtbook2pdf :as dtbook2pdf]
    [daisyproducer2.documents.preview.dtbook2sbsform :as dtbook2sbsform]
    [daisyproducer2.documents.versions :as versions]
@@ -88,8 +89,24 @@
      (scripts/dtbook-to-odt dtbook images path opts)
      [name path])))
 
+(defn html
+  "Generate an HTML file for given `document-id` and return a tuple
+  containing the name and the path of the generated file. An exception
+  is thrown if the document has no versions."
+  [document-id]
+  (let [dtbook (-> (versions/get-latest document-id)
+                   (versions/get-content))
+        images (->> (images/get-images document-id)
+                    (map images/image-path))
+        name (format "%s.html" document-id)
+        target-dir (fs/path (env :spool-dir))
+        path (str (fs/path target-dir name))]
+    (dtbook2html/dtbook2html dtbook images path)
+    [name path]))
+
 (prometheus/instrument! metrics/registry #'epub)
 (prometheus/instrument! metrics/registry #'sbsform)
 (prometheus/instrument! metrics/registry #'large-print)
 (prometheus/instrument! metrics/registry #'open-document)
+(prometheus/instrument! metrics/registry #'html)
 

@@ -436,6 +436,23 @@
                             (catch java.nio.file.FileSystemException e
                               (log/error (str e))
                               (internal-server-error {:status-text (str e)})))
+                          (not-found)))}}]
+
+     ["/html"
+      {:get {:summary "Get an HTML for a document by ID"
+             :parameters {:path {:id int?}}
+             :handler (fn [{{{:keys [id]} :path} :parameters}]
+                        (if-let [doc (documents/get-document id)]
+                          (try
+                            (let [[name _] (preview/html id)
+                                  url (format "/download/%s/html/%s" id name)]
+                              (created url {:location url}))
+                            (catch clojure.lang.ExceptionInfo e
+                              (log/error (ex-message e))
+                              (internal-server-error {:status-text (ex-message e)}))
+                            (catch java.nio.file.FileSystemException e
+                              (log/error (str e))
+                              (internal-server-error {:status-text (str e)})))
                           (not-found)))}}]]
 
     ["/versions"

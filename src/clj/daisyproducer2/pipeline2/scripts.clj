@@ -24,6 +24,19 @@
                   out (io/output-stream epub)]
         (io/copy in out)))))
 
+(defn dtbook-to-html [dtbook images html]
+  (pipeline2/with-job [job (pipeline2/job-create "dtbook-to-html" [dtbook] images {})]
+    (let [completed (pipeline2/wait-for job)
+          results (pipeline2/get-results completed)
+          _ (println results)
+          epub-stream (->> results
+                           (filter #(str/ends-with? % ".xhtml"))
+                           first
+                           pipeline2/get-stream)]
+      (with-open [in epub-stream
+                  out (io/output-stream html)]
+        (io/copy in out)))))
+
 (def ^:private odt-defaults
   {:asciimath :both
    :phonetics true
