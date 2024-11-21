@@ -82,7 +82,7 @@
                                                                       :document-preview-large-print-library :document-preview-large-print-sale
                                                                       :document-preview-large-print-configurable
                                                                       :document-preview-epub :document-preview-epub-in-player
-                                                                      :document-preview-open-document}]
+                                                                      :document-preview-open-document :document-preview-html}]
        ;; only show the unknown and local words for German books
        (when german?
          [tab-link-with-total (str "#/documents/" id "/unknown") (tr [:unknown-words]) :document-unknown [::unknown/words-total]
@@ -202,6 +202,13 @@
      [summary document]
      [tabs document]
      [forms/open-document document]]))
+
+(defn preview-html []
+  (let [document @(rf/subscribe [::current])]
+    [:section.section>div.container>div.content
+     [summary document]
+     [tabs document]
+     [forms/html document]]))
 
 (defn markup []
   (let [document @(rf/subscribe [::current])]

@@ -322,3 +322,17 @@
         (checkbox props {:name :floating-page-numbers :text (tr [:forms/floating-page-numbers])})
         (input props {:name :answer-markup :label (tr [:forms/answer-markup]) :type "text"})
         (submit-button props {:name :submit :label (tr [:preview])})]))])
+
+(defn html [{id :id}]
+  [fork/form {:initial-values {}
+              :path [:form :html]
+              :prevent-default? true
+              :clean-on-unmount? true
+              :on-submit #(rf/dispatch [::submit-handler :html id %])
+              :keywordize-keys true
+              }
+   (fn [{:keys [path form-id on-submit-server-message handle-submit] :as props}]
+     (if on-submit-server-message
+       [error-notification on-submit-server-message path]
+       [:form {:id form-id :on-submit handle-submit}
+        (submit-button props {:name :submit :label (tr [:preview])})]))])

@@ -95,6 +95,8 @@
                                  :controllers [{:parameters {:path [:id]}}]}]
       ["/preview/open-document" {:name :document-preview-open-document :view #'document/preview-open-document
                                  :controllers [{:parameters {:path [:id]}}]}]
+      ["/preview/html" {:name :document-preview-html :view #'document/preview-html
+                                 :controllers [{:parameters {:path [:id]}}]}]
       ["/markup" {:name :document-markup :view #'document/markup
                    :controllers [{:parameters {:path [:id]}}]}]
       ["/versions" {:name :document-versions :view #'document/versions

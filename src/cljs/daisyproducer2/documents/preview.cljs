@@ -42,6 +42,13 @@
      {:href (str "#/documents/" id "/preview/open-document")}
      [:span (tr [:preview])]]]])
 
+(defn- html-buttons [id]
+  [:div.field
+   [:p.control
+    [:a.button
+     {:href (str "#/documents/" id "/preview/html")}
+     [:span (tr [:preview])]]]])
+
 (defn preview-links [{id :id}]
   [:div.block
      [:table.table.is-fullwidth
@@ -53,6 +60,7 @@
        [:tr [:th (tr [:braille])] [:td [braille-buttons id]]]
        [:tr [:th (tr [:large-print])] [:td [large-print-buttons id]]]
        [:tr [:th (tr [:epub3])] [:td [epub-buttons id]]]
-       [:tr [:th (tr [:open-document])] [:td [open-document-buttons id]]]]]])
+       [:tr [:th (tr [:open-document])] [:td [open-document-buttons id]]]
+       [:tr [:th (tr [:html])] [:td [html-buttons id]]]]]])
 
 

@@ -114,6 +114,7 @@
                     :epub3 "EPUB3"
                     :online-player "Online Player"
                     :open-document "Open Document"
+                    :html "HTML"
                     ;; Download Forms
                     :grade
                     {:g0 "Uncontracted"
@@ -312,6 +313,7 @@
                     :epub3 "EPUB3"
                     :online-player "Online Player"
                     :open-document "Open Document"
+                    :html "HTML"
                     ;; Download Forms
                     :grade
                     {:g0 "Basisschrift"
