@@ -416,7 +416,7 @@
      ["/open-document"
       {:get {:summary "Get an OpenDocument Text Document (ODT) for a document by ID"
              :parameters {:path {:id int?}
-                          :query {(spec/opt :asciimath) ::asciimath
+                          :query {(spec/opt :math) ::asciimath
                                   (spec/opt :phonetics) boolean?
                                   (spec/opt :image-handling) ::image-handling
                                   (spec/opt :line-numbers) boolean?

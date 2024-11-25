@@ -48,13 +48,14 @@
 
 (def ^:private key-mapping
   "Parameter name mapping between Clojure and the Pipeline2 scripts"
-  {:image-handling :images})
+  {:image-handling :images
+   :math :asciimath})
 
 (defn- to-pipeline2
   "Convert parameter values from Clojure keywords to strings that the Pipeline2 script understands"
   [opts]
   (-> opts
-      (update-existing :asciimath #(case % :asciimath "ASCIIMATH" :mathml "MATHML" :both "BOTH"))
+      (update-existing :math #(case % :asciimath "ASCIIMATH" :mathml "MATHML" :both "BOTH"))
       (update-existing :image-handling #(case % :embed "EMBED" :link "LINK" :drop "DROP"))))
 
 (defn dtbook-to-odt
