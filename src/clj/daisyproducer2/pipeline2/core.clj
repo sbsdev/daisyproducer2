@@ -10,6 +10,7 @@
    [clojure.data.zip :as zf]
    [clojure.data.zip.xml :refer [attr xml-> xml1->]]
    [clojure.java.io :as io]
+   [clojure.tools.logging :as log]
    [clojure.zip :refer [xml-zip]]
    [crypto.random :as crypt-rand]
    [daisyproducer2.config :refer [env]]
@@ -82,6 +83,7 @@
     {:name "job-request" :content body}]})
 
 (defn job-create [script input data options]
+  (log/debug "Invoking" script input data options)
   (let [url (str ws-url "/jobs")
         request (job-request script input options)
         auth (auth-query-params url)
