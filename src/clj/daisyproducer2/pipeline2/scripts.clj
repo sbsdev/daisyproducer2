@@ -38,7 +38,7 @@
         (io/copy in out)))))
 
 (def ^:private odt-defaults
-  {:asciimath :both
+  {:math :both
    :phonetics true
    :image-handling :link
    :line-numbers true
@@ -62,8 +62,8 @@
   "Invoke the Pipeline2 script to create an ODT file `odt` given the
   `input`, the `images` and the options given in `opts`"
   [dtbook images odt opts]
-  (let [opts (merge odt-defaults opts)
-        opts (-> opts
+  (let [opts (-> opts
+                 (->> (merge odt-defaults))
                  to-pipeline2
                  (set/rename-keys key-mapping))]
     (pipeline2/with-job [job (pipeline2/job-create "sbs:dtbook-to-odt" [dtbook] images opts)]
