@@ -1,9 +1,5 @@
 (ns daisyproducer2.documents.products
-  (:require [babashka.fs :as fs]
-            [clojure.java.io :as io]
-            [clojure.tools.logging :as log]
-            [daisyproducer2.config :refer [env]]
-            [daisyproducer2.db.core :as db]
+  (:require [daisyproducer2.db.core :as db]
             [daisyproducer2.metrics :as metrics]
             [iapetos.collector.fn :as prometheus]))
 

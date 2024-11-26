@@ -86,7 +86,7 @@
   :target-path "target/%s/"
   :main ^:skip-aot daisyproducer2.core
 
-  :plugins []
+  :plugins [[com.github.clj-kondo/lein-clj-kondo "0.2.5"]]
 
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version"

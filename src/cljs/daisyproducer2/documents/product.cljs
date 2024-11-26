@@ -1,10 +1,7 @@
 (ns daisyproducer2.documents.product
-  (:require [ajax.core :as ajax]
-            [daisyproducer2.auth :as auth]
-            [daisyproducer2.i18n :refer [tr]]
+  (:require [daisyproducer2.i18n :refer [tr]]
             [daisyproducer2.ajax :refer [as-transit]]
             [daisyproducer2.words.notifications :as notifications]
-            [daisyproducer2.progress :as progress]
             [re-frame.core :as rf]))
 
 (rf/reg-event-fx
