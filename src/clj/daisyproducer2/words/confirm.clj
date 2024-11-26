@@ -15,13 +15,14 @@
        (map words/complement-ellipsis-braille)
        (map words/complement-hyphenation)))
 
-(defn put-word [word]
+(defn put-word
   "Confirm the (local) `word`. If it is marked as `:islocal` then it
   is kept in the local words and also marked as `:isconfirmed`.
   Otherwise if is actually contained in the local words it is deleted
   from there and added to the global words and the number of additions
   are returned. If it is not contained in the local words 0 is
   returned."
+  [word]
   ;; in confirm you do not typically update the hyphenation but it can happen
   (when (:hyphenated word)
     (db/insert-hyphenation
