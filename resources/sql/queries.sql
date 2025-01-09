@@ -170,19 +170,20 @@ VALUES (:comment, :document-id, :content, :user)
 DELETE FROM documents_version WHERE id = :id
 
 -- :name get-old-versions-of-closed-documents :? :*
--- :doc Get old versions that belong to any document that is in "closed" state
+-- :doc Get versions older than 30 days that belong to a document that is in "closed" state
 SELECT * FROM documents_version version
 JOIN documents_document doc
 ON version.document_id = doc.id
 JOIN documents_state state
 ON doc.state_id = state.id
 WHERE state.name = "closed"
+AND version.created_at < NOW() - INTERVAL 30 DAY -- older than 30 days
 AND version.id NOT IN (
     SELECT MAX(id) FROM documents_version
     GROUP BY document_id)
 
 -- :name delete-old-versions-of-closed-documents :! :n
--- :doc Remove old versions that belong to any document that is in "closed" state
+-- :doc Remove versions older than 30 days that belong to a document that is in "closed" state
 DELETE version
 FROM documents_version version
 JOIN documents_document doc
@@ -190,6 +191,7 @@ ON version.document_id = doc.id
 JOIN documents_state state
 ON doc.state_id = state.id
 WHERE state.name = "closed"
+AND version.created_at < NOW() - INTERVAL 30 DAY -- older than 30 days
 AND version.id NOT IN (
     -- the nested select is needed to avoid a mysql error, see https://stackoverflow.com/a/43171707
     SELECT * FROM (
