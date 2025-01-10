@@ -45,7 +45,7 @@
   (let [path (document-path id)]
     ;; make sure path exists
     (fs/create-dirs (fs/parent path))
-      ;; and store the document in the db
+    ;; and store the document in the db
     (-> (db/insert-document document)
         db/get-generated-key)))
 
