@@ -720,9 +720,12 @@
                               (case error-id
                                 :input-ignored (no-content)
                                 :duplicate-key (bad-request {:status-text message})
-                                :invalid-xml (bad-request {:status-text "Upload of ABACUS XML failed" :errors errors})
-                                :invalid-isbn (bad-request {:status-text "The ISBN is not valid" :errors errors})
-                                :invalid-product-number (bad-request {:status-text "The product number is not valid" :errors errors})
+                                :invalid-xml (bad-request {:status-text "Upload of ABACUS XML failed"
+                                                           :error-id error-id :errors errors})
+                                :invalid-isbn (bad-request {:status-text "The ISBN is not valid"
+                                                            :error-id error-id :errors errors})
+                                :invalid-product-number (bad-request {:status-text "The product number is not valid"
+                                                                      :error-id error-id :errors errors})
                                 (internal-server-error {:status-text message}))))))}}]]
    ["/alfresco"
     {:swagger {:tags ["Alfresco API"]}}
