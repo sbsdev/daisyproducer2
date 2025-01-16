@@ -131,7 +131,7 @@
                                  [io.github.noahtheduke/splint "1.15.2"]]
                   :plugins      [[com.jakemccrary/lein-test-refresh "0.25.0"]
                                  [jonase/eastwood "1.4.2"]
-                                 [cider/cider-nrepl "0.50.2"]]
+                                 [cider/cider-nrepl "0.51.1"]]
                   
                   
                   :source-paths ["env/dev/clj"  "env/dev/cljs" "test/cljs" ]
