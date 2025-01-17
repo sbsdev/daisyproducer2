@@ -486,18 +486,23 @@
               :handler (fn [{{{:keys [id]} :path {{tempfile :tempfile} :file comment :comment} :multipart} :parameters
                              {{uid :uid} :user} :identity}]
                          (try
-                           (let [new-key (versions/insert-version id tempfile comment uid)
-                                 new-url (format "/documents/%s/versions/%s" id new-key)]
-                             ;; update the unknown words list for this document
-                             (unknown/update-words tempfile id)
-                             (created new-url {})) ;; add an empty body
-                           (catch clojure.lang.ExceptionInfo e
-                             (let [{:keys [error-id errors]} (ex-data e)
-                                   message (ex-message e)]
-                               (log/warn message error-id errors)
-                               (bad-request {:status-text (ex-message e) :errors errors})))
-                           (finally
-                             (fs/delete tempfile))))}}]
+                           ;; validate the tempfile
+                           (let [validation-errors (versions/validate-version tempfile id)]
+                             (if (seq validation-errors)
+                               (bad-request {:status-text "Failed to validate XML" :errors validation-errors})
+                               ;; XML is valid, add the version
+                               (let [new-key (versions/insert-version id tempfile comment uid)
+                                     new-url (format "/documents/%s/versions/%s" id new-key)]
+                                 ;; update the unknown words list for this document
+                                 (unknown/update-words tempfile id)
+                                 (created new-url {}))) ;; add an empty body
+                             (catch clojure.lang.ExceptionInfo e
+                               (let [{:keys [error-id errors]} (ex-data e)
+                                     message (ex-message e)]
+                                 (log/warn message error-id errors)
+                                 (bad-request {:status-text (ex-message e) :errors errors})))
+                             (finally
+                               (fs/delete tempfile)))))}}]
 
      ["/:version-id"
       {:get {:summary "Get a version"
@@ -751,17 +756,19 @@
                         (try
                           (if-let [doc (documents/get-document id)]
                             (if (alfresco/archived? doc)
-                              (do (alfresco/synchronize doc uid)
-                                  (no-content))
+                              (let [{:keys [status errors]} (alfresco/synchronize doc uid)]
+                                (case status
+                                  :synchronized (no-content)
+                                  :invalid-dtbook (bad-request
+                                                   {:status-text "DTBook XML from archive not valid"
+                                                    :errors errors})))
                               (not-found {:errors ["No archived version of document was found"]}))
                             (not-found))
                           (catch clojure.lang.ExceptionInfo e
-                            (let [{:keys [error-id errors document]} (ex-data e)
+                            (let [{:keys [error-id errors]} (ex-data e)
                                   message (ex-message e)]
                               (log/error message error-id errors)
-                              (case error-id
-                                :invalid-dtbook (internal-server-error {:status-text "DTBook XML from archive not valid" :errors errors})
-                                (internal-server-error {:status-text message}))))
+                              (internal-server-error {:status-text message})))
                           (catch java.nio.file.FileSystemException e
                             (log/error (str e))
                             (internal-server-error {:status-text (str e)}))))}}]]

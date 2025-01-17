@@ -60,30 +60,28 @@
               (xslt/compile-xslt (io/resource "xslt/absolutizeImagePath.xsl"))]]
     (xslt/transform-to-file xslt {:absolute-image-path (str absolute-image-path)} (fs/file xml) (fs/file target))))
 
-(defn validate-version [file document]
-  (concat
-   (schema-validation/validation-errors file schema)
-   (metadata-validation/validate-metadata file document)
-   (with-tempfile [with-absolute-image-paths {:prefix "daisyproducer-" :suffix ".xml"}]
-     (filter-braille-and-absolutize-image-paths file document with-absolute-image-paths)
-     (pipeline1/validate with-absolute-image-paths :dtbook))))
+(defn validate-version [file document-id]
+  (let [document (db/get-document {:id document-id})]
+    (log/debugf "Validating %s" tempfile)
+    (concat
+     (schema-validation/validation-errors file schema)
+     (metadata-validation/validate-metadata file document)
+     (with-tempfile [with-absolute-image-paths {:prefix "daisyproducer-" :suffix ".xml"}]
+       (filter-braille-and-absolutize-image-paths file document with-absolute-image-paths)
+       (pipeline1/validate with-absolute-image-paths :dtbook)))))
 
 (defn- tsid []
   (str (TsidCreator/getTsid)))
 
 (defn insert-version
+  "Add a new version for given `document-id`, using the content from
+  `tempfile`, the given `comment` and `user`. It is assumed that the
+  tempfile has already been validated separately."
   [document-id tempfile comment user]
   (let [document-root (env :document-root)
         name (str (tsid) ".xml")
         path (fs/path (str document-id) "versions" name)
-        absolute-path (fs/absolutize (fs/path document-root path))
-        document (db/get-document {:id document-id})]
-    ;; validate tempfile
-    (let [validation-errors (validate-version tempfile document)]
-      (log/debugf "Validating %s" tempfile)
-      (when (seq validation-errors)
-        (throw (ex-info "Failed to validate XML"
-                        {:error-id :invalid-dtbook :errors validation-errors}))))
+        absolute-path (fs/absolutize (fs/path document-root path))]
     ;; make sure path exists
     (fs/create-dirs (fs/parent absolute-path))
     ;; copy the contents into the archive

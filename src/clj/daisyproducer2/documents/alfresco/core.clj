@@ -25,8 +25,14 @@
           (insert-image id name image-file)))
       ;; update the metadata
       (update-meta-data content tempfile doc)
-      ;; insert an updated version
-      (insert-version id tempfile comment uid))))
+      ;; validate the tempfile
+      (let [validation-errors (versions/validate-version tempfile id)]
+        (if (seq validation-errors)
+          {:status :invalid-dtbook :errors validation-errors}
+          (do
+            ;; insert an updated version
+            (verions/insert-version id tempfile comment uid)
+            {:status :synchronized}))))))
 
 (defn archived? [{isbn :source}]
   (alfresco/archived? isbn))
