@@ -322,7 +322,7 @@ GET http://localhost:3000/api/documents/644/preview/large-print?font-size=25
 GET http://localhost:3000/api/documents/644/preview/large-print?font-size=13
 
 # Get Large Print with many params
-GET http://localhost:3000/api/documents/644/preview/large-print?page-style=plain&replace-em-with-quote=true&font-size=17&stock-size=a4paper&alignment=left&font=tiresias&line-spacing=doublespacing&end-notes=none&image-visibility=ignore
+GET http://localhost:3000/api/documents/770/preview/large-print?page-style=plain&replace-em-with-quote=true&font-size=17&stock-size=a4paper&alignment=left&font=tiresias&line-spacing=doublespacing&end-notes=none&image-visibility=ignore
 
 # Get the actual Large print artifact
 GET http://localhost:3000/download/644_17pt.pdf
