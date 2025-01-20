@@ -76,6 +76,8 @@
 (def ^:private key-mapping
   "Parameter name mapping between Clojure and the Pipeline1 scripts"
   {:font-size :fontsize
+   :backup-font :backupFont
+   :backup-unicode-ranges :backupUnicodeRanges
    :page-style :pageStyle
    :stock-size :stocksize
    :line-spacing :line_spacing
@@ -114,6 +116,7 @@
   "Invoke the LaTeX conversion script. See the Pipeline documentation for all possible options."
   [input output opts]
   (let [args (-> opts
+                 ;; convert parameter values
                  to-pipeline1
                  ;; map the keys to the ones that the pipeline1 expects
                  (set/rename-keys key-mapping)
