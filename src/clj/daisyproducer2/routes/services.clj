@@ -766,8 +766,8 @@
                                   ;; the xml from the archive contains errors
                                   (let [message (f/message result)
                                         errors (:errors result)]
-                                    (log/error message errors)
-                                    (internal-server-error {:status-text "DTBook XML from archive not valid" :errors errors}))))
+                                    (log/warn message errors)
+                                    (conflict {:status-text "DTBook XML from archive not valid" :errors errors}))))
                               (not-found {:errors ["No archived version of document was found"]}))
                             (not-found))
                           (catch clojure.lang.ExceptionInfo e
