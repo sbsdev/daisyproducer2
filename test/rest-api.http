@@ -124,24 +124,24 @@ GET http://localhost:3000/api/documents/105/versions
 GET http://localhost:3000/api/documents/105/versions?latest=false
 
 # Search a version for a document
-GET http://localhost:3000/api/documents/105/versions?search=hallo
+GET http://localhost:3000/api/documents/770/versions?search=hallo
 
 # Get a specific version
-GET http://localhost:3000/api/documents/105/versions/8651
+GET http://localhost:3000/api/documents/770/versions/9171
 
 # Get a specific non-existing version
-GET http://localhost:3000/api/documents/105/versions/0
+GET http://localhost:3000/api/documents/770/versions/0
 
 # Get the latest version
-GET http://localhost:3000/api/documents/105/versions?latest=true
+GET http://localhost:3000/api/documents/770/versions?latest=true
 
 # Get xml for a version
-GET http://localhost:3000/archive/105/versions/01HSBCFKZBE40ZPNRP993BQ4R8.xml
+GET http://localhost:3000/archive/770/versions/0JJBPS7H0PG1T.xml
 
 # Add a version
-:version := (with-temp-buffer (insert-file-contents "~/tmp/6304.xml") (buffer-string))
+:version := (with-temp-buffer (insert-file-contents "~/tmp/770/versions/0JJBPS7H0PG1T.xml") (buffer-string))
 
-POST http://localhost:3000/api/documents/105/versions
+POST http://localhost:3000/api/documents/770/versions
 Authorization: :auth-token
 Content-Type: multipart/form-data; boundary=e82bc39c68f1417d9ea12c5456182f3c
 
@@ -885,7 +885,7 @@ Content-Type: application/xml
 GET http://localhost:3000/api/alfresco/329
 
 # Initiate a synchronization process
-POST http://localhost:3000/api/alfresco/329
+POST http://localhost:3000/api/alfresco/770
 Authorization: :auth-token
 
 # Synchronize a book with images (Betty Bossy cook book)

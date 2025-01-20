@@ -25,8 +25,8 @@
   (jdbc/with-transaction [t-conn *db* {:rollback-only true}]
     (let [confirmable (count (db/get-confirmable-words t-conn {:limit 10000 :offset 0} {}))
           word {:untranslated "hahaha2" :contracted "H+H+H+2" :uncontracted "HAHAHA2"
-                :type 0 :homograph-disambiguation "" :document-id 644 :islocal false}
+                :type 0 :homograph-disambiguation "" :document-id 770 :islocal false}
           _ (db/insert-local-word t-conn word)
           ;; make sure the document is in state closed
-          _ (db/update-document-state t-conn {:id 644 :state "closed"})]
+          _ (db/update-document-state t-conn {:id 770 :state "closed"})]
       (is (= (inc confirmable) (count (db/get-confirmable-words t-conn {:limit 10000 :offset 0} {})))))))
