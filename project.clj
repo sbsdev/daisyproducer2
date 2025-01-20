@@ -32,6 +32,7 @@
                  [crypto-random "1.2.1"] ; for pipeline2 client
                  [day8.re-frame/http-fx "0.2.4"]
                  [expound "0.9.0"]
+                 [failjure "2.3.0"] ;; for working with failed computations
                  [funcool/struct "1.4.0"]
                  [fork "2.4.3"] ;; Form Library for re-frame
                  [io.prometheus/simpleclient_hotspot "0.16.0"]

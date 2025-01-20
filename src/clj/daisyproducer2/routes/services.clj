@@ -24,6 +24,7 @@
    [daisyproducer2.words.global :as global]
    [daisyproducer2.words.local :as local]
    [daisyproducer2.words.unknown :as unknown]
+   [failjure.core :as f]
    [reitit.coercion.spec :as spec-coercion]
    [reitit.ring.coercion :as coercion]
    [reitit.ring.middleware.multipart :as multipart]
@@ -486,16 +487,23 @@
               :handler (fn [{{{:keys [id]} :path {{tempfile :tempfile} :file comment :comment} :multipart} :parameters
                              {{uid :uid} :user} :identity}]
                          (try
-                           (let [new-key (versions/insert-version id tempfile comment uid)
-                                 new-url (format "/documents/%s/versions/%s" id new-key)]
-                             ;; update the unknown words list for this document
-                             (unknown/update-words tempfile id)
-                             (created new-url {})) ;; add an empty body
+                           (let [new-key (versions/insert-version id tempfile comment uid)]
+                             (if (f/ok? new-key)
+                               ;; the uploaded xml is valid
+                               (let [new-url (format "/documents/%s/versions/%s" id new-key)]
+                                 ;; update the unknown words list for this document
+                                 (unknown/update-words tempfile id)
+                                 (created new-url {})) ;; add an empty body
+                               ;; the uploaded xml contains errors
+                               (let [message (f/message new-key)
+                                     errors (:errors new-key)]
+                                 (log/warn message errors)
+                                 (bad-request {:status-text message :errors errors}))))
                            (catch clojure.lang.ExceptionInfo e
                              (let [{:keys [error-id errors]} (ex-data e)
                                    message (ex-message e)]
-                               (log/warn message error-id errors)
-                               (bad-request {:status-text (ex-message e) :errors errors})))
+                               (log/error message error-id errors)
+                               (internal-server-error {:status-text (ex-message e) :errors errors})))
                            (finally
                              (fs/delete tempfile))))}}]
 
@@ -751,17 +759,22 @@
                         (try
                           (if-let [doc (documents/get-document id)]
                             (if (alfresco/archived? doc)
-                              (do (alfresco/synchronize doc uid)
-                                  (no-content))
+                              (let [result (alfresco/synchronize doc uid)]
+                                (if (f/ok? result)
+                                  ;; the xml from the archive is valid
+                                  (no-content)
+                                  ;; the xml from the archive contains errors
+                                  (let [message (f/message result)
+                                        errors (:errors result)]
+                                    (log/error message errors)
+                                    (internal-server-error {:status-text "DTBook XML from archive not valid" :errors errors}))))
                               (not-found {:errors ["No archived version of document was found"]}))
                             (not-found))
                           (catch clojure.lang.ExceptionInfo e
                             (let [{:keys [error-id errors document]} (ex-data e)
                                   message (ex-message e)]
                               (log/error message error-id errors)
-                              (case error-id
-                                :invalid-dtbook (internal-server-error {:status-text "DTBook XML from archive not valid" :errors errors})
-                                (internal-server-error {:status-text message}))))
+                              (internal-server-error {:status-text message})))
                           (catch java.nio.file.FileSystemException e
                             (log/error (str e))
                             (internal-server-error {:status-text (str e)}))))}}]]
