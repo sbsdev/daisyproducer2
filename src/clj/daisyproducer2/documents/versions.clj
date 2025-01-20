@@ -1,23 +1,23 @@
 (ns daisyproducer2.documents.versions
   (:require [babashka.fs :as fs]
+            [camel-snake-kebab.core :refer [->snake_case]]
+            [camel-snake-kebab.extras :refer [transform-keys]]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
-            [camel-snake-kebab.extras :refer [transform-keys]]
-            [camel-snake-kebab.core :refer [->snake_case]]
             [daisyproducer2.config :refer [env]]
             [daisyproducer2.db.core :as db]
             [daisyproducer2.documents.metadata-validation :as metadata-validation]
             [daisyproducer2.documents.schema-validation :as schema-validation]
+            [daisyproducer2.documents.update-metadata :as update-metadata]
             [daisyproducer2.documents.utils :refer [with-tempfile]]
             [daisyproducer2.failures :as failures]
             [daisyproducer2.metrics :as metrics]
             [daisyproducer2.pipeline1 :as pipeline1]
             [iapetos.collector.fn :as prometheus]
             [selmer.parser :as parser]
-            [sigel.xslt.core :as xslt]
-            [daisyproducer2.documents.update-metadata :as update-metadata])
+            [sigel.xslt.core :as xslt])
   ;; Time-Sorted Unique Identifiers (TSID), see https://github.com/f4b6a3/tsid-creator
-  (:import [com.github.f4b6a3.tsid TsidCreator]))
+  (:import com.github.f4b6a3.tsid.TsidCreator))
 
 (defn get-versions
   ([document-id]

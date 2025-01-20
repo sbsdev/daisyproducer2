@@ -2,7 +2,7 @@
   (:require
    [babashka.fs :as fs]
    [clojure.spec.alpha :as s]
-   [clojure.string :refer [blank?] :as str]
+   [clojure.string :as str :refer [blank?]]
    [clojure.tools.logging :as log]
    [daisyproducer2.auth :as auth]
    [daisyproducer2.config :refer [env]]
