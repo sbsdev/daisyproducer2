@@ -20,8 +20,9 @@
 (rf/reg-event-fx
  ::failure
  (fn [{db :db} [_ path format response]]
-   (let [status-text (get response :status-text)
-         message (str "Fetching " (name format) " failed: " status-text)]
+   (let [status-text (or (get-in response [:response :status-text])
+                         (get response :status-text))
+         message (str "Could not fetch " (name format) ": " status-text)]
      {:db (-> db
               (fork/set-submitting path false)
               (fork/set-server-message path message))})))

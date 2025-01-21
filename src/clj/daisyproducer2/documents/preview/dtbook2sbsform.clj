@@ -22,28 +22,36 @@
   `output-path`. If a `pipe` is also given use it to take the input of
   a pipe (typically from the hyphenation process)"
   ([dtbook output-path args]
-   (let [opts {:out :write
-               :out-file (fs/file output-path)
-               :err :string
-               :extra-env {"LANG" "en_US.UTF-8"}
-               :pre-start-fn log-process}]
-     (apply process/shell opts executable (format "-s:%s" dtbook) args)))
+   (translate nil dtbook output-path args))
   ([pipe dtbook output-path args]
    (let [opts {:out :write
                :out-file (fs/file output-path)
                :err :string
                :extra-env {"LANG" "en_US.UTF-8"}
-               :pre-start-fn log-process}]
-     (apply process/shell pipe opts executable (format "-s:-") args))))
+               :pre-start-fn log-process}
+         input (if (nil? pipe) (format "-s:%s" dtbook) "-s:-")]
+     (try
+       (if (nil? pipe)
+         (apply process/shell opts executable input args)
+         (apply process/shell pipe opts executable input args))
+       (catch clojure.lang.ExceptionInfo e
+         (log/error (ex-message e))
+         (throw
+          (ex-info "Braille translation failed" {:error-id ::braille-translation-failed} e)))))))
 
 (defn- hyphenate
   [dtbook]
-  (let [java (env :java17)]
-    (process/shell
-     {:out :string
-      :extra-env {"LANG" "en_US.UTF-8"}
-      :pre-start-fn log-process}
-     java "-jar" "/usr/local/share/java/dtbook-hyphenator.jar" dtbook)))
+  (let [java (env :java17)
+        opts {:out :string
+              :err :string
+              :extra-env {"LANG" "en_US.UTF-8"}
+              :pre-start-fn log-process}]
+    (try
+      (process/shell opts java "-jar" "/usr/local/share/java/dtbook-hyphenator.jar" dtbook)
+      (catch clojure.lang.ExceptionInfo e
+        (log/error (ex-message e))
+        (throw
+         (ex-info "Hyphenation failed" {:error-id ::hyphenation-failed} e))))))
 
 (defn- hyphenate-and-translate
   [dtbook output-path opts]
