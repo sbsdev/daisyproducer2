@@ -98,21 +98,25 @@
     (map str/lower-case)
     set)))
 
+(def max-word-length 100)
+(defn- drop-overly-long-words [words]
+  (remove #(> (count %) max-word-length) words))
+
 (defn get-names
   [xml document-id]
-  (let [words (-> xml filter-braille extract-names)
+  (let [words (-> xml filter-braille extract-names drop-overly-long-words)
         tuples (map (fn [w] [w 2 "" document-id]) words)]
     tuples))
 
 (defn get-places
   [xml document-id]
-  (let [words (-> xml filter-braille extract-places)
+  (let [words (-> xml filter-braille extract-places drop-overly-long-words)
         tuples (map (fn [w] [w 4 "" document-id]) words)]
     tuples))
 
 (defn get-homographs
   [xml document-id]
-  (let [words (-> xml filter-braille extract-homographs)
+  (let [words (-> xml filter-braille extract-homographs drop-overly-long-words)
         tuples (map (fn [w] [(str/replace w "|" "") 5 w document-id]) words)]
     tuples))
 
@@ -121,7 +125,8 @@
   (let [filtered (-> xml filter-braille-and-names)
         special-words (-> filtered extract-special-words) ; ellipsis and hyphen
         plain-words (-> filtered extract-words)
-        all-words (union plain-words special-words)
+        all-words (-> (union plain-words special-words)
+                      drop-overly-long-words)
         tuples (map (fn [w] [w 0 "" document-id]) all-words)]
     tuples))
 
