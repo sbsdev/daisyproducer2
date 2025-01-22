@@ -7,8 +7,20 @@
 
   <xsl:output method="text" encoding="utf-8" indent="no" />
 
+  <!-- Inline elements do not need any spacing -->
+  <xsl:template match="dtb:em|dtb:strong|dtb:span|dtb:sub|dtb:sup">
+    <xsl:apply-templates/>
+  </xsl:template>
+
+  <!-- Add some spacing to (block) elements to avoid words getting glued together -->
+  <xsl:template match="element()">
+    <xsl:value-of select="' '"/>
+    <xsl:apply-templates/>
+    <xsl:value-of select="' '"/>
+  </xsl:template>
+
   <xsl:template match="text()">
-    <xsl:value-of select="concat(' ', string(.), ' ')"/>
+    <xsl:value-of select="string(.)"/>
   </xsl:template>
   
 </xsl:stylesheet>
