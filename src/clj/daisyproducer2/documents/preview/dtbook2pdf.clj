@@ -51,7 +51,8 @@
    :stock-size :a4paper :line-spacing :onehalfspacing
    :paperwidth 200 :paperheight 250
    :left-margin 28 :right-margin 20 :top-margin 20 :bottom-margin 20
-   :replace-em-with-quote true :end-notes :none :image-visibility :ignore})
+   :replace-em-with-quote true :end-notes :none :image-visibility :ignore
+   :backup-font "Arial" :backup-unicode-ranges "Arabic,Hebrew,Cyrillic,GreekAndCoptic"})
 
 (defn dtbook2pdf
   [input images output opts]
