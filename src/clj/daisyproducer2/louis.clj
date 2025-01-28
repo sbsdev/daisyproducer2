@@ -38,4 +38,5 @@
       ;; log the params that caused the exception and bubble it up
       (catch Exception e
         (log/errorf "Translation failed for word '%s' with tables %s: %s" word (str translator) e)
-        (throw e)))))
+        (throw
+         (ex-info "Braille translation failed" {:error-id :braille-translation-failed :errors word} e))))))
