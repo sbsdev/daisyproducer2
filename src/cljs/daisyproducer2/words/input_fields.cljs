@@ -59,3 +59,7 @@
 (defn disabled-field [value]
   [:div.field
    [:input.input {:type "text" :value value :disabled "disabled"}]])
+
+(defn invalid-field []
+  [:div.field
+   [:input.input.is-danger {:type "text" :disabled "disabled"}]])

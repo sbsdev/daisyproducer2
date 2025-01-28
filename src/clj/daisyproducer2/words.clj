@@ -69,11 +69,17 @@
         untranslated (if (is-homograph? word)
                        (str/replace homograph-disambiguation "|" braille-dummy-text)
                        untranslated)]
-    (cond-> word
-      (and (contains? word :uncontracted) (nil? (:uncontracted word)))
-      (assoc :uncontracted (louis/translate untranslated (louis/translator (louis/get-tables 1 params))))
-      (and (contains? word :contracted) (nil? (:contracted word)))
-      (assoc :contracted (louis/translate untranslated (louis/translator (louis/get-tables 2 params)))))))
+    (try
+      (cond-> word
+        (and (contains? word :uncontracted) (nil? (:uncontracted word)))
+        (assoc :uncontracted (louis/translate untranslated (louis/translator (louis/get-tables 1 params))))
+        (and (contains? word :contracted) (nil? (:contracted word)))
+        (assoc :contracted (louis/translate untranslated (louis/translator (louis/get-tables 2 params)))))
+      ;; if there was a problem with translating the word, simply return the
+      ;; word without the braille added. That will serve as an indication that
+      ;; the braille translation failed
+      (catch clojure.lang.ExceptionInfo e
+        word))))
 
 (defn grades [grade]
   (case (int grade) ; convert grade into a list of grades
