@@ -876,6 +876,20 @@ Content-Type: application/xml
 </AbaConnectContainer>
 --e82bc39c68f1417d9ea12c5456182f3c--
 
+# Add an import
+:import := (with-temp-buffer (insert-file-contents "~/tmp/abacus.xml") (buffer-string))
+
+# Add a production
+POST http://localhost:3000/api/abacus/import
+Accept: application/json
+Content-Type: multipart/form-data; boundary=e82bc39c68f1417d9ea12c5456182f3c
+
+--e82bc39c68f1417d9ea12c5456182f3c
+Content-Disposition: form-data; name="file"; filename="SN1_DY99999.xml"
+Content-Type: application/xml
+
+:import
+--e82bc39c68f1417d9ea12c5456182f3c--
 
 ################
 # Alfresco API #
