@@ -21,11 +21,11 @@
             [daisyproducer2.documents.versions :as versions]
             [daisyproducer2.metrics :as metrics]
             [iapetos.collector.fn :as prometheus]
-            [java-time.api :as time]
-            [medley.core :as medley]))
+            [java-time.api :as time]))
+
 
 (s/def ::product-number (s/and string? #(re-matches #"^(PS|GD|EB|ET)\d{4,7}$" %)))
-(s/def ::isbn (s/and string? (fn [s] (or (str/blank? s) (re-matches #"^SBS[0-9]{6}|(?:978-|979-)?\d{1,5}-\d{1,7}-\d{1,6}-[0-9xX]" s)))))
+(s/def ::source (s/nilable (s/and string? (fn [s] (re-matches #"^SBS[0-9]{6}|(?:978-|979-)?\d{1,5}-\d{1,7}-\d{1,6}-[0-9xX]" s))))) ;; ISBN
 
 (def ^:private root-path [:Task :Transaction :DocumentData])
 
@@ -66,8 +66,8 @@
 (defn- source
   [{:keys [source]}]
   (cond
-    (str/blank? source) ""
-    (= source "keine") ""
+    (str/blank? source) nil
+    (= source "keine") nil
     :else source))
 
 (defn- product-type
@@ -79,6 +79,21 @@
     "ET" :etext
     nil))
 
+(defn- year->date [year]
+  (when year
+    (time/local-date (parse-long year))))
+
+(defn- source-date
+  "Extract the source date from a raw `production` by taking the last
+  segment of the `:source-edition`"
+  [{source-edition :source-edition}]
+  (when (and source-edition (string? source-edition))
+    (-> source-edition
+        (str/split #"/")
+        last
+        (->> (re-find #"\d{4}"))
+        year->date)))
+
 (def ^:private default-publisher {"de" "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte"
                                   "it" "Unitas - Associazione ciechi e ipovedenti della Svizzera italiana"})
 
@@ -89,6 +104,7 @@
         production-series (production-series raw-document)
         product-type (product-type raw-document)
         source (source raw-document)
+        source-date (source-date raw-document)
         production-source (if (= aufwand "D") "electronicData" "")
         date (time/local-date date)]
     (-> raw-document
@@ -97,6 +113,7 @@
         (assoc :daisyproducer? (= daisyproducer? "ja"))
         (assoc :date date)
         (assoc :source source)
+        (assoc :source-date source-date)
         (assoc :production-source production-source)
         (assoc :production-series production-series)
         (assoc :production-series-number production-series-number)
@@ -143,14 +160,14 @@
   (log/infof "Ignoring %s (%s)" product-number title)
   {:status :ignored})
 
-(def ^:private relevant-metadata-keys #{:title :author :date :language :source :source-date
-                                        :source-publisher :source-edition
+(def ^:private relevant-metadata-keys #{:title :author :date :language :source
+                                        :source-publisher :source-edition :source-date
                                         :production-series :production-series-number :production-source})
 
 (defn metadata-changed?
   [old new]
-  (let [old (medley/remove-vals nil? (select-keys old relevant-metadata-keys))
-        new (medley/remove-vals nil? (select-keys new relevant-metadata-keys))]
+  (let [old (select-keys old relevant-metadata-keys)
+        new (select-keys new relevant-metadata-keys)]
     (not= old new)))
 
 (defn- update-document-and-version
@@ -200,7 +217,7 @@
 
 (defn- invalid-isbn?
   [{:keys [source]}]
-  (not (s/valid? ::isbn source)))
+  (not (s/valid? ::source source)))
 
 (defn- invalid-product?
   [{:keys [product-number]}]
