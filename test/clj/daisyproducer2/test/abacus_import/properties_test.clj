@@ -66,7 +66,6 @@
     [sample import-gen]
     (let [input (apply ->Raw sample)
           imported (read-xml (xml/sexp-as-element (xml-sample input)))]
-      (is (:source imported))
       (is (#{:braille :large-print :ebook :etext} (:product-type imported)))
       (is (#{"" "PPP" "SJW"} (:production-series imported)))
       (is (#{"de" "de-CH" "it" "rm-sursilv"} (:language imported)))

@@ -11,7 +11,7 @@
                 production-series-number reihe aufwand daisy-producer])
 (defrecord Imported [product-number product-type
                      title author publisher date source language
-                     source-publisher source-edition
+                     source-publisher source-edition source-date
                      production-series production-series-number production-source
                      daisyproducer?])
 
@@ -45,7 +45,7 @@
 
     (testing "Read XML"
       (let [document (->Imported "EB11111" :ebook "Eine für de Thesi" "Gwerder, Anna" "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte"
-                                 (time/local-date "2011-12-23") "" "de" "DVA" "1. / 2011" "" "" "" false)]
+                                 (time/local-date "2011-12-23") nil "de" "DVA" "1. / 2011" (time/local-date 2011) "" "" "" false)]
         (are [expected actual] (= (into {} expected) (read-xml (xml/sexp-as-element (xml-sample actual))))
           document (->Raw "EB11111" "Eine für de Thesi" "Gwerder, Anna" "de" "" "2011-12-23" "DVA" "1. / 2011" 0 "" "" "nein")
           (assoc document :daisyproducer? true) (->Raw "EB11111" "Eine für de Thesi" "Gwerder, Anna" "de" "" "2011-12-23" "DVA" "1. / 2011" 0 "" "" "ja")
@@ -68,7 +68,7 @@
     (testing "Read a file"
       (let [sample (io/file (io/resource "SN_Alfresco_EB11111.xml"))]
         (is (= (into {} (->Imported "EB11111" :ebook "Eine für de Thesi" "Gwerder, Anna" "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte"
-                                    (time/local-date "2011-12-23") "" "de" "DVA" "1. / 2011" "" "" "electronicData" true))
+                                    (time/local-date "2011-12-23") nil "de" "DVA" "1. / 2011" (time/local-date 2011) "" "" "electronicData" true))
                (read-file sample)))))))
 
 (deftest abacus-import-document
