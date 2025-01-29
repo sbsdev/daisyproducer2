@@ -62,7 +62,7 @@
   (let [conn           (ldap/get-connection ldap-pool)
         qualified-name (str "uid=" username ",cn=users,cn=accounts,dc=sbszh,dc=ch")]
     (try
-      (if (ldap/bind? conn qualified-name password)
+      (when (ldap/bind? conn qualified-name password)
         (-> conn
             (ldap/search "cn=users,cn=accounts,dc=sbszh,dc=ch"
                          {:filter (str "uid=" username)

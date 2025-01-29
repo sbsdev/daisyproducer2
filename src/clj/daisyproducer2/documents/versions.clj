@@ -74,25 +74,25 @@
 
 (defn insert-version
   [document-id tempfile comment user]
-  (let [document (db/get-document {:id document-id})]
-    ;; validate tempfile
-    (let [validation-errors (validate-version tempfile document)]
-      (log/debugf "Validating %s" tempfile)
-      (if (seq validation-errors)
-        (failures/annotated-fail "Failed to validate XML" validation-errors)
-        (let [document-root (env :document-root)
-              name (str (tsid) ".xml")
-              path (fs/path (str document-id) "versions" name)
-              absolute-path (fs/absolutize (fs/path document-root path))]
-          ;; make sure path exists
-          (fs/create-dirs (fs/parent absolute-path))
-          ;; copy the contents into the archive
-          (fs/copy tempfile absolute-path)
-          ;; store it in the db ...
-          (->
-           (db/insert-version {:document-id document-id :comment comment :content (str path) :user user})
-           ;; ... and return the new key
-           db/get-generated-key))))))
+  (let [document (db/get-document {:id document-id})
+        ;; validate tempfile
+        validation-errors (validate-version tempfile document)]
+    (log/debugf "Validating %s" tempfile)
+    (if (seq validation-errors)
+      (failures/annotated-fail "Failed to validate XML" validation-errors)
+      (let [document-root (env :document-root)
+            name (str (tsid) ".xml")
+            path (fs/path (str document-id) "versions" name)
+            absolute-path (fs/absolutize (fs/path document-root path))]
+        ;; make sure path exists
+        (fs/create-dirs (fs/parent absolute-path))
+        ;; copy the contents into the archive
+        (fs/copy tempfile absolute-path)
+        ;; store it in the db ...
+        (->
+         (db/insert-version {:document-id document-id :comment comment :content (str path) :user user})
+         ;; ... and return the new key
+         db/get-generated-key)))))
 
 (defn initial-content
   "Create the initial XML content from a set of metadata given in `document`"

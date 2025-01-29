@@ -216,27 +216,27 @@
 (defn word [id]
   (let [grade @(rf/subscribe [::grade/grade])
         {:keys [uuid untranslated uncontracted contracted type homograph-disambiguation
-                hyphenated invalid-hyphenated]} @(rf/subscribe [::word id])]
-    ;; if we have neither the uncontracted nor the contracted field,
-    ;; most likely the braille translation failed
-    (let [valid (or uncontracted contracted)]
-      [:tr
-       [:td untranslated]
-       (when (#{0 1} grade)
-         (if uncontracted
-           [:td [fields/input-field :unknown uuid :uncontracted validation/braille-valid?]]
-           [:td [fields/invalid-field]]))
-       (when (#{0 2} grade)
-         (if contracted
-           [:td [fields/input-field :unknown uuid :contracted validation/braille-valid?]]
-           [:td [fields/invalid-field]]))
-       [:td (if hyphenated
-              [fields/input-field :unknown uuid :hyphenated #(validation/hyphenation-valid? % untranslated)]
-              [fields/disabled-field invalid-hyphenated])]
-       [:td {:width "8%"} (get words/type-mapping type (tr [:unknown]))]
-       [:td {:width "8%"} homograph-disambiguation]
-       [:td (when valid [fields/local-field :unknown uuid])]
-       [:td {:width "8%"} (when valid [buttons uuid])]])))
+                hyphenated invalid-hyphenated]} @(rf/subscribe [::word id])
+        ;; if we have neither the uncontracted nor the contracted field,
+        ;; most likely the braille translation failed
+        valid? (or uncontracted contracted)]
+    [:tr
+     [:td untranslated]
+     (when (#{0 1} grade)
+       (if uncontracted
+         [:td [fields/input-field :unknown uuid :uncontracted validation/braille-valid?]]
+         [:td [fields/invalid-field]]))
+     (when (#{0 2} grade)
+       (if contracted
+         [:td [fields/input-field :unknown uuid :contracted validation/braille-valid?]]
+         [:td [fields/invalid-field]]))
+     [:td (if hyphenated
+            [fields/input-field :unknown uuid :hyphenated #(validation/hyphenation-valid? % untranslated)]
+            [fields/disabled-field invalid-hyphenated])]
+     [:td {:width "8%"} (get words/type-mapping type (tr [:unknown]))]
+     [:td {:width "8%"} homograph-disambiguation]
+     [:td (when valid? [fields/local-field :unknown uuid])]
+     [:td {:width "8%"} (when valid? [buttons uuid])]]))
 
 (defn unknown-words []
   (let [words @(rf/subscribe [::words-sorted])
