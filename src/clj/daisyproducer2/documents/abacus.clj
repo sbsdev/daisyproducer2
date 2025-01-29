@@ -23,9 +23,51 @@
             [iapetos.collector.fn :as prometheus]
             [java-time.api :as time]))
 
+;;; Specifications for document and product
+
+;; used only partially at the moment, i.e. when importing the document
+;; is not validated as a whole, only `source` and `product-number` are
+;; validated individually
+
+(defn- local-date? [x] (instance? java.time.LocalDate x))
+(defn- local-date-time? [x] (instance? java.time.LocalDateTime x))
+
+(s/def ::title (s/and string? (complement str/blank?)))
+(s/def ::author (s/nilable string?))
+(s/def ::subject (s/nilable string?))
+(s/def ::description (s/nilable string?))
+(s/def ::publisher string?)
+(s/def ::date local-date?)
+(s/def ::identifier (s/and string? (complement str/blank?)))
+(s/def ::source (s/nilable (s/and string? (fn [s] (re-matches #"^SBS[0-9]{6}|(?:978-|979-)?\d{1,5}-\d{1,7}-\d{1,6}-[0-9xX]" s))))) ;; ISBN
+(s/def ::language (s/and string? #(re-matches #"^(de|de-1901|de-CH|it|rm-sursilv|en)$" %)))
+(s/def ::rights (s/nilable string?))
+(s/def ::source-date (s/nilable local-date?))
+(s/def ::source-edition (s/nilable string?))
+(s/def ::source-publisher (s/nilable string?))
+(s/def ::source-rights (s/nilable string?))
+(s/def ::state-id pos-int?)
+(s/def ::created-at local-date-time?)
+(s/def ::modified-at local-date-time?)
+(s/def ::production-series (s/nilable string?))
+(s/def ::production-series-number (s/nilable string?))
+(s/def ::production-source (s/nilable string?))
+
+(s/def ::document
+  (s/keys :req-un [::author ::title ::publisher ::date ::language
+                   ::source-edition ::source-publisher ::source-date]
+          :opt-un [::subject ::description ::source ::rights
+                   ::source-rights ::production-series
+                   ::production-series-number ::production-source
+                   ;; the following keys are only given once the document is persisted in the db
+                   ::created-at ::modified-at ::state-id
+                   ::identifier]))
 
 (s/def ::product-number (s/and string? #(re-matches #"^(PS|GD|EB|ET)\d{4,7}$" %)))
-(s/def ::source (s/nilable (s/and string? (fn [s] (re-matches #"^SBS[0-9]{6}|(?:978-|979-)?\d{1,5}-\d{1,7}-\d{1,6}-[0-9xX]" s))))) ;; ISBN
+(s/def ::product-type (s/and int? #(<= 0 % 5)))
+
+(s/def ::document-product
+  (s/keys :req-un [::product-number ::product-type]))
 
 (def ^:private root-path [:Task :Transaction :DocumentData])
 
