@@ -151,6 +151,8 @@
       (fs/move pdf-path output {:replace-existing true})
       (catch clojure.lang.ExceptionInfo e
         (log/error (ex-message e))
+        ;; move the failing tex files away for later inspection
+        (fs/move tmp-dir (fs/create-dirs "/tmp/daisyproducer2-failed") {:replace-existing true})
         (throw
          (ex-info (format "Conversion of %s failed" input) {:error-id ::pdf-conversion-failed} e)))
       (catch java.nio.file.NoSuchFileException e
