@@ -11,6 +11,7 @@
    [clojure.string :as str]
    [clojure.tools.logging :as log]
    [daisyproducer2.config :refer [env]]
+   [daisyproducer2.documents.utils :refer [with-tempdir]]
    [medley.core :refer [update-existing]]))
 
 (defn continuation-line? [line]
@@ -138,28 +139,29 @@
   "Invoke `latexmk` on the given `input` file and store the resulting
   PDF in the given `output` file."
   [input images output]
-  (let [tmp-dir (fs/create-temp-dir {:prefix "daisyproducer2-"})
-        pdf-path (fs/path tmp-dir (str (fs/file-name (fs/strip-ext input)) ".pdf"))]
-    (try
-      ;; copy the images into the temp dir so that LaTeX can find them
-      (doseq [image images] (fs/copy image tmp-dir))
-      (process/shell {:err :string
-                      :out :string
-                      :pre-start-fn #(log/info "Invoking" (:cmd %))}
-                     "latexmk" "-interaction=batchmode" "-xelatex"
-                     (format "-output-directory=%s" tmp-dir) input)
-      (fs/move pdf-path output {:replace-existing true})
-      (catch clojure.lang.ExceptionInfo e
-        (log/error (ex-message e))
-        ;; move the failing tex files away for later inspection
-        (fs/move tmp-dir (fs/create-dirs "/tmp/daisyproducer2-failed") {:replace-existing true})
-        (throw
-         (ex-info (format "Conversion of %s failed" input) {:error-id ::pdf-conversion-failed} e)))
-      (catch java.nio.file.NoSuchFileException e
-        (log/error (ex-message e))
-        (throw
-         (ex-info (format "Move of %s to %s failed" pdf-path output) {:error-id ::no-such-file} e)))
-      (finally (fs/delete-tree tmp-dir)))))
+  (with-tempdir [tempdir {:prefix "daisyproducer-"}]
+    (let [pdf-path (fs/path tempdir (str (fs/file-name (fs/strip-ext input)) ".pdf"))]
+      (try
+        ;; copy the latex file to the tempdir
+        (fs/copy input tempdir)
+        ;; copy the images into the temp dir so that LaTeX can find them
+        (doseq [image images] (fs/copy image tempdir))
+        (process/shell {:err :string
+                        :out :string
+                        :dir tempdir
+                        :pre-start-fn #(log/info "Invoking" (:cmd %))}
+                       "latexmk" "-interaction=batchmode" "-xelatex" input)
+        (fs/move pdf-path output {:replace-existing true})
+        (catch clojure.lang.ExceptionInfo e
+          (log/error (ex-message e))
+          ;; move the failing tex files away for later inspection
+          (fs/move tempdir (fs/create-dirs "/tmp/daisyproducer2-failed"))
+          (throw
+           (ex-info (format "Conversion of %s failed" input) {:error-id ::pdf-conversion-failed} e)))
+        (catch java.nio.file.NoSuchFileException e
+          (log/error (ex-message e))
+          (throw
+           (ex-info (format "Move of %s to %s failed" pdf-path output) {:error-id ::no-such-file} e)))))))
 
 (defn insert-volume-split-points
   "Invoke the script to insert volume split points on the given `input`
