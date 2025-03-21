@@ -163,7 +163,7 @@
                      :mathml "MathML"
                      :both "Both"
                      }
-                    :image-inclusion
+                    :image-handling
                     {:drop "None"
                      :link "Linked"
                      :embed "Embedded"
@@ -194,7 +194,7 @@
                      :image-visibility "Image Visibility"
                      :math "Math"
                      :phonetics "Phonetics"
-                     :image-inclusion "Images"
+                     :image-handling "Images"
                      :line-numbers "Line numbers"
                      :page-numbers "Page numbers"
                      :floating-page-numbers "Floating page numbers"
@@ -362,7 +362,7 @@
                      :mathml "MathML"
                      :both "Beide"
                      }
-                    :image-inclusion
+                    :image-handling
                     {:drop "Ohne"
                      :link "Linked"
                      :embed "Embedded"
@@ -392,7 +392,7 @@
                      :image-visibility "Bilder"
                      :math "Math"
                      :phonetics "Phonetics"
-                     :image-inclusion "Images"
+                     :image-handling "Images"
                      :line-numbers "Line numbers"
                      :page-numbers "Page numbers"
                      :floating-page-numbers "Floating page numbers"

@@ -294,7 +294,7 @@
 (defn open-document [{id :id}]
   [fork/form {:initial-values {:math :both
                                :phonetics true
-                               :image-inclusion :link
+                               :image-handling :link
                                :line-numbers true
                                :page-numbers true
                                :floating-page-numbers false
@@ -316,8 +316,8 @@
         (dropdown props {:name :math :label (tr [:forms/math])
                                :options [{:asciimath (tr [:math/asciimath])} {:mathml (tr [:math/mathml])} {:both (tr [:math/both])}]})
         (checkbox props {:name :phonetics :text (tr [:forms/phonetics])})
-        (dropdown props {:name :image-inclusion :label (tr [:forms/image-inclusion])
-                               :options [{:drop (tr [:image-inclusion/drop])} {:link (tr [:image-inclusion/link])} {:embed (tr [:image-inclusion/embed])}]})
+        (dropdown props {:name :image-handling :label (tr [:forms/image-handling])
+                               :options [{:drop (tr [:image-handling/drop])} {:link (tr [:image-handling/link])} {:embed (tr [:image-handling/embed])}]})
         (checkbox props {:name :line-numbers :text (tr [:forms/line-numbers])})
         (checkbox props {:name :page-numbers :text (tr [:forms/page-numbers])})
         (checkbox props {:name :floating-page-numbers :text (tr [:forms/floating-page-numbers])})
