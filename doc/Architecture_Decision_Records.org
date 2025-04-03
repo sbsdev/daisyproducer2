@@ -7,6 +7,184 @@
 
 #+TODO: DRAFT PROPOSED | ACCEPTED REJECTED DEPRECATED SUPERSEDED
 
+* DRAFT Implicit headings
+- Deciders :: CE, MK, FW, US
+- Date :: [2025-04-03 Do]
+
+In traditional print books, it is often the case that certain sections
+in the front and back matter do not have explicit headings. Their
+purpose is understood by visual cues or by convention. Examples
+include dedications, epigraphs, acknowledgments, colophons, or author
+biographies.
+
+While these sections work without explicit headings in print, digital
+formats like E-books require actual headings to enable navigation.
+However, in formats such as Braille or Large Print, we omit these
+headings to maintain fidelity with the original print edition.
+
+** Context and Problem Statement
+
+The XML source code of the book needs to have some indication which
+headings are implicit and should only be shown in E-Books. This is
+currently handled in a very simple way: We do not add any headings to
+the XML source that do not exist in the book.
+
+However since we need headings in the E-Books, we currently just add a
+boilerplate heading to sections where it is missing. So both a
+dedication or an acknowledgment will have a generic heading
+"Vorspann". This is not very satisfying.
+
+At the same time there is an effort to standardize the names of these
+implicit headings.
+
+So we need a way to give these headings a label and mark them as
+implicit.
+
+** Decision Drivers
+
+- Simple for the transcriber :: It should be simple to add an implicit
+  heading without having to resort to complicated mechanisms such as
+  ~brl:select~ macros.
+- Standardized :: As we would like to standardize the implicit
+  headings there should be a structured way to insert these headings,
+  that leaves little room for errors.
+- Open :: While we want to standardize the possible headings, there is
+  not finite set of implied headings in the books we transcribe.
+  Attempting to settle on a fixed set of standardized headings is
+  futile. A solution needs to be open and allow for new situations.
+- Backwards compatible :: We are not going to migrate our existing
+  corpus of XML source files, so any solution needs to be able to
+  handle both the old format and a possible new format seamlessly.
+- Stay close to the existing XML standard :: We are free to invent our
+  own XML standard to handle implicit headings. However, deviating
+  from the XML standard has a high long term cost. We need to adapt
+  the upstream off-the-shelf conversion software to our changes, not
+  just once but for each upstream release. Also we will not get any
+  support from upstream for our local changes.
+
+  This is already a big problem for our E-Book production where we are
+  stuck with an ancient version of the upstream conversion software
+  because of our local changes.
+
+** Considered Options
+
+*** Conventions
+Instead of adding some new markup to the XML we indicate implicit
+headings with some convention. We already use a similar technique for
+the braille title page. For example the third ~level1~ in the front
+matter would always contain the implicit sections, where the first
+~level2~ would be the dedication, the second ~level2~ would be the
+acknowledgments and so forth. We would have to maintain a mapping
+between ~level2~ number and type of section. Also each type would have
+to be implemented in code.
+
+*** Select macro
+Enhance the ~brl:select~ macros to allow for selecting content only
+for certain output formats.
+
+*** A new dedicated attribute
+We mark implicit headings with a dedicated attribute.
+
+#+begin_src xml
+  <h1 implicit="true">Widmung</h1>
+#+end_src
+
+*** A specific class value
+Implicit headings are marked with a special class name.
+
+#+begin_src xml
+  <h1 class="implicit">Widmung</h1>
+#+end_src
+
+*** Reuse an existing attribute from the standard
+There are some attributes in the DTBook standard that could be used to
+indicate implicit headings. We could use the ~render~ attribute or
+some form of the ~showin~ attribute.
+
+** Decision Outcome
+
+Chosen option: A specific class value
+
+*** Positive Consequences
+- The intent of the markup is very clear. It is easy for transcribers
+  to understand.
+- It is fully backwards compatible.
+- It is an open solution, i.e. new kinds of sections can easily be
+  handled by the transcribers themselves.
+- It is fully compatible with the DTBook standard.
+
+*** Negative Consequences
+- Strict schema validation can only be done with the minimal schema.
+- The transcriber can use any heading they want, there is no automatic
+  validation against a set of approved default headings.
+
+** Pros and Cons of the Options
+*** Conventions
+- Good :: No change to the DTBook schema is needed
+- Good :: Compliant with the DTBook standard
+- Good :: The solution is "open" but in a very clunky way, i.e. you
+  can always add one more ~level2~ and define is as special section,
+  but you will have to wait until CE implements it.
+- Bad :: Usage for transcribers is very hard, as very little is
+  explicit, i.e. "which h2 is for dedication again?"
+
+*** Select macro
+- Good :: Very flexible
+- Bad :: Works against standardization, i.e. too flexible
+- Bad :: Change to the DTBook schema is needed
+- Bad :: Not close to the DTBook standard
+- Bad :: Usage for transcribers is fairly complicated
+
+*** A new dedicated attribute
+- Good :: Intent of markup is very clear, i.e. easy for transcribers
+  to understand and use
+- Good :: Schema validation is easy
+- Bad :: Change to the DTBook schema is needed
+- Bad :: Not close to the DTBook standard
+
+*** A specific class value
+- Good :: Intent of markup is very clear, i.e. easy for transcribers
+  to understand and use
+- Good :: Schema validation is fairly easy
+- Good :: Compliant with the DTBook standard
+- Bad :: Strict schema validation only works with the minimal schema
+- Bad :: Change to the minimal DTBook schema is needed
+- Bad :: Ensuring that the class is only used in the front- and
+  rearmatter requires Schematron, a more complicated validation
+  mechanism.
+
+*** Reuse an existing attribute from the standard
+
+**** Using the ~render~ attribute
+The ~render~ attribute is used for producer notes to indicate whether
+it is optional to render them. We could extend it and attach it
+additional meaning to indicate whether an heading should be rendered
+for a certain format.
+
+- Bad :: Intent of markup is not clear, as we use the same attribute
+  for different use cases
+- Bad :: Change to the DTBook schema is needed
+- Bad :: Not close to the DTBook standard
+
+**** Using the ~showin~ attribute
+The ~showin~ attribute is an odd duck. It lets the transcriber specify
+how an element is to be shown in the three formats braille, large
+print or print (whatever that means). To show an element only in
+braille you'd use ~<h1 showin="bxx">Widmung</h1>~. The standards
+creators realized that this attribute was a mistake and deprecated it.
+
+- Good :: Compliant with the DTBook standard
+- Good :: No change to the DTBook schema is needed
+- Bad :: Deprecated, i.e. upstream conversion tools might no longer
+  support it
+- Bad :: Intent of markup is not totally clear, i.e. hard for
+  transcribers to use and easy to misuse
+
+** Links
+- [[https://github.com/sbsdev/dtbook-schema/blob/master/src/main/schema/dtbook-2005-3.rnc][DTBook schema]]
+- [[https://github.com/sbsdev/dtbook-schema][SBS Extensions to the DTBook schema]]
+- [[https://daisy.org/guidance/info-help/guidance-training/standards/daisy-structure-guidelines/][Structuring Guidelines]]
+
 * ACCEPTED State transition
 CLOSED: [2024-04-24 Mi 11:59]
 - Deciders :: CE
