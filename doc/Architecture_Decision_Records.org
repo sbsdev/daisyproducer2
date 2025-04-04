@@ -82,6 +82,52 @@ to be implemented in code.
 Enhance the ~brl:select~ macros to allow for selecting content only
 for certain output formats.
 
+*** Aria role
+The implicit levels are marked with an aria role which specifies the
+role of the section.
+
+#+begin_src xml
+  <level2 aria:role="doc-dedication">Für meinen Hund</level2>
+#+end_src
+
+The DAISY Consortium and the W3C even more so, maintain a
+comprehensive vocabulary of structural semantics, so we will not have
+to create our own list and can follow a standard.
+
+- [[https://kb.daisy.org/publishing/docs/html/dpub-aria/index.html][Digital Publishing Roles]] (vocabulary from the DAISY Consortium)
+- [[https://www.w3.org/TR/dpub-aria/][Digital Publishing WAI-ARIA Module 1.1]] (vocabulary from W3C)
+- [[https://www.w3.org/TR/epub-ssv/][EPUB 3 Structural Semantics Vocabulary 1.1]] (vocabulary related to EPB3)
+
+Giving an element a role has benefits beyond just E-Book navigation:
+The role can be used in the EPUB to enhance accessibility. It could
+also be used in Braille for formatting, etc.
+
+This would be a closed solution as there is a large but finite set of
+roles. In the rare case where no pre-defined role is suitable for a
+section then the rendered E-Book will fall back to the standard
+"Vorspann" as we have it now.
+
+*** Aria label
+We give the sections without a heading a special aria label which will
+be used as the heading for that section. When converting this content
+to an E-Book it will be rendered as a heading. This is basically a
+simplified version of [[*A specific class value][A specific class value]].
+
+#+begin_src xml
+  <level2 aria:label="Widmung">Für meinen Hund</level2>
+#+end_src
+
+- https://www.w3.org/TR/dpub-aria/
+- https://w3c.github.io/aria/#aria-label
+
+*** Aria role with aria label fallback
+The [[*Aria role][Aria role]] solution is a closed solution, as there is a finite set
+of pre-defined roles.
+
+In the rare case where no pre-defined role is suitable for a
+section we can fall back to using an aria label. So this solution is
+essentially a combination of [[*Aria role][Aria role]] and [[*Aria label][Aria label]].
+
 *** A new dedicated attribute
 We mark implicit headings with a dedicated attribute.
 
@@ -134,6 +180,30 @@ Chosen option: A specific class value
 - Bad :: Change to the DTBook schema is needed
 - Bad :: Not close to the DTBook standard
 - Bad :: Usage for transcribers is fairly complicated
+
+*** Aria role
+- Good :: Intent of markup is very clear, i.e. easy for transcribers
+  to understand and use
+- Good :: Reuse of existing work by DAISY and W3C
+- Good :: The vocabulary is very well defined and documented
+- Good :: as the set of roles is standardized there is little room for error
+- Good :: Schema validation is easy
+- Bad :: Change to the DTBook schema is needed
+- Bad :: Deviates from the DTBook standard, but complies with the
+  extension mechanism
+
+*** Aria label
+- Good :: is a simpler, more loose version of a specific class value
+- Good :: Intent of markup is fairly clear
+- Bad :: There is mo strict schema validation as label can contain anything
+- Bad :: Change to the DTBook schema is needed
+- Bad :: Ensuring that the labek is only used in the front- and
+  rearmatter is complicated.
+
+*** Aria role with aria label fallback
+- Good :: not a closed set of roles as Aria role
+- Bad :: Due to the free-form nature looses pretty much all of the
+  benefits of the aria role solution
 
 *** A new dedicated attribute
 - Good :: Intent of markup is very clear, i.e. easy for transcribers
