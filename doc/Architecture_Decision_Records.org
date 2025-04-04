@@ -149,20 +149,11 @@ some form of the ~showin~ attribute.
 
 ** Decision Outcome
 
-Chosen option: A specific class value
+Chosen option: TBD
 
 *** Positive Consequences
-- The intent of the markup is very clear. It is easy for transcribers
-  to understand.
-- It is fully backwards compatible.
-- It is an open solution, i.e. new kinds of sections can easily be
-  handled by the transcribers themselves.
-- It is fully compatible with the DTBook standard.
 
 *** Negative Consequences
-- Strict schema validation can only be done with the minimal schema.
-- The transcriber can use any heading they want, there is no automatic
-  validation against a set of approved default headings.
 
 ** Pros and Cons of the Options
 *** Conventions
