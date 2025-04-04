@@ -188,13 +188,13 @@ Chosen option: TBD
 - Good :: Intent of markup is fairly clear
 - Bad :: There is mo strict schema validation as label can contain anything
 - Bad :: Change to the DTBook schema is needed
-- Bad :: Ensuring that the labek is only used in the front- and
+- Bad :: Ensuring that the label is only used in the front- and
   rearmatter is complicated.
 
 *** Aria role with aria label fallback
 - Good :: not a closed set of roles as Aria role
 - Bad :: Due to the free-form nature looses pretty much all of the
-  benefits of the aria role solution
+  benefits of the Aria role solution
 
 *** A new dedicated attribute
 - Good :: Intent of markup is very clear, i.e. easy for transcribers
