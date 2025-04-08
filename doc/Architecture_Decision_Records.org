@@ -132,14 +132,18 @@ essentially a combination of [[*Aria role][Aria role]] and [[*Aria label][Aria l
 We mark implicit headings with a dedicated attribute.
 
 #+begin_src xml
-  <h1 implicit="true">Widmung</h1>
+  <level1>
+    <h1 implicit="true">Widmung</h1>
+  </level1>
 #+end_src
 
 *** A specific class value
 Implicit headings are marked with a special class name.
 
 #+begin_src xml
-  <h1 class="implicit">Widmung</h1>
+  <level1>
+    <h1 class="implicit">Widmung</h1>
+  </level1>
 #+end_src
 
 *** Reuse an existing attribute from the standard
@@ -149,11 +153,26 @@ some form of the ~showin~ attribute.
 
 ** Decision Outcome
 
-Chosen option: TBD
+Chosen option: A specific class value (class="implicit"), because it
+is a simple solution that can be implemented quickly. The solution
+with the aria role was deemed too far reaching, as it apparently
+implies we are actually implementing aria roles. Also the the role
+solution prevented inline markup in the headings, a feature that is
+apparently essential.
 
 *** Positive Consequences
 
+- Implementation is relatively straight-forward.
+- Transcribers have all the freedom to choose an appropriate
+  (implicit) title
+
 *** Negative Consequences
+
+- Standardization is only on a voluntary bases, i.e. the standard
+  vocabulary will be collected on a wiki page. There will be no
+  validation of the values of the implicit headings.
+- If we ever choose to use aria roles we will have to somehow migrate
+  the implicit headings to a role.
 
 ** Pros and Cons of the Options
 :PROPERTIES:
