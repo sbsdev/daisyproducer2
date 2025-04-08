@@ -156,7 +156,23 @@ Chosen option: TBD
 *** Negative Consequences
 
 ** Pros and Cons of the Options
+:PROPERTIES:
+:COLUMNS:  %ITEM %Standardization %CloseToSchema %Flexibility %EaseOfUse %Complexity
+:Standardization_ALL: 0 1 2
+:CloseToSchema_ALL: 0 1 2
+:Flexibility_ALL: 0 1 2
+:EaseOfUse_ALL: 0 1 2
+:Complexity_ALL: 0 1 2
+:END:
+
 *** Conventions
+:PROPERTIES:
+:STANDARDIZATION: 2
+:CLOSETOSCHEMA: 2
+:FLEXIBILITY: 1
+:EASEOFUSE: 0
+:COMPLEXITY: 2
+:END:
 - Good :: No change to the DTBook schema is needed
 - Good :: Compliant with the DTBook standard
 - Good :: The solution is "open" but in a very clunky way, i.e. you
@@ -166,6 +182,13 @@ Chosen option: TBD
   explicit, i.e. "which h2 is for dedication again?"
 
 *** Select macro
+:PROPERTIES:
+:CLOSETOSCHEMA: 1
+:STANDARDIZATION: 0
+:FLEXIBILITY: 2
+:EASEOFUSE: 0
+:COMPLEXITY: 2
+:END:
 - Good :: Very flexible
 - Bad :: Works against standardization, i.e. too flexible
 - Bad :: Change to the DTBook schema is needed
@@ -173,6 +196,13 @@ Chosen option: TBD
 - Bad :: Usage for transcribers is fairly complicated
 
 *** Aria role
+:PROPERTIES:
+:STANDARDIZATION: 2
+:CLOSETOSCHEMA: 0
+:FLEXIBILITY: 0
+:EASEOFUSE: 2
+:COMPLEXITY: 0
+:END:
 - Good :: Intent of markup is very clear, i.e. easy for transcribers
   to understand and use
 - Good :: Reuse of existing work by DAISY and W3C
@@ -184,6 +214,13 @@ Chosen option: TBD
   extension mechanism
 
 *** Aria label
+:PROPERTIES:
+:STANDARDIZATION: 0
+:CLOSETOSCHEMA: 0
+:FLEXIBILITY: 2
+:EASEOFUSE: 1
+:COMPLEXITY: 0
+:END:
 - Good :: is a simpler, more loose version of a specific class value
 - Good :: Intent of markup is fairly clear
 - Bad :: There is mo strict schema validation as label can contain anything
@@ -192,11 +229,25 @@ Chosen option: TBD
   rearmatter is complicated.
 
 *** Aria role with aria label fallback
+:PROPERTIES:
+:STANDARDIZATION: 0
+:CLOSETOSCHEMA: 0
+:FLEXIBILITY: 2
+:EASEOFUSE: 1
+:COMPLEXITY: 1
+:END:
 - Good :: not a closed set of roles as Aria role
 - Bad :: Due to the free-form nature looses pretty much all of the
   benefits of the Aria role solution
 
 *** A new dedicated attribute
+:PROPERTIES:
+:STANDARDIZATION: 0
+:CLOSETOSCHEMA: 1
+:FLEXIBILITY: 2
+:EASEOFUSE: 1
+:COMPLEXITY: 1
+:END:
 - Good :: Intent of markup is very clear, i.e. easy for transcribers
   to understand and use
 - Good :: Schema validation is easy
@@ -204,6 +255,13 @@ Chosen option: TBD
 - Bad :: Not close to the DTBook standard
 
 *** A specific class value
+:PROPERTIES:
+:STANDARDIZATION: 0
+:CLOSETOSCHEMA: 2
+:FLEXIBILITY: 2
+:EASEOFUSE: 1
+:COMPLEXITY: 1
+:END:
 - Good :: Intent of markup is very clear, i.e. easy for transcribers
   to understand and use
 - Good :: Schema validation is fairly easy
@@ -217,6 +275,13 @@ Chosen option: TBD
 *** Reuse an existing attribute from the standard
 
 **** Using the ~render~ attribute
+:PROPERTIES:
+:COMPLEXITY: 2
+:EASEOFUSE: 0
+:FLEXIBILITY: 2
+:CLOSETOSCHEMA: 2
+:STANDARDIZATION: 0
+:END:
 The ~render~ attribute is used for producer notes to indicate whether
 it is optional to render them. We could extend it and attach it
 additional meaning to indicate whether an heading should be rendered
@@ -228,6 +293,13 @@ for a certain format.
 - Bad :: Not close to the DTBook standard
 
 **** Using the ~showin~ attribute
+:PROPERTIES:
+:STANDARDIZATION: 0
+:CLOSETOSCHEMA: 2
+:FLEXIBILITY: 2
+:EASEOFUSE: 1
+:COMPLEXITY: 2
+:END:
 The ~showin~ attribute is an odd duck. It lets the transcriber specify
 how an element is to be shown in the three formats braille, large
 print or print (whatever that means). To show an element only in
