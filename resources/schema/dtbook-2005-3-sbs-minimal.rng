@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grammar ns="http://www.daisy.org/z3986/2005/dtbook/" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:brl="http://www.daisy.org/z3986/2009/braille/" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar ns="http://www.daisy.org/z3986/2005/dtbook/" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:brl="http://www.daisy.org/z3986/2009/braille/" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <!-- Schematron title and namespaces -->
+  <sch:title>DTBook 2005-3 Schematron tests for SBS</sch:title>
+  <sch:ns prefix="dtb" uri="http://www.daisy.org/z3986/2005/dtbook/"/>
   <start>
     <ref name="dtbook"/>
   </start>
@@ -178,6 +181,11 @@ a form of css for Braille)</a:documentation>
       <data type="string" datatypeLibrary=""/>
     </attribute>
   </define>
+  <define name="implicitTitleAttribute">
+    <attribute name="class">
+      <value>implicit</value>
+    </attribute>
+  </define>
   <define name="levelcontent">
     <choice>
       <ref name="pagenum"/>
@@ -286,6 +294,9 @@ a form of css for Braille)</a:documentation>
   </define>
   <define name="h1">
     <element name="h1">
+      <optional>
+        <ref name="implicitTitleAttribute"/>
+      </optional>
       <optional>
         <ref name="brailleClassAttribute"/>
       </optional>
@@ -1322,4 +1333,10 @@ kept for backwards compatibility</a:documentation>
       </element>
     </element>
   </define>
+  <!-- Don't allow the implicit class on elements within the bodymatter -->
+  <sch:pattern name="sbs_class_implicit" id="sbs_class_implicit">
+    <sch:rule context="dtb:h1[@class='implicit']">
+      <sch:assert test="not(ancestor::dtb:bodymatter)">The class='implicit' is not allowed on h1 elements within bodymatter.</sch:assert>
+    </sch:rule>
+  </sch:pattern>
 </grammar>
