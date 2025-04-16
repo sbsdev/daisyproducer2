@@ -9,9 +9,13 @@
   (:import
    (org.apache.pdfbox Loader)))
 
-(defn- filter-braille-and-add-image-refs
+(defn- prepare-xml
+  "Given an `xml` filter the braille contraction hints, drop the
+  implicit headings and add image references. Store the updated xml in
+  `target`."
   [xml target]
   (let [xslt [(xslt/compile-xslt (io/resource "xslt/filterBrlContractionhints.xsl"))
+              (xslt/compile-xslt (io/resource "xslt/filter_implicit_headings.xsl"))
               (xslt/compile-xslt (io/resource "xslt/addImageRefs.xsl"))]]
     (xslt/transform-to-file xslt (fs/file xml) (fs/file target))))
 
@@ -63,7 +67,7 @@
     (with-tempfile [clean-xml {:prefix "daisyproducer-" :suffix "-clean.xml"}]
       (with-tempfile [pdf-no-volumes {:prefix "daisyproducer-" :suffix "-no-volumes.pdf"}]
         (with-tempfile [split-xml {:prefix "daisyproducer-" :suffix "-split.xml"}]
-          (filter-braille-and-add-image-refs input clean-xml)
+          (prepare-xml input clean-xml)
           (generate-pdf clean-xml images pdf-no-volumes opts)
           (pipeline1/insert-volume-split-points clean-xml split-xml (get-number-of-volumes (fs/file pdf-no-volumes)))
           (generate-pdf split-xml images output opts))))))

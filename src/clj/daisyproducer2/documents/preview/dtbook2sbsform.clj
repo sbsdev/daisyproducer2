@@ -9,13 +9,20 @@
    [clojure.string :as str]
    [clojure.tools.logging :as log]
    [clojure.java.io :as io]
-   [daisyproducer2.config :refer [env]]))
+   [daisyproducer2.documents.utils :refer [with-tempfile]]
+   [daisyproducer2.config :refer [env]]
+   [sigel.xslt.core :as xslt]))
 
 (def ^:private executable "/opt/dtbook2sbsform/dtbook2sbsform.sh")
 
 (defn- log-process
   [proc]
   (log/info "Invoking" (:cmd proc)))
+
+(defn- filter-implicit-headings
+  [xml target]
+  (let [xslt [(xslt/compile-xslt (io/resource "xslt/filter_implicit_headings.xsl"))]]
+    (xslt/transform-to-file xslt (fs/file xml) (fs/file target))))
 
 (defn- translate
   "Translate the given `dtbook` using given `args` and store it in
@@ -24,20 +31,22 @@
   ([dtbook output-path args]
    (translate nil dtbook output-path args))
   ([pipe dtbook output-path args]
-   (let [opts {:out :write
-               :out-file (fs/file output-path)
-               :err :string
-               :extra-env {"LANG" "en_US.UTF-8"}
-               :pre-start-fn log-process}
-         input (if (nil? pipe) (format "-s:%s" dtbook) "-s:-")]
-     (try
-       (if (nil? pipe)
-         (apply process/shell opts executable input args)
-         (apply process/shell pipe opts executable input args))
-       (catch clojure.lang.ExceptionInfo e
-         (log/error (ex-message e))
-         (throw
-          (ex-info "Braille translation failed" {:error-id ::braille-translation-failed} e)))))))
+   (with-tempfile [clean-xml {:prefix "daisyproducer-" :suffix "-clean.xml"}]
+     (filter-implicit-headings dtbook clean-xml)
+     (let [opts {:out :write
+                 :out-file (fs/file output-path)
+                 :err :string
+                 :extra-env {"LANG" "en_US.UTF-8"}
+                 :pre-start-fn log-process}
+           input (if (nil? pipe) (format "-s:%s" clean-xml) "-s:-")]
+       (try
+         (if (nil? pipe)
+           (apply process/shell opts executable input args)
+           (apply process/shell pipe opts executable input args))
+         (catch clojure.lang.ExceptionInfo e
+           (log/error (ex-message e))
+           (throw
+            (ex-info "Braille translation failed" {:error-id ::braille-translation-failed} e))))))))
 
 (defn- hyphenate
   [dtbook]

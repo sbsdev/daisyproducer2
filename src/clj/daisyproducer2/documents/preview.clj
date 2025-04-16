@@ -6,6 +6,7 @@
    [daisyproducer2.documents.images :as images]
    [daisyproducer2.documents.preview.dtbook2html :as dtbook2html]
    [daisyproducer2.documents.preview.dtbook2pdf :as dtbook2pdf]
+   [daisyproducer2.documents.preview.dtbook2odt :as dtbook2odt]
    [daisyproducer2.documents.preview.dtbook2sbsform :as dtbook2sbsform]
    [daisyproducer2.documents.versions :as versions]
    [daisyproducer2.metrics :as metrics]
@@ -86,7 +87,7 @@
          name (format "%s.odt" document-id)
          target-dir (fs/path (env :spool-dir))
          path (str (fs/path target-dir name))]
-     (scripts/dtbook-to-odt dtbook images path opts)
+     (dtbook2odt/dtbook2odt dtbook images path opts)
      [name path])))
 
 (defn html
