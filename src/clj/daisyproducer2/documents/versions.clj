@@ -44,6 +44,7 @@
     (io/file document-root path)))
 
 (def ^:private schema "schema/dtbook-2005-3-sbs.rng")
+(def ^:private schematron-schema "schema/dtbook-2005-3-sbs-full.sch.xsl")
 
 (defn- filter-braille-and-absolutize-image-paths
   "Given an input `xml` that possibly contains `img/@src` attributes,
@@ -64,6 +65,7 @@
 (defn validate-version [file document]
   (concat
    (schema-validation/validation-errors file schema)
+   (schema-validation/schematron-errors file schematron-schema)
    (metadata-validation/validate-metadata file document)
    (with-tempfile [with-absolute-image-paths {:prefix "daisyproducer-" :suffix ".xml"}]
      (filter-braille-and-absolutize-image-paths file document with-absolute-image-paths)

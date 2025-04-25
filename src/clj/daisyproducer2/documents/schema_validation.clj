@@ -1,7 +1,8 @@
 (ns daisyproducer2.documents.schema-validation
   "Schema validation for XML"
   (:require [clojure.java.io :as io]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [sigel.xslt.core :as xslt])
   (:import javax.xml.XMLConstants
            org.xml.sax.SAXException
            org.xml.sax.SAXParseException
@@ -54,6 +55,12 @@
                     (.setSystemId (str url)))]
         input))))
 
+(defn set-message-handler [executable]
+  (let [transformer (.load30 executable)
+        handler (reify java.util.function.Consumer (accept [this msg] (throw (ex-info msg))))]
+    (.setMessageHandler transformer handler)
+    executable))
+
 (defn validation-errors
   "Return a list of validation errors when validating `file` against
   the given Relaxng `schema`. If the file is valid an empty list is
@@ -92,6 +99,33 @@
       (catch SAXException e
         (log/error (.getMessage e))
         @errors))))
+
+(defn schematron-errors
+  [file schema]
+  (xslt/transform (xslt/compile-xslt (io/resource schema)) file))
+
+(defn schematron-errors2
+  [file schema]
+  (let [string-writer (java.io.StringWriter.)
+        writer (clojure.java.io/writer string-writer)
+        executable (xslt/compile-xslt (io/resource schema))
+        transformer (.load executable)
+        controller (-> transformer .getUnderlyingController)
+        emitter (.getMessageEmitter controller)]
+    (.setWriter emitter writer)
+    (xslt/transform executable file)))
+
+(defn schematron-errors3
+  [file schema]
+  (let [executable (xslt/compile-xslt (io/resource schema))
+        listener (reify net.sf.saxon.s9api.MessageListener2
+                    (message [this content errorCode terminate locator]
+                      (println content)
+                      ))
+        transformer (doto executable
+                      (-> .load
+                          (.setMessageListener listener)))]
+    (xslt/transform transformer file)))
 
 (defn valid?
   "Check if a `file` is valid against given `schema`"
