@@ -2,7 +2,8 @@
   "Schema validation for XML"
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
-            [sigel.xslt.core :as xslt])
+            [sigel.xslt.core :as xslt]
+            [sigel.saxon :as saxon])
   (:import javax.xml.XMLConstants
            org.xml.sax.SAXException
            org.xml.sax.SAXParseException
@@ -101,31 +102,31 @@
         @errors))))
 
 (defn schematron-errors
+  "Return a list of validation errors when validating `file` against the
+  given Schematron `schema`. If the file is valid an empty list is
+  returned. The errors are returned in the form a vector of strigns
+  containing the errors."
   [file schema]
-  (xslt/transform (xslt/compile-xslt (io/resource schema)) file))
-
-(defn schematron-errors2
-  [file schema]
-  (let [string-writer (java.io.StringWriter.)
-        writer (clojure.java.io/writer string-writer)
+  (let [errors (atom [])
         executable (xslt/compile-xslt (io/resource schema))
-        transformer (.load executable)
-        controller (-> transformer .getUnderlyingController)
-        emitter (.getMessageEmitter controller)]
-    (.setWriter emitter writer)
-    (xslt/transform executable file)))
-
-(defn schematron-errors3
-  [file schema]
-  (let [executable (xslt/compile-xslt (io/resource schema))
-        listener (reify net.sf.saxon.s9api.MessageListener2
-                    (message [this content errorCode terminate locator]
-                      (println content)
-                      ))
-        transformer (doto executable
-                      (-> .load
-                          (.setMessageListener listener)))]
-    (xslt/transform transformer file)))
+        ;; the xsl uses xsl:message to indicate errors, so we need to add a
+        ;; listener to the transformer to catch these messages. The listener
+        ;; just adds the messages to an atom of errors.
+        listener (reify MessageListener2
+                    (message [this content _errorCode _terminate _locator]
+                      (swap! errors conj (str content))))
+        ;; an empty destination since we ignore the (regular) result of the xsl
+        destination (XdmDestination.)
+        ;; the context-node is basically the input for the transformer
+        context-node (.build saxon/builder (io/file file))
+        ;; build the transformer with the listener, the empty destination and
+        ;; the context-node as input
+        transformer (doto (.load executable)
+                      (.setMessageListener listener)
+                      (.setDestination destination)
+                      (.setInitialContextNode context-node))]
+    (.transform transformer)
+    @errors))
 
 (defn valid?
   "Check if a `file` is valid against given `schema`"
