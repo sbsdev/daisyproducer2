@@ -50,7 +50,7 @@
                  [metosin/ring-http-response "0.9.3"]
                  [mount "0.1.18"]
                  [mysql/mysql-connector-java "8.0.33"]
-                 [nrepl "1.1.2"]
+                 [nrepl "1.3.1"]
                  [org.apache.pdfbox/pdfbox "3.0.3"] ;; to calculate the number of pages in a pdf
                  [org.clojars.pntblnk/clj-ldap "0.0.17"]
                  [org.clojure/clojure "1.11.3"]
@@ -130,9 +130,9 @@
                                  [ring/ring-devel "1.12.1"]
                                  [ring/ring-mock "0.4.0"]
                                  [io.github.noahtheduke/splint "1.15.2"]]
-                  :plugins      [[com.jakemccrary/lein-test-refresh "0.25.0"]
-                                 [jonase/eastwood "1.4.2"]
-                                 [cider/cider-nrepl "0.52.0"]]
+                  :plugins      [[com.jakemccrary/lein-test-refresh "0.26.0"]
+                                 [jonase/eastwood "1.4.3"]
+                                 [cider/cider-nrepl "0.55.7"]]
                   
                   
                   :source-paths ["env/dev/clj"  "env/dev/cljs" "test/cljs" ]
