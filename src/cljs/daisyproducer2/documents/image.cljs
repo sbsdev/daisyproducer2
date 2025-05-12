@@ -175,7 +175,7 @@
   (fn [{:keys [db]} [_ document js-file-value]]
     (let [name (.-name js-file-value)
           form-data (doto (js/FormData.)
-                      (.append "file" js-file-value name))]
+                      (.append "file" js-file-value (js/encodeURIComponent name)))]
       {:http-xhrio (as-transit
                     {:method          :post
                      :headers 	     (auth/auth-header db)

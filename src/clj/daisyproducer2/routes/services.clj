@@ -546,15 +546,16 @@
               :parameters {:path {:id int?} :multipart {:file multipart/temp-file-part}}
               :handler (fn [{{{:keys [id]} :path {{:keys [filename tempfile]} :file} :multipart} :parameters
                              {{uid :uid} :user} :identity}]
-                         (try
-                           (if-let [new-key (images/insert-image id filename tempfile)]
-                             ;; a new image resource was created
-                             (let [new-url (format "/documents/%s/images/%s" id new-key)]
-                               (created new-url {}))
-                             ;; an existing image was uploaded again
-                             (no-content))
-                           (finally
-                             (fs/delete tempfile))))}
+                         (let [decoded-filename (java.net.URLDecoder/decode filename "UTF-8")]
+                           (try
+                             (if-let [new-key (images/insert-image id decoded-filename tempfile)]
+                               ;; a new image resource was created
+                               (let [new-url (format "/documents/%s/images/%s" id new-key)]
+                                 (created new-url {}))
+                               ;; an existing image was uploaded again
+                               (no-content))
+                             (finally
+                               (fs/delete tempfile)))))}
        :delete {:summary "Delete all images of a given document"
                 :middleware [wrap-restricted]
                 :swagger {:security [{:apiAuth []}]}
