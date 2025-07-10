@@ -7,7 +7,8 @@
 
 #+TODO: DRAFT PROPOSED | ACCEPTED REJECTED DEPRECATED SUPERSEDED
 
-* DRAFT Implicit headings
+* ACCEPTED Implicit headings
+CLOSED: [2025-07-10 Do 13:57]
 - Deciders :: CE, MK, FW, US
 - Date :: [2025-04-03 Do]
 
