@@ -87,7 +87,7 @@
   :target-path "target/%s/"
   :main ^:skip-aot daisyproducer2.core
 
-  :plugins [[com.github.clj-kondo/lein-clj-kondo "0.2.5"]]
+  :plugins [[com.github.clj-kondo/lein-clj-kondo "2025.07.28"]]
 
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version"
@@ -132,7 +132,7 @@
                                  [io.github.noahtheduke/splint "1.15.2"]]
                   :plugins      [[com.jakemccrary/lein-test-refresh "0.26.0"]
                                  [jonase/eastwood "1.4.3"]
-                                 [cider/cider-nrepl "0.55.7"]]
+                                 [cider/cider-nrepl "0.57.0"]]
                   
                   
                   :source-paths ["env/dev/clj"  "env/dev/cljs" "test/cljs" ]
