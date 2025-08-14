@@ -25,33 +25,28 @@
     (xslt/transform-to-file xslt (fs/file xml) (fs/file target))))
 
 (defn- translate
-  "Translate the given `dtbook` using given `args` and store it in
-  `output-path`. If a `pipe` is also given use it to take the input of
-  a pipe (typically from the hyphenation process)"
-  ([dtbook output-path args]
-   (translate nil dtbook output-path args))
-  ([pipe dtbook output-path args]
-   (with-tempfile [clean-xml {:prefix "daisyproducer-" :suffix "-clean.xml"}]
-     (filter-implicit-headings dtbook clean-xml)
-     (let [opts {:out :write
-                 :out-file (fs/file output-path)
-                 :err :string
-                 :extra-env {"LANG" "en_US.UTF-8"}
-                 :pre-start-fn log-process}
-           input (if (nil? pipe) (format "-s:%s" clean-xml) "-s:-")]
-       (try
-         (if (nil? pipe)
-           (apply process/shell opts executable input args)
-           (apply process/shell pipe opts executable input args))
-         (catch clojure.lang.ExceptionInfo e
-           (log/error (ex-message e))
-           (throw
-            (ex-info "Braille translation failed" {:error-id ::braille-translation-failed} e))))))))
+  "Translate the given `dtbook` using given `args` and store it in `output-path`."
+  [dtbook output-path args]
+  (with-tempfile [clean-xml {:prefix "daisyproducer-" :suffix "-clean.xml"}]
+    (filter-implicit-headings dtbook clean-xml)
+    (let [opts {:out :write
+                :out-file (fs/file output-path)
+                :err :string
+                :extra-env {"LANG" "en_US.UTF-8"}
+                :pre-start-fn log-process}
+          input (format "-s:%s" clean-xml)]
+      (try
+        (apply process/shell opts executable input args)
+        (catch clojure.lang.ExceptionInfo e
+          (log/error (ex-message e))
+          (throw
+           (ex-info "Braille translation failed" {:error-id ::braille-translation-failed} e)))))))
 
 (defn- hyphenate
-  [dtbook]
+  [dtbook output-path]
   (let [java (env :java17)
-        opts {:out :string
+        opts {:out :write
+              :out-file (fs/file output-path)
               :err :string
               :extra-env {"LANG" "en_US.UTF-8"}
               :pre-start-fn log-process}]
@@ -64,8 +59,9 @@
 
 (defn- hyphenate-and-translate
   [dtbook output-path opts]
-  (-> (hyphenate dtbook)
-      (translate dtbook output-path opts)))
+  (with-tempfile [hyphenated-xml {:prefix "daisyproducer-" :suffix "-hyphenated.xml"}]
+    (hyphenate dtbook hyphenated-xml)
+    (translate hyphenated-xml output-path opts)))
 
 (defn- legacy-opt-values [opts]
   (let [mapping {:basic :de-accents
