@@ -44,14 +44,13 @@
 
 (defn- hyphenate
   [dtbook output-path]
-  (let [java (env :java17)
-        opts {:out :write
+  (let [opts {:out :write
               :out-file (fs/file output-path)
               :err :string
               :extra-env {"LANG" "en_US.UTF-8"}
               :pre-start-fn log-process}]
     (try
-      (process/shell opts java "-jar" "/usr/local/share/java/dtbook-hyphenator.jar" dtbook)
+      (process/shell opts "java" "-jar" "/usr/local/share/java/dtbook-hyphenator.jar" dtbook)
       (catch clojure.lang.ExceptionInfo e
         (log/error (ex-message e))
         (throw
