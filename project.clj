@@ -1,4 +1,4 @@
-(defproject ch.sbs/daisyproducer2 "0.9.35-SNAPSHOT"
+(defproject ch.sbs/daisyproducer2 "0.9.35"
 
   :description "FIXME: write description"
   :url "https://github.com/sbsdev/daisyproducer2"
