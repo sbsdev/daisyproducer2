@@ -157,8 +157,11 @@
         (assoc :source source)
         (assoc :source-date source-date)
         (assoc :production-source production-source)
-        (assoc :production-series production-series)
-        (assoc :production-series-number production-series-number)
+        ;; the :production-series and :production-series-number information coming from ABACUS is
+        ;; only reliable for braille products. Otherwise it is likely wrong. So if we have a braille
+        ;; product add this information, otherwise ignore it.
+        (cond-> (= product-type :braille) (assoc :production-series production-series))
+        (cond-> (= product-type :braille) (assoc :production-series-number production-series-number))
         (cond-> product-type (assoc :product-type product-type))
         (cond-> (not (str/blank? verkaufstext)) (assoc :author (-> verkaufstext (str/split #"\[xx\]") first str/trim)))
         (cond-> (not (str/blank? verkaufstext)) (assoc :title (-> verkaufstext (str/split #"\[xx\]") second str/trim))))))
@@ -212,14 +215,21 @@
         new (select-keys new relevant-metadata-keys)]
     (not= old new)))
 
+(defn- correct-production-series-data
+  "If `new` doesn't contain `:production-series` or
+  `:production-series-number` add the corresponding values from `old`"
+  [old new]
+  (merge (select-keys old [:production-series :production-series-number]) new))
+
 (defn- update-document-and-version
   [old new]
-  (if (metadata-changed? old new)
-    (let [new (merge old new)]
-      (log/infof "Updating %s due to changed meta data" (:id old))
-      (documents/update-document-meta-data new)
-      (versions/insert-updated-version new))
-    (log/infof "No change in meta data for %s" (:id old))))
+  (let [new (correct-production-series-data old new)]
+    (if (metadata-changed? old new)
+      (let [new (merge old new)]
+        (log/infof "Updating %s due to changed meta data" (:id old))
+        (documents/update-document-meta-data new)
+        (versions/insert-updated-version new))
+      (log/infof "No change in meta data for %s" (:id old)))))
 
 (defn- update-document
   [{:keys [product-number] :as import}]

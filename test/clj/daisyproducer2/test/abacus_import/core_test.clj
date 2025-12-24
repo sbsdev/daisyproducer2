@@ -12,7 +12,7 @@
 (defrecord Imported [product-number product-type
                      title author publisher date source language
                      source-publisher source-edition source-date
-                     production-series production-series-number production-source
+                     production-source
                      daisyproducer?])
 
 (defn- xml-sample
@@ -44,18 +44,21 @@
   (testing "ABACUS import"
 
     (testing "Read XML"
-      (let [document (->Imported "EB11111" :ebook "Eine für de Thesi" "Gwerder, Anna" "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte"
-                                 (time/local-date "2011-12-23") nil "de" "DVA" "1. / 2011" (time/local-date 2011) "" "" "" false)]
+      (let [publisher "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte"
+            document (->Imported "EB11111" :ebook "Eine für de Thesi" "Gwerder, Anna" publisher
+                                 (time/local-date "2011-12-23") nil "de" "DVA" "1. / 2011" (time/local-date 2011) "" false)
+            ps-document (->Imported "PS11111" :braille "Eine für de Thesi" "Gwerder, Anna" publisher
+                                 (time/local-date "2011-12-23") nil "de" "DVA" "1. / 2011" (time/local-date 2011) "" false)]
         (are [expected actual] (= (into {} expected) (read-xml (xml/sexp-as-element (xml-sample actual))))
           document (->Raw "EB11111" "Eine für de Thesi" "Gwerder, Anna" "de" "" "2011-12-23" "DVA" "1. / 2011" 0 "" "" "nein")
           (assoc document :daisyproducer? true) (->Raw "EB11111" "Eine für de Thesi" "Gwerder, Anna" "de" "" "2011-12-23" "DVA" "1. / 2011" 0 "" "" "ja")
-          (assoc document :production-series-number "500" :production-series "PPP")
-          (->Raw "EB11111" "Eine für de Thesi" "Gwerder, Anna" "de" "" "2011-12-23" "DVA" "1. / 2011" 500 "" "" "nein")
-          (assoc document :production-series-number "7000" :production-series "SJW")
-          (->Raw "EB11111" "Eine für de Thesi" "Gwerder, Anna" "de" "" "2011-12-23" "DVA" "1. / 2011" 0 "SJW 7000" "" "nein")
+          (assoc ps-document :production-series-number "500" :production-series "PPP")
+          (->Raw "PS11111" "Eine für de Thesi" "Gwerder, Anna" "de" "" "2011-12-23" "DVA" "1. / 2011" 500 "" "" "nein")
+          (assoc ps-document :production-series-number "7000" :production-series "SJW")
+          (->Raw "PS11111" "Eine für de Thesi" "Gwerder, Anna" "de" "" "2011-12-23" "DVA" "1. / 2011" 0 "SJW 7000" "" "nein")
           (assoc document :product-number "GD11111" :product-type :large-print)
           (->Raw "GD11111" "Eine für de Thesi" "Gwerder, Anna" "de" "" "2011-12-23" "DVA" "1. / 2011" 0 "" "" "nein")
-          (assoc document :product-number "PS11111" :product-type :braille)
+          (assoc ps-document :production-series-number "" :production-series "")
           (->Raw "PS11111" "Eine für de Thesi" "Gwerder, Anna" "de" "" "2011-12-23" "DVA" "1. / 2011" 0 "" "" "nein")
           (assoc document :production-source "electronicData")
           (->Raw "EB11111" "Eine für de Thesi" "Gwerder, Anna" "de" "" "2011-12-23" "DVA" "1. / 2011" 0 "" "D" "nein")
@@ -68,7 +71,7 @@
     (testing "Read a file"
       (let [sample (io/file (io/resource "SN_Alfresco_EB11111.xml"))]
         (is (= (into {} (->Imported "EB11111" :ebook "Eine für de Thesi" "Gwerder, Anna" "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte"
-                                    (time/local-date "2011-12-23") nil "de" "DVA" "1. / 2011" (time/local-date 2011) "" "" "electronicData" true))
+                                    (time/local-date "2011-12-23") nil "de" "DVA" "1. / 2011" (time/local-date 2011) "electronicData" true))
                (read-file sample)))))))
 
 (deftest abacus-import-document
