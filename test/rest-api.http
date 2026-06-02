@@ -47,23 +47,18 @@ Accept: application/transit+json
 GET http://localhost:3000/api/documents?search=verona
 
 # Add a document
-# doesn't seem to be implemented
 POST http://localhost:3000/api/documents
 Authorization: :auth-token
 Content-Type: application/json
 {
-  "title": "Hehe",
-  "creator": "Foo",
-  "description": "not much",
-  "source": "978-3-257-07184-11",
+  "title": "Test Document",
+  "author": "Test Author",
+  "date": "2022-11-22",
   "language": "de",
-  "source_date": "2022-06-16",
-  "source_publisher": "Vargos",
-  "library_number": "PNX 9435",
-  "state": "new",
-  "identifier": "978-3-570-15263-0",
-  "revision": 0,
-  "date": "2022-11-22"
+  "source": "978-3-570-15264-0",
+  "source-date": "2022-06-16",
+  "source-publisher": "Vargos",
+  "description": "A test document"
 }
 
 # Delete a document

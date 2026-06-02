@@ -16,6 +16,7 @@
    [daisyproducer2.documents.versions :as versions]
    [daisyproducer2.hyphenate :as hyphenate]
    [daisyproducer2.hyphenations :as hyphenations]
+   [java-time.api :as time]
    [daisyproducer2.middleware :refer [wrap-authorized wrap-restricted]]
    [daisyproducer2.middleware.exception :as exception]
    [daisyproducer2.middleware.formats :as formats]
@@ -56,6 +57,13 @@
 (s/def ::product-type (s/and int? #(<= 0 % 3)))
 ;; (s/and keyword? #{:braille :large-print :ebook :etext}))
 (s/def ::product-number (s/and string? #(re-matches #"^(PS|GD|EB|ET)\d{4,7}$" %)))
+(s/def ::non-blank-string (s/and string? (complement str/blank?)))
+(s/def ::iso-date (s/and string? #(re-matches #"\d{4}-\d{2}-\d{2}.*" %)))
+(s/def ::language (s/and string? #(re-matches #"^(de|de-1901|de-CH|it|rm-sursilv|en)$" %)))
+;; varchar(20) in DB; must be a valid ISBN-13 (with dashes) or SBS catalogue number
+(s/def ::source (s/nilable (s/and string?
+                                  #(<= (count %) 20)
+                                  #(re-matches #"^(SBS[0-9]{6}|((?:978-|979-)?\d{1,5}-\d{1,7}-\d{1,6}-[0-9xX]))$" %))))
 
 (def default-limit 100)
 
@@ -123,7 +131,53 @@
                              :or {limit default-limit offset 0}} :query} :parameters}]
                        (ok (if (blank? search)
                              (documents/get-documents limit offset)
-                             (documents/find-documents limit offset (db/search-to-sql search)))))}}]
+                             (documents/find-documents limit offset (db/search-to-sql search)))))}
+
+      :post {:summary "Create a new document"
+             :middleware [wrap-restricted]
+             :swagger {:security [{:apiAuth []}]}
+             :authorized #{:admin}
+             :parameters {:body {:title                               ::non-blank-string
+                                 (spec/opt :author)                   ::non-blank-string
+                                 (spec/opt :publisher)                ::non-blank-string
+                                 :date                                ::iso-date
+                                 :language                            ::language
+                                 (spec/opt :subject)                  string?
+                                 (spec/opt :description)              string?
+                                 (spec/opt :source)                   ::source
+                                 (spec/opt :source-date)              ::iso-date
+                                 (spec/opt :source-edition)           string?
+                                 (spec/opt :source-publisher)         string?
+                                 (spec/opt :source-rights)            string?
+                                 (spec/opt :production-series)        string?
+                                 (spec/opt :production-series-number) string?
+                                 (spec/opt :production-source)        string?}}
+             :handler (fn [{{{:keys [title author publisher date language subject description
+                                     source source-date source-edition source-publisher source-rights
+                                     production-series production-series-number production-source]} :body} :parameters}]
+                        (try
+                          (let [doc (-> {:title title
+                                         :author author
+                                         :publisher (or publisher "SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte")
+                                         :date (-> date (subs 0 10) time/local-date)
+                                         :language language
+                                         :subject subject
+                                         :description description
+                                         :source source
+                                         :source-date (some-> source-date (subs 0 10) time/local-date)
+                                         :source-edition source-edition
+                                         :source-publisher source-publisher
+                                         :source-rights source-rights
+                                         :production-series production-series
+                                         :production-series-number production-series-number
+                                         :production-source production-source}
+                                        documents/initialize-document)
+                                new-id (documents/insert-document doc)
+                                new-url (format "/api/documents/%s" new-id)]
+                            (created new-url {}))
+                          (catch Exception e
+                            (log/warn (ex-message e))
+                            (bad-request {:status-text (ex-message e)}))))}}]
 
     ["/:id"
      [""
