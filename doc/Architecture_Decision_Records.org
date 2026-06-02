@@ -7,6 +7,74 @@
 
 #+TODO: DRAFT PROPOSED | ACCEPTED REJECTED DEPRECATED SUPERSEDED
 
+* REJECTED Naming: ~author~ vs. ~creator~
+CLOSED: [2026-06-02 Di 15:00]
+- Deciders :: CE
+- Date :: [2026-06-02 Di]
+
+The person who wrote a book is called /creator/ in the Dublin Core
+standard (~dc:Creator~), in the DTBook XML format, and in the Abacus
+ERP XML. Inside the application the same concept is called /author/
+(database column, Clojure keywords, REST API, UI label).
+
+** Context and Problem Statement
+
+Should the internal naming be unified with the external standard by
+renaming ~author~ to ~creator~ throughout the application?
+
+** Decision Drivers
+
+- Avoid confusion :: for developers reading the code alongside the
+  DTBook or Abacus schemas
+- Avoid costly refactoring :: that brings no user-visible benefit
+- Keep the REST API vocabulary natural :: for the domain ("author" is
+  unambiguous to a library audience)
+
+** Considered Options
+
+- Keep ~author~ :: retain the current internal name; translate at the
+  two external boundaries
+- Rename to ~creator~ :: align the internal name with the Dublin Core /
+  DTBook / Abacus terminology throughout
+
+** Decision Outcome
+
+Chosen option: *Keep ~author~*, because the internal naming is already
+perfectly consistent (DB column, SQL queries, Clojure/ClojureScript
+code, i18n label, REST API all use ~author~). The translation to
+~creator~ already happens at exactly the right places:
+- Inbound (Abacus XML → application) :: [[file:~/src/dp2/src/clj/daisyproducer2/documents/abacus.clj:::author \[:MetaData :dc :creator text\]][abacus.clj:77]]
+  #+begin_src clojure
+    (def ^:private param-mapping
+      { ...
+       :author [:MetaData :dc :creator text]
+       ... })
+  #+end_src
+- Outbound (application → DTBook XML) :: [[file:~/src/dp2/src/clj/daisyproducer2/documents/update_metadata.clj::{:author "dc:Creator"][update_metadata.clj:9]]
+  #+begin_src clojure
+    (def mapping
+      {:author "dc:Creator" ...})
+  #+end_src
+
+Renaming would require a DB migration, changes to all SQL, Clojure,
+ClojureScript, and i18n files, with no functional or user-visible
+benefit.
+
+*** Positive Consequences
+
+- No change required; existing code stays consistent
+
+*** Negative Consequences
+
+- Developers need to know that ~author~ in the application corresponds
+  to ~dc:Creator~ in the DTBook/Abacus world (hence this ADR)
+
+** Links
+
+- ~src/clj/daisyproducer2/documents/abacus.clj~ — inbound mapping
+- ~src/clj/daisyproducer2/documents/update_metadata.clj~ — outbound mapping
+- [[https://www.dublincore.org/specifications/dublin-core/dcmi-terms/#creator][Dublin Core: dc:Creator]]
+
 * ACCEPTED Implicit headings
 CLOSED: [2025-07-10 Do 13:57]
 - Deciders :: CE, MK, FW, US
