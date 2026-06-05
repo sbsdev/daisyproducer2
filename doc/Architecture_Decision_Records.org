@@ -7,6 +7,135 @@
 
 #+TODO: DRAFT PROPOSED | ACCEPTED REJECTED DEPRECATED SUPERSEDED
 
+* DRAFT Upgrade dtbook2sbsform
+- Deciders :: CE
+- Date :: [2026-06-05 Fr]
+
+~dtbook2sbsform~ converts DTBook XML to SBSForm, a markup language that
+describes the layout of a braille document using macros. SBSForm already
+contains the braille text translated by liblouis (in ASCII encoding);
+~dtbook2sbsform~ invokes liblouis internally during the conversion. A new
+version was deployed to the test server and needs validation before
+promotion to production.
+
+** Context and Problem Statement
+
+Before promoting the new ~dtbook2sbsform~ to production, the braille output
+of the new version must be validated against the current production output.
+17 differences were found across 2 documents; the cause must be understood
+and accepted by the customer before the upgrade can proceed.
+
+** Validation run (2026-06-05)
+
+The script ~scripts/compare-braille.bb~ was run against the 100 most recent
+braille productions, generating braille with 10 parameter sets per document
+(varying contraction grade, hyphenation, accent handling and other options).
+
+| Metric           | Count |
+|------------------+-------|
+| Documents tested |   100 |
+| Param-set runs   |   930 |
+| Identical        |   913 |
+| Different        |    17 |
+| Errors           |     7 |
+
+The 7 document-level errors are unrelated to the upgrade:
+- 4 × transient DB deadlock during upload to test server
+- 2 × illustrated books (doc 13269, 13134) whose images are absent on the
+  test server — version upload rejected with "File not found"
+- 1 × doc 13255 ("rise up plus") has an empty ~author~ field that the
+  stricter ~POST /api/documents~ validation correctly rejects
+
+** Differences that need to be understood
+
+*** Key observation
+
+Both differing documents show differences *only* in param-sets that use
+Kurzschrift (contraction=2) or Vollschrift (contraction=1). Param-set 3
+(Basisschrift, contraction=0) is identical on both servers for both
+documents. This strongly suggests the differences originate in German
+contraction rule handling in the new ~dtbook2sbsform~ version.
+
+*** Doc 13165 — "Der Klang von Wind und Wellen"
+
+Differs in param-sets 1, 4–10 (Kurzschrift and Vollschrift). Identical in
+param-sets 2 and 3 (Vollschrift without contractions / Basisschrift).
+
+Difference 1 — line 5296, word contraction:
+#+begin_example
+prod: URSPR8NG_ H0'^ 7 K8X9L, AO K8XY9L.
+test: URSPR8NG_ H0'^ 7 K8MM9L, AO K8XY9L.
+#+end_example
+The first name (~K8X9L~ → ~K8MM9L~) is transliterated differently.
+
+Difference 2 — lines 5741–5747, name and line-wrapping:
+#+begin_example
+prod: BIDYEC
+test: BIDELEEN
+#+end_example
+A name is contracted to ~BIDYEC~ in prod and expanded to ~BIDELEEN~ in test.
+The surrounding text (re-wrapped due to the longer form) is otherwise
+identical.
+
+Differences 3–5 — lines 6290–6294 and 7454, sequences with non-Latin
+characters (likely CJK or transliterated foreign script):
+#+begin_example
+prod: (KYEWCN] DULEWU D0LEW0?)
+test: (KYEWN]  DULEWU D0LE,2?)
+
+prod: N0LEW0  &LEW%YEW==YC
+test: N0LE,2  &LEW%YEWEHEHELC
+
+prod: ZULEWUM
+test: ,ZLEWUM
+#+end_example
+The ~W0~ ending is replaced by ~,2~ and the ~==YC~ cluster is expanded to
+~EHEHELC~. These look like transliterations of CJK or other non-Latin
+characters where the contraction rules have changed.
+
+*Open questions for the customer:*
+- What is the original text around these passages? Are these CJK characters
+  or foreign-language names?
+- Are the new transliterations (~BIDELEEN~, ~K8MM9L~, ~,2~ endings)
+  considered correct by the customer?
+
+*** Doc 13167 — "Das Jahr ohne Sonne"
+
+Differs in param-sets 1, 2, 4–10. Identical in param-set 3 (Basisschrift).
+
+One single word change throughout:
+#+begin_example
+prod: DAS S0 V0LLE NUR EKELHAFTE SP3SEN M8]EN ESSEN
+test: DAS S0 VIELLE NUR EKELHAFTE SP3SEN M8]EN ESSEN
+#+end_example
+~V0LLE~ uses the ~oll~ contraction: V-[oll]-E = "volle" (full).
+~VIELLE~ spells out "viele" (many/much) without contraction.
+
+The sentence reads more naturally as "das soll *viele* nur ekelhafte
+Speisen mögen essen" than with "volle", suggesting the original text says
+"viele" and that prod was incorrectly applying the ~oll~ contraction to it.
+If so, the test output is correct and this is a fix.
+
+*Open question for the customer:*
+- Does the original text say "viele" or "volle"? If "viele", the test
+  output (~VIELLE~) is correct and this is a fix, not a regression.
+
+** Next steps
+
+- [ ] Check the original XML source for doc 13165 around the differing
+  passages to determine whether the name contractions and CJK
+  transliterations are correct
+- [ ] Check the original XML for doc 13167 to confirm whether the word is
+  "viele" or "volle"
+- [ ] Review the dtbook2sbsform changelog for the relevant version to
+  understand which contraction rules were changed
+- [ ] Present findings to the customer and obtain sign-off
+
+** Links
+
+- ~scripts/compare-braille.bb~ — the comparison script
+- Output files in ~/tmp/braille-cmp/~ (prod/ and test/ subdirectories)
+
 * REJECTED Use German grade names in braille preview API
 CLOSED: [2026-06-04 Mi]
 - Deciders :: CE
