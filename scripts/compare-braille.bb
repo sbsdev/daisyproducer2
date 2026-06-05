@@ -119,8 +119,11 @@
   (get-text base-url (str "/archive/" version-content)))
 
 (defn delete-document [base-url token doc-id]
-  (http/delete (str base-url "/api/documents/" doc-id)
-               {:headers (auth-headers token)}))
+  (try
+    (http/delete (str base-url "/api/documents/" doc-id)
+                 {:headers (auth-headers token)})
+    (catch Exception e
+      (println (str "    WARNING: failed to delete test doc " doc-id ": " (.getMessage e))))))
 
 (defn create-document [base-url token doc]
   (let [body (->> (select-keys doc [:title :author :publisher :date :language
@@ -209,6 +212,7 @@
                 test-identifier (:identifier (get-document test-url test-token test-doc-id))
                 xml-content     (patch-identifier xml-content test-identifier)]
             (try
+              (Thread/sleep (rand-int 5000))
               (upload-version test-url test-token test-doc-id xml-content xml-filename)
               (upload-local-words prod-url prod-token test-url test-token doc-id test-doc-id)
               (let [prod-identifier (:identifier doc)
@@ -248,6 +252,7 @@
 (defn print-summary [doc-results]
   (let [all-results (mapcat :results (filter :results doc-results))
         doc-errors  (filter :error (filter (complement :results) doc-results))
+        silent-fails (filter #(and (nil? (:results %)) (nil? (:error %))) doc-results)
         run-errors  (filter :error all-results)
         identical   (filter :identical? all-results)
         different   (remove #(or (:error %) (:identical? %)) all-results)]
@@ -256,7 +261,7 @@
     (println (format "Param-set runs      : %d" (count all-results)))
     (println (format "  Identical         : %d" (count identical)))
     (println (format "  Different         : %d" (count different)))
-    (println (format "  Errors            : %d" (+ (count doc-errors) (count run-errors))))
+    (println (format "  Errors            : %d" (+ (count doc-errors) (count run-errors) (count silent-fails))))
     (when (seq different)
       (println "\nDiffering files (prod/ vs test/):")
       (doseq [{:keys [doc-id param-set]} (sort-by (juxt :doc-id :param-set) different)]
@@ -265,6 +270,10 @@
       (println "\nDocument-level errors:")
       (doseq [{:keys [doc-id error]} doc-errors]
         (println (format "  doc-id=%-8d %s" doc-id error))))
+    (when (seq silent-fails)
+      (println "\nSilent failures (no result, no error — likely uncaught exception in pmap):")
+      (doseq [r silent-fails]
+        (println (format "  %s" (pr-str r)))))
     (when (seq run-errors)
       (println "\nGeneration errors:")
       (doseq [{:keys [doc-id param-set error]} run-errors]
@@ -312,7 +321,11 @@
   (println (str "Finding up to " limit " documents with braille products..."))
   (let [docs (find-braille-documents prod-url token limit)]
     (println (str "Found " (count docs) " documents. Processing in parallel..."))
-    (let [results (vec (pmap #(do (println (str "  doc " (:id %) " – " (:title %)))
-                                  (process-doc prod-url token test-url token output-dir %))
-                             docs))]
+    (let [results (->> docs
+                       (partition-all 10)
+                       (mapcat (fn [batch]
+                                 (pmap #(do (println (str "  doc " (:id %) " – " (:title %)))
+                                            (process-doc prod-url token test-url token output-dir %))
+                                       batch)))
+                       vec)]
       (print-summary results))))
