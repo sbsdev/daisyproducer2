@@ -81,6 +81,18 @@ SQL migration files live in `resources/migrations/` and are applied via Luminus 
 | IPA/LDAP | Authentication |
 | Abacus ERP | Document metadata import |
 
+## Braille Grade Terminology
+
+German braille has three grades with the following official names:
+
+| API `contraction` value | German name | Description |
+|-------------------------|-------------|-------------|
+| `0` | Basisschrift | No contractions |
+| `1` | Vollschrift | Partial contractions (Grade 1) |
+| `2` | Kurzschrift | Full contractions (Grade 2) |
+
+The API uses numeric values `0`/`1`/`2` rather than the German names. The generated files use `.bv` (contraction 0 or 1) and `.bk` (contraction 2) extensions. Internally, liblouis uses `sbs-de-g0-core.mod`, `sbs-de-g1-core.mod`, and `sbs-de-g2-core.mod` respectively.
+
 ## Manual HTTP Testing
 
 All three files use Emacs `restclient-mode` format (`# -*- mode: restclient; -*-`).

@@ -7,6 +7,38 @@
 
 #+TODO: DRAFT PROPOSED | ACCEPTED REJECTED DEPRECATED SUPERSEDED
 
+* REJECTED Use German grade names in braille preview API
+CLOSED: [2026-06-04 Mi]
+- Deciders :: CE
+- Date :: [2026-06-04 Mi]
+
+The braille preview endpoint (~GET /api/documents/:id/preview/braille~)
+accepts a ~contraction~ parameter with numeric values 0, 1, 2. The
+official German names for these grades are Basisschrift (0), Vollschrift
+(1), and Kurzschrift (2).
+
+** Context and Problem Statement
+
+Should the API parameter use the German terminology instead of the
+numeric values, e.g. ~?grade=kurzschrift~ instead of ~?contraction=2~?
+
+** Decision Outcome
+
+Chosen option: *keep numeric values*, because:
+- The numeric values are already established in the codebase and in use
+  by clients (the braille comparison script, the UI)
+- Renaming would be a breaking API change
+- The mapping is documented in ~CLAUDE.md~
+
+The parameter is currently named ~contraction~ which is slightly
+misleading (it sounds like a boolean). A cleaner name would be ~grade~,
+which matches the internal spec (~::grade~) — but again, a rename is a
+breaking change not worth making now.
+
+** Links
+
+- [[https://bskdl.org/braillesysteme.html][BSKDL: Braillesysteme]] — official German grade terminology
+
 * REJECTED Naming: ~author~ vs. ~creator~
 CLOSED: [2026-06-02 Di 15:00]
 - Deciders :: CE
