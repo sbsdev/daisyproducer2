@@ -6,6 +6,7 @@
             [conman.core :as conman]
             [daisyproducer2.db.core :as db]
             [daisyproducer2.metrics :as metrics]
+            [daisyproducer2.whitelists.async :as whitelists]
             [daisyproducer2.words :as words]
             [iapetos.collector.fn :as prometheus]
             [sigel.xpath.core :as xpath]
@@ -147,7 +148,9 @@
         (let [deleted (db/delete-non-existing-unknown-words-from-local-words
                          {:document-id document-id})]
             (log/infof "Deleted %s local words that were not in unknown words for book %s"
-                       deleted document-id))))))
+                       deleted document-id)
+            (when (pos? deleted)
+              (whitelists/export-local-tables document-id)))))))
 
 (defn get-words
   "Retrieve all unknown words for given document-id `id` and `grade`.
