@@ -48,107 +48,78 @@ The 7 document-level errors are unrelated to the upgrade:
 
 ** Root cause investigation (2026-06-08)
 
-*** Whitelists ruled out
+*** Global whitelists: identical on both servers
 
 The whitelist files that liblouis reads at translation time
 (~/usr/local/share/liblouis/tables/sbs-de-g{1,2}-white.mod~ etc.) are
 generated from the ~dictionary_globalword~ database table once a day at
-21:00 UTC. A checksum comparison confirmed the four global whitelist files
+21:00 UTC. A checksum comparison confirmed all four global whitelist files
 are *byte-for-byte identical* on both servers (both regenerated last night).
 
-The database tables also differ by only 666 entries (all present in prod,
-none in test), but none of those missing entries cover any of the words
-involved in the 17 differences. The whitelists are not the cause.
+The ~dictionary_globalword~ tables differ by 666 entries (all present in
+prod, none in test), but these are unrelated to the 17 differing documents.
+Global whitelists are not the cause.
 
-*** Cause confirmed: dtbook2sbsform version change
+*** Actual cause: local whitelist out of sync on production (2026-06-08)
 
-The Basisschrift output (contraction=0, identical on both servers) was used
-as ground truth to identify what the source text actually says in each
-differing passage. All 17 differences are fixes in the new version.
+The 17 differences are caused by a mismatch between the local word
+database entries and the on-disk local whitelist files *on the production
+server*:
 
-** Analysis of differences
+- When braille was generated on *prod*, liblouis used the on-disk local
+  whitelist files for docs 13165 and 13167.
+- When the comparison script uploaded those documents to the *test* server
+  and generated braille there, the application freshly exported the local
+  words from the test database to disk (the 15-second wait in the script
+  is for exactly this export). The test server therefore used up-to-date
+  whitelists derived from the database.
+- The prod on-disk local whitelists for these two documents are stale —
+  they do not reflect the current state of ~dictionary_localword~ in the
+  production database.
+- The words that differ in the braille output (e.g. ~BIDELEEN~, ~K8MM9L~,
+  ~VIELLE~) are defined in the stale prod whitelist files with their
+  contracted forms (~BIDYEC~, ~K8X9L~, ~V0LLE~).
 
-*** Key observation
+*~dtbook2sbsform~ itself behaves correctly.* The new version produces the
+same output as the old version when both use whitelists generated from the
+same database state. The upgrade is not the cause of any of the 17
+differences.
 
-Both differing documents show differences *only* in param-sets that use
-Kurzschrift (contraction=2) or Vollschrift (contraction=1). Param-set 3
-(Basisschrift, contraction=0) is identical on both servers for both
-documents.
+The open question is why the prod local whitelist files are out of sync
+with the database — see below.
 
-*** Doc 13165 — "Der Klang von Wind und Wellen"
+*** Why are the local whitelists out of sync?
 
-Differs in param-sets 1, 4–10 (all Kurzschrift / Vollschrift param-sets).
-Identical in param-sets 2 and 3.
+The application exports local whitelist files asynchronously: changes to
+~dictionary_localword~ are queued and written to disk within seconds
+(~whitelists/async.clj~). A mismatch can occur if:
 
-*Difference 1 — "Kümmöl" compound word (line ~5296)*
-#+begin_example
-Basisschrift: URSPR8NGLICH HIE^ ER K8MM9L, ALSO K8MMEL9L.
-prod Kurz:    URSPR8NG_ H0'^ 7 K8X9L, AO K8XY9L.
-test Kurz:    URSPR8NG_ H0'^ 7 K8MM9L, AO K8XY9L.
-#+end_example
-The text is "Kümmöl" (an informal short form of Kümmelöl, a caraway
-schnapps). The global dict has ~kümmelöl~ → contracted ~K8XY9L~, which
-both servers agree on for the longer form. For the short form "Kümmöl",
-the old version incorrectly applied an ~mm~ contraction (MM → X), giving
-~K8X9L~; the new version does not. *Fix.*
+1. Words were modified directly in the database, bypassing the application
+2. The export failed silently (exception caught in the async worker)
+3. The application was restarted while exports were queued but not yet
+   written
+4. The whitelist file on disk was restored from an older backup
 
-*Difference 2 — Frisian place name "Bideleen" (lines ~5741–5747)*
-#+begin_example
-Basisschrift: DEN MIADWAI, DEN BIDELEEN UND DANN HINAUF DEN UAL
-prod Kurz:    E MIADWAI, E BIDYEC U D+N ...
-test Kurz:    E MIADWAI, E BIDELEEN U D+N ...
-#+end_example
-"Bideleen" is a Frisian place name on the North Sea coast. The Basisschrift
-confirms the correct spelling. The old version incorrectly contracted it;
-the new version outputs it unchanged. The surrounding lines reflow due to
-the longer form. *Fix.*
-
-*Differences 3–5 — children's secret language (lines ~6290–6294, ~7454)*
-#+begin_example
-Basisschrift: (KELEWENNST DULEWU DIELEWIE?)
-              = Kennst du die? Nein, die habe ich noch nie gesehen.
-              ES WAR DIE GEHEIMSPRACHE ...
-prod Kurz:    (KYEWCN] DULEWU D0LEW0?)
-              N0LEW0 &LEW%YEW==YC
-              ZULEWUM
-test Kurz:    (KYEWN] DULEWU D0LE,2?)
-              N0LE,2 &LEW%YEWEHEHELC
-              ,ZLEWUM
-#+end_example
-The Basisschrift reveals this is a children's secret language that inserts
-"-elew-" syllables into every word ("Kennst" → "Kelewennst", "du" →
-"Dulewu"). The old version incorrectly applied German Kurzschrift
-contraction rules inside these artificial word forms. The new version
-correctly treats them as opaque strings. *Fix.*
-
-*** Doc 13167 — "Das Jahr ohne Sonne"
-
-Differs in param-sets 1, 2, 4–10. Identical in param-set 3 (Basisschrift).
-
-*Single word change throughout*
-#+begin_example
-Basisschrift: DAS SIE VIELLE NUR EKELHAFTE SPEISEN M8STEN ESSEN
-prod Kurz:    DAS S0 V0LLE NUR EKELHAFTE SP3SEN M8]EN ESSEN
-test Kurz:    DAS S0 VIELLE NUR EKELHAFTE SP3SEN M8]EN ESSEN
-#+end_example
-The Basisschrift confirms the source text says "vielle" (an archaic/dialect
-form of "viele", meaning many). Both servers agree on the uncontracted form.
-The old version incorrectly applied a contraction to "vielle", producing
-~V0LLE~ ("volle", full) — a different word. The new version leaves
-"vielle" uncontracted. *Fix.*
+This needs to be investigated and a recovery mechanism considered.
 
 ** Verdict
 
-All 17 differences are bug fixes in the new ~dtbook2sbsform~. No regressions
-were found. The upgrade is safe to promote to production.
+~dtbook2sbsform~ behaves correctly. The upgrade is safe to promote to
+production. The 17 apparent "differences" are an artefact of comparing
+fresh whitelist exports (test) against stale on-disk whitelists (prod).
+
+The stale local whitelists on the production server are a separate bug that
+exists independently of this upgrade and must be addressed.
 
 ** Next steps
 
-- [ ] Present findings to the customer and obtain sign-off
-- [ ] Sync 666 missing global word entries from prod DB to test DB
-  (housekeeping — unrelated to this upgrade, but the test server is a
-  subset of prod)
+- [X] Confirm dtbook2sbsform is not the cause of the differences
+- [ ] Investigate why local whitelists on prod are out of sync with the DB
+- [ ] Recover: regenerate all stale local whitelists on prod
+- [ ] Present findings to the customer and obtain sign-off for the upgrade
 - [ ] Promote new ~dtbook2sbsform~ to production
+- [ ] Sync 666 missing global word entries from prod DB to test DB
+  (housekeeping — test server is a subset of prod)
 
 ** Links
 
