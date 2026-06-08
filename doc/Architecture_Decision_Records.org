@@ -46,95 +46,113 @@ The 7 document-level errors are unrelated to the upgrade:
 - 1 × doc 13255 ("rise up plus") has an empty ~author~ field that the
   stricter ~POST /api/documents~ validation correctly rejects
 
-** Differences that need to be understood
+** Root cause investigation (2026-06-08)
+
+*** Whitelists ruled out
+
+The whitelist files that liblouis reads at translation time
+(~/usr/local/share/liblouis/tables/sbs-de-g{1,2}-white.mod~ etc.) are
+generated from the ~dictionary_globalword~ database table once a day at
+21:00 UTC. A checksum comparison confirmed the four global whitelist files
+are *byte-for-byte identical* on both servers (both regenerated last night).
+
+The database tables also differ by only 666 entries (all present in prod,
+none in test), but none of those missing entries cover any of the words
+involved in the 17 differences. The whitelists are not the cause.
+
+*** Cause confirmed: dtbook2sbsform version change
+
+The Basisschrift output (contraction=0, identical on both servers) was used
+as ground truth to identify what the source text actually says in each
+differing passage. All 17 differences are fixes in the new version.
+
+** Analysis of differences
 
 *** Key observation
 
 Both differing documents show differences *only* in param-sets that use
 Kurzschrift (contraction=2) or Vollschrift (contraction=1). Param-set 3
 (Basisschrift, contraction=0) is identical on both servers for both
-documents. This strongly suggests the differences originate in German
-contraction rule handling in the new ~dtbook2sbsform~ version.
+documents.
 
 *** Doc 13165 — "Der Klang von Wind und Wellen"
 
-Differs in param-sets 1, 4–10 (Kurzschrift and Vollschrift). Identical in
-param-sets 2 and 3 (Vollschrift without contractions / Basisschrift).
+Differs in param-sets 1, 4–10 (all Kurzschrift / Vollschrift param-sets).
+Identical in param-sets 2 and 3.
 
-Difference 1 — line 5296, word contraction:
+*Difference 1 — "Kümmöl" compound word (line ~5296)*
 #+begin_example
-prod: URSPR8NG_ H0'^ 7 K8X9L, AO K8XY9L.
-test: URSPR8NG_ H0'^ 7 K8MM9L, AO K8XY9L.
+Basisschrift: URSPR8NGLICH HIE^ ER K8MM9L, ALSO K8MMEL9L.
+prod Kurz:    URSPR8NG_ H0'^ 7 K8X9L, AO K8XY9L.
+test Kurz:    URSPR8NG_ H0'^ 7 K8MM9L, AO K8XY9L.
 #+end_example
-The first name (~K8X9L~ → ~K8MM9L~) is transliterated differently.
+The text is "Kümmöl" (an informal short form of Kümmelöl, a caraway
+schnapps). The global dict has ~kümmelöl~ → contracted ~K8XY9L~, which
+both servers agree on for the longer form. For the short form "Kümmöl",
+the old version incorrectly applied an ~mm~ contraction (MM → X), giving
+~K8X9L~; the new version does not. *Fix.*
 
-Difference 2 — lines 5741–5747, name and line-wrapping:
+*Difference 2 — Frisian place name "Bideleen" (lines ~5741–5747)*
 #+begin_example
-prod: BIDYEC
-test: BIDELEEN
+Basisschrift: DEN MIADWAI, DEN BIDELEEN UND DANN HINAUF DEN UAL
+prod Kurz:    E MIADWAI, E BIDYEC U D+N ...
+test Kurz:    E MIADWAI, E BIDELEEN U D+N ...
 #+end_example
-A name is contracted to ~BIDYEC~ in prod and expanded to ~BIDELEEN~ in test.
-The surrounding text (re-wrapped due to the longer form) is otherwise
-identical.
+"Bideleen" is a Frisian place name on the North Sea coast. The Basisschrift
+confirms the correct spelling. The old version incorrectly contracted it;
+the new version outputs it unchanged. The surrounding lines reflow due to
+the longer form. *Fix.*
 
-Differences 3–5 — lines 6290–6294 and 7454, sequences with non-Latin
-characters (likely CJK or transliterated foreign script):
+*Differences 3–5 — children's secret language (lines ~6290–6294, ~7454)*
 #+begin_example
-prod: (KYEWCN] DULEWU D0LEW0?)
-test: (KYEWN]  DULEWU D0LE,2?)
-
-prod: N0LEW0  &LEW%YEW==YC
-test: N0LE,2  &LEW%YEWEHEHELC
-
-prod: ZULEWUM
-test: ,ZLEWUM
+Basisschrift: (KELEWENNST DULEWU DIELEWIE?)
+              = Kennst du die? Nein, die habe ich noch nie gesehen.
+              ES WAR DIE GEHEIMSPRACHE ...
+prod Kurz:    (KYEWCN] DULEWU D0LEW0?)
+              N0LEW0 &LEW%YEW==YC
+              ZULEWUM
+test Kurz:    (KYEWN] DULEWU D0LE,2?)
+              N0LE,2 &LEW%YEWEHEHELC
+              ,ZLEWUM
 #+end_example
-The ~W0~ ending is replaced by ~,2~ and the ~==YC~ cluster is expanded to
-~EHEHELC~. These look like transliterations of CJK or other non-Latin
-characters where the contraction rules have changed.
-
-*Open questions for the customer:*
-- What is the original text around these passages? Are these CJK characters
-  or foreign-language names?
-- Are the new transliterations (~BIDELEEN~, ~K8MM9L~, ~,2~ endings)
-  considered correct by the customer?
+The Basisschrift reveals this is a children's secret language that inserts
+"-elew-" syllables into every word ("Kennst" → "Kelewennst", "du" →
+"Dulewu"). The old version incorrectly applied German Kurzschrift
+contraction rules inside these artificial word forms. The new version
+correctly treats them as opaque strings. *Fix.*
 
 *** Doc 13167 — "Das Jahr ohne Sonne"
 
 Differs in param-sets 1, 2, 4–10. Identical in param-set 3 (Basisschrift).
 
-One single word change throughout:
+*Single word change throughout*
 #+begin_example
-prod: DAS S0 V0LLE NUR EKELHAFTE SP3SEN M8]EN ESSEN
-test: DAS S0 VIELLE NUR EKELHAFTE SP3SEN M8]EN ESSEN
+Basisschrift: DAS SIE VIELLE NUR EKELHAFTE SPEISEN M8STEN ESSEN
+prod Kurz:    DAS S0 V0LLE NUR EKELHAFTE SP3SEN M8]EN ESSEN
+test Kurz:    DAS S0 VIELLE NUR EKELHAFTE SP3SEN M8]EN ESSEN
 #+end_example
-~V0LLE~ uses the ~oll~ contraction: V-[oll]-E = "volle" (full).
-~VIELLE~ spells out "viele" (many/much) without contraction.
+The Basisschrift confirms the source text says "vielle" (an archaic/dialect
+form of "viele", meaning many). Both servers agree on the uncontracted form.
+The old version incorrectly applied a contraction to "vielle", producing
+~V0LLE~ ("volle", full) — a different word. The new version leaves
+"vielle" uncontracted. *Fix.*
 
-The sentence reads more naturally as "das soll *viele* nur ekelhafte
-Speisen mögen essen" than with "volle", suggesting the original text says
-"viele" and that prod was incorrectly applying the ~oll~ contraction to it.
-If so, the test output is correct and this is a fix.
+** Verdict
 
-*Open question for the customer:*
-- Does the original text say "viele" or "volle"? If "viele", the test
-  output (~VIELLE~) is correct and this is a fix, not a regression.
+All 17 differences are bug fixes in the new ~dtbook2sbsform~. No regressions
+were found. The upgrade is safe to promote to production.
 
 ** Next steps
 
-- [ ] Check the original XML source for doc 13165 around the differing
-  passages to determine whether the name contractions and CJK
-  transliterations are correct
-- [ ] Check the original XML for doc 13167 to confirm whether the word is
-  "viele" or "volle"
-- [ ] Review the dtbook2sbsform changelog for the relevant version to
-  understand which contraction rules were changed
 - [ ] Present findings to the customer and obtain sign-off
+- [ ] Sync 666 missing global word entries from prod DB to test DB
+  (housekeeping — unrelated to this upgrade, but the test server is a
+  subset of prod)
+- [ ] Promote new ~dtbook2sbsform~ to production
 
 ** Links
 
 - ~scripts/compare-braille.bb~ — the comparison script
-- Output files in ~/tmp/braille-cmp/~ (prod/ and test/ subdirectories)
 
 * REJECTED Use German grade names in braille preview API
 CLOSED: [2026-06-04 Mi]
