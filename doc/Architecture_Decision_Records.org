@@ -88,34 +88,45 @@ differences.
 The open question is why the prod local whitelist files are out of sync
 with the database — see below.
 
-*** Why are the local whitelists out of sync?
+*** Why are the local whitelists out of sync? (root cause found)
 
-The application exports local whitelist files asynchronously: changes to
-~dictionary_localword~ are queued and written to disk within seconds
-(~whitelists/async.clj~). A mismatch can occur if:
+Application logs confirm the pattern for doc 13167:
 
-1. Words were modified directly in the database, bypassing the application
-2. The export failed silently (exception caught in the async worker)
-3. The application was restarted while exports were queued but not yet
-   written
-4. The whitelist file on disk was restored from an older backup
+- 2026-05-11 16:30–16:47 :: a translator confirmed local words; the
+  whitelist was exported repeatedly as words were added
+  (~Exporting local tables for 13167~)
+- 2026-05-11 16:47:20 :: *last* whitelist export for doc 13167
+- 2026-05-12 09:01:29 :: ~Deleted 15 local words that were not in unknown
+  words for book 13167~ — but *no export was triggered*
 
-This needs to be investigated and a recovery mechanism considered.
+The on-disk whitelist for doc 13167 has been stale since 2026-05-12,
+retaining the 15 deleted words. Doc 13165's whitelist was last written
+2026-04-28, predating the log retention window; same cause presumed.
+
+The bug is in ~words/unknown.clj~: the ~update-words~ function calls
+~delete-non-existing-unknown-words-from-local-words~ but never calls
+~whitelists/export-local-tables~ afterwards. Every other word mutation
+path (~put-word~ and ~delete-word~ in ~words/local.clj~) does trigger the
+export. This path was simply overlooked.
+
+*Fix committed in e786663:* ~update-words~ now calls
+~whitelists/export-local-tables~ when it deletes one or more words.
 
 ** Verdict
 
 ~dtbook2sbsform~ behaves correctly. The upgrade is safe to promote to
 production. The 17 apparent "differences" are an artefact of comparing
-fresh whitelist exports (test) against stale on-disk whitelists (prod).
-
-The stale local whitelists on the production server are a separate bug that
-exists independently of this upgrade and must be addressed.
+braille generated from a stale on-disk whitelist (prod, missing 15 deleted
+local words for doc 13167) against braille generated from a fresh whitelist
+export (test).
 
 ** Next steps
 
 - [X] Confirm dtbook2sbsform is not the cause of the differences
-- [ ] Investigate why local whitelists on prod are out of sync with the DB
-- [ ] Recover: regenerate all stale local whitelists on prod
+- [X] Identify why local whitelists on prod are out of sync with the DB
+- [X] Fix the missing export in ~update-words~ (commit e786663)
+- [ ] Recover: regenerate stale local whitelists on prod for all affected
+  documents (at minimum docs 13165 and 13167)
 - [ ] Present findings to the customer and obtain sign-off for the upgrade
 - [ ] Promote new ~dtbook2sbsform~ to production
 - [ ] Sync 666 missing global word entries from prod DB to test DB
