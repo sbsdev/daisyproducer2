@@ -312,15 +312,18 @@
       (System/exit 1))
     (edn/read-string (slurp f))))
 
-(let [{:keys [prod-url test-url token output-dir limit]
+(let [{:keys [prod-url test-url token output-dir limit document-ids]
        :or   {output-dir "/tmp/braille-cmp" limit 100}}
       (load-config (or (first *command-line-args*) default-config-file))]
   (when-not (and prod-url test-url token)
     (println "Error: config must contain :prod-url, :test-url and :token")
     (System/exit 1))
-  (println (str "Finding up to " limit " documents with braille products..."))
-  (let [docs (find-braille-documents prod-url token limit)]
-    (println (str "Found " (count docs) " documents. Processing in parallel..."))
+  (let [docs (if document-ids
+               (do (println (str "Fetching " (count document-ids) " specific documents..."))
+                   (mapv #(get-document prod-url token %) document-ids))
+               (do (println (str "Finding up to " limit " documents with braille products..."))
+                   (find-braille-documents prod-url token limit)))]
+    (println (str "Processing " (count docs) " documents..."))
     (let [results (->> docs
                        (partition-all 10)
                        (mapcat (fn [batch]
