@@ -11,7 +11,8 @@
    [daisyproducer2.documents.versions :as versions]
    [daisyproducer2.metrics :as metrics]
    [daisyproducer2.pipeline2.scripts :as scripts]
-   [iapetos.collector.fn :as prometheus]))
+   [iapetos.collector.fn :as prometheus]
+   [trptcolin.versioneer.core :as version]))
 
 (defn epub
   "Generate an EPUB for given `document-id` and return a tuple
@@ -56,7 +57,8 @@
         has-local-words? (boolean (seq (db/get-local-words {:id document-id :grade contraction})))]
     (dtbook2sbsform/sbsform dtbook path
                             (merge opts {:document_identifier identifier
-                                         :use_local_dictionary has-local-words?}))
+                                         :use_local_dictionary has-local-words?
+                                         :version (version/get-version "ch.sbs" "daisyproducer2")}))
     [name path]))
 
 (defn large-print
