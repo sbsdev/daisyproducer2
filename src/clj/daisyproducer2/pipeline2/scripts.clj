@@ -76,3 +76,27 @@
         (with-open [in odt-stream
                     out (io/output-stream odt)]
           (io/copy in out))))))
+
+(def ^:private ebraille-defaults
+  {:epub-package true
+   :validation "off"
+   :include-original-text true})
+
+(defn dtbook-to-ebraille
+  "Invoke the Pipeline2 script to create an eBraille file `ebraille`
+  given the `input`, the `images` and the options given in `opts`"
+  [dtbook images ebraille opts]
+  (let [opts (-> opts
+                 (->> (merge ebraille-defaults))
+                 to-pipeline2
+                 (set/rename-keys key-mapping))]
+    (pipeline2/with-job [job (pipeline2/job-create "dtbook-to-ebraille" [dtbook] images opts)]
+      (let [completed (pipeline2/wait-for job)
+            results (pipeline2/get-results completed)
+            stream (->> results
+                        (filter #(str/ends-with? % ".ebrl"))
+                        first
+                            pipeline2/get-stream)]
+        (with-open [in stream
+                    out (io/output-stream ebraille)]
+          (io/copy in out))))))
