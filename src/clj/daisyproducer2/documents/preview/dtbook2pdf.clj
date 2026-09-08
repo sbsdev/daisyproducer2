@@ -69,5 +69,5 @@
         (with-tempfile [split-xml {:prefix "daisyproducer-" :suffix "-split.xml"}]
           (prepare-xml input clean-xml)
           (generate-pdf clean-xml images pdf-no-volumes opts)
-          (pipeline1/insert-volume-split-points clean-xml split-xml (get-number-of-volumes (fs/file pdf-no-volumes)))
+          (pipeline1/insert-volume-split-points clean-xml split-xml (get-number-of-volumes (fs/file pdf-no-volumes)) opts)
           (generate-pdf split-xml images output opts))))))

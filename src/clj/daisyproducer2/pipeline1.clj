@@ -165,11 +165,17 @@
 
 (defn insert-volume-split-points
   "Invoke the script to insert volume split points on the given `input`
-  file and store the resulting XML in the given `output` file."
-  [input output volumes]
+  file and store the resulting XML in the given `output` file. `opts`
+  may contain `:end-notes` which will be taken into consideration
+  when splitting."
+  [input output volumes opts]
   (let [script (str (fs/path (env :pipeline1-install-path)
                              "scripts/modify_improve/dtbook/DTBookVolumeSplit.taskScript"))
-        args {:input input :output output :number_of_volumes volumes}]
+        args (-> opts
+                 (select-keys [:end-notes])
+                 to-pipeline1
+                 (set/rename-keys key-mapping)
+                 (merge {:input input :output output :number_of_volumes volumes}))]
     (try
       (apply process/shell
        {:err :string

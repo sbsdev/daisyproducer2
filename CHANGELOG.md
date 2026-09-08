@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Pass daisyproducer2 version to dtbook2sbsform
 
+### Fixed
+- Pass the end notes setting to the volume splitter, so that volumes are split
+  correctly for large print with end notes at the end of the document
+
 ## [0.9.37] - 2026-06-16
 
 ### Added
