@@ -1,9 +1,10 @@
 (ns daisyproducer2.documents.preview.dtbook2pdf
   (:require
    [babashka.fs :as fs]
+   [babashka.process :as process]
    [clojure.java.io :as io]
-   [daisyproducer2.documents.utils :refer [with-tempfile]]
-   [daisyproducer2.pipeline1 :as pipeline1]
+   [clojure.tools.logging :as log]
+   [daisyproducer2.documents.utils :refer [with-tempdir with-tempfile]]
    [daisyproducer2.pipeline2.scripts :as pipeline2]
    [sigel.xslt.core :as xslt]))
 
@@ -51,11 +52,42 @@
   words ask for, so the figure only has to be right on average."
   {17 26000 20 20000 25 14000})
 
+(defn- latex-to-pdf
+  "Invoke `latexmk` on the given `input` file and store the resulting
+  PDF in the given `output` file.
+
+  It is assumed that there is a binary named `latexmk` on the path and
+  that it can find a XeLaTeX."
+  [input images output]
+  (with-tempdir [tempdir {:prefix "daisyproducer-"}]
+    (let [pdf-path (fs/path tempdir (str (fs/file-name (fs/strip-ext input)) ".pdf"))]
+      (try
+        ;; copy the latex file to the tempdir
+        (fs/copy input tempdir)
+        ;; copy the images into the temp dir so that LaTeX can find them
+        (doseq [image images] (fs/copy image tempdir))
+        (process/shell {:err :string
+                        :out :string
+                        :dir tempdir
+                        :pre-start-fn #(log/info "Invoking" (:cmd %))}
+                       "latexmk" "-interaction=batchmode" "-xelatex" input)
+        (fs/move pdf-path output {:replace-existing true})
+        (catch clojure.lang.ExceptionInfo e
+          (log/error (ex-message e))
+          ;; move the failing tex files away for later inspection
+          (fs/move tempdir (fs/create-dirs "/tmp/daisyproducer2-failed"))
+          (throw
+           (ex-info (format "Conversion of %s failed" input) {:error-id ::pdf-conversion-failed} e)))
+        (catch java.nio.file.NoSuchFileException e
+          (log/error (ex-message e))
+          (throw
+           (ex-info (format "Move of %s to %s failed" pdf-path output) {:error-id ::no-such-file} e)))))))
+
 (defn- generate-pdf
   [input images output opts]
   (with-tempfile [latex-file {:prefix "daisyproducer-" :suffix ".tex"}]
     (pipeline2/dtbook-to-latex input latex-file opts)
-    (pipeline1/latex-to-pdf latex-file images output)))
+    (latex-to-pdf latex-file images output)))
 
 (def ^:private large-print-defaults
   {:font-size 17 :font :tiresias :page-style :plain :alignment :left
