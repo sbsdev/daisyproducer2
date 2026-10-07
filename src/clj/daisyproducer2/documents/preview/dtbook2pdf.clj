@@ -2,12 +2,10 @@
   (:require
    [babashka.fs :as fs]
    [clojure.java.io :as io]
-   [clojure.math :as math]
    [daisyproducer2.documents.utils :refer [with-tempfile]]
    [daisyproducer2.pipeline1 :as pipeline1]
-   [sigel.xslt.core :as xslt])
-  (:import
-   (org.apache.pdfbox Loader)))
+   [daisyproducer2.pipeline2.scripts :as pipeline2]
+   [sigel.xslt.core :as xslt]))
 
 (defn- prepare-xml
   "Given an `xml` filter the braille contraction hints, drop the
@@ -44,23 +42,26 @@
   (cond-> opts
     (and (= page-style :plain) (compact? xml)) (assoc :page-style :compact)))
 
+(def ^:private words-per-volume
+  "The words that go in a volume, by font size, i.e. the words that fit
+  on the roughly 200 pages that are still comfortable to bind. A page
+  holds 134 words at 17pt, measured over the large print books of a
+  production year, and 0.77 respectively 0.54 of that at 20pt and
+  25pt. A book is split into as many equally thick volumes as these
+  words ask for, so the figure only has to be right on average."
+  {17 26000 20 20000 25 14000})
+
 (defn- generate-pdf
   [input images output opts]
   (with-tempfile [latex-file {:prefix "daisyproducer-" :suffix ".tex"}]
-    (pipeline1/dtbook-to-latex input latex-file opts)
+    (pipeline2/dtbook-to-latex input latex-file opts)
     (pipeline1/latex-to-pdf latex-file images output)))
-
-(defn- get-number-of-volumes
-  [pdf]
-  (let [document (Loader/loadPDF (io/file pdf))
-        pages (.getNumberOfPages document)
-        pages-per-volume 200
-        volumes (int (math/ceil (/ pages pages-per-volume)))]
-    (.close document)
-    volumes))
 
 (def ^:private large-print-defaults
   {:font-size 17 :font :tiresias :page-style :plain :alignment :left
+   ;; the words and phrases that the conversion generates itself are in
+   ;; Swiss German, whatever the language of the book is
+   :producer-language "de-CH"
    :stock-size :a4paper :line-spacing :onehalfspacing
    :paperwidth 200 :paperheight 250
    :left-margin 28 :right-margin 20 :top-margin 20 :bottom-margin 20
@@ -72,11 +73,8 @@
   (let [opts (merge large-print-defaults opts)
         ;; when the page style is not explicitely requested check
         ;; whether the book should be rendered using compact style
-        opts (maybe-set-compact-style opts input)]
+        opts (maybe-set-compact-style opts input)
+        opts (assoc opts :words-per-volume (words-per-volume (:font-size opts)))]
     (with-tempfile [clean-xml {:prefix "daisyproducer-" :suffix "-clean.xml"}]
-      (with-tempfile [pdf-no-volumes {:prefix "daisyproducer-" :suffix "-no-volumes.pdf"}]
-        (with-tempfile [split-xml {:prefix "daisyproducer-" :suffix "-split.xml"}]
-          (prepare-xml input clean-xml)
-          (generate-pdf clean-xml images pdf-no-volumes opts)
-          (pipeline1/insert-volume-split-points clean-xml split-xml (get-number-of-volumes (fs/file pdf-no-volumes)) opts)
-          (generate-pdf split-xml images output opts))))))
+      (prepare-xml input clean-xml)
+      (generate-pdf clean-xml images output opts))))

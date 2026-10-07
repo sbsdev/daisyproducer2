@@ -100,3 +100,49 @@
         (with-open [in stream
                     out (io/output-stream ebraille)]
           (io/copy in out))))))
+
+(def ^:private latex-key-mapping
+  "Parameter name mapping between Clojure and the dtbook-to-latex script"
+  {:paperwidth :paper-width
+   :paperheight :paper-height
+   :end-notes :endnotes
+   :image-visibility :include-images})
+
+(defn- to-latex
+  "Convert parameter values from Clojure keywords to strings that the dtbook-to-latex script understands"
+  [opts]
+  (-> opts
+      (update-existing :font-size #(format "%spt" %))
+      (update-existing :font #(case % :tiresias "Tiresias LPfont" :roman "Latin Modern Roman"
+                                    :sans "Latin Modern Sans" :mono "Latin Modern Mono"))
+      (update-existing :page-style #(case % :plain "plain" :compact "compact" :with-page-nums "withPageNums"
+                                          :spacious "spacious" :scientific "scientific"))
+      (update-existing :stock-size name)
+      (update-existing :line-spacing name)
+      (update-existing :alignment name)
+      (update-existing :end-notes name)
+      (update-existing :paperwidth #(format "%smm" %))
+      (update-existing :paperheight #(format "%smm" %))
+      (update-existing :left-margin #(format "%smm" %))
+      (update-existing :right-margin #(format "%smm" %))
+      (update-existing :top-margin #(format "%smm" %))
+      (update-existing :bottom-margin #(format "%smm" %))
+      ;; the conversion asks whether to include the images, not whether to ignore them
+      (update-existing :image-visibility #(= % :show))))
+
+(defn dtbook-to-latex
+  "Invoke the Pipeline2 script to create a LaTeX file `latex` given the
+  `dtbook` and the options given in `opts`. The images are not needed:
+  the conversion only refers to them, it does not read them."
+  [dtbook latex opts]
+  (let [opts (-> opts to-latex (set/rename-keys latex-key-mapping))]
+    (pipeline2/with-job [job (pipeline2/job-create "dtbook-to-latex" [dtbook] [] opts)]
+      (let [completed (pipeline2/wait-for job)
+            results (pipeline2/get-results completed)
+            latex-stream (->> results
+                              (filter #(str/ends-with? % ".tex"))
+                              first
+                              pipeline2/get-stream)]
+        (with-open [in latex-stream
+                    out (io/output-stream latex)]
+          (io/copy in out))))))
