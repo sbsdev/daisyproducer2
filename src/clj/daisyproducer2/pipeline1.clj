@@ -7,12 +7,10 @@
   (:require
    [babashka.fs :as fs]
    [babashka.process :as process]
-   [clojure.set :as set]
    [clojure.string :as str]
    [clojure.tools.logging :as log]
    [daisyproducer2.config :refer [env]]
-   [daisyproducer2.documents.utils :refer [with-tempdir]]
-   [medley.core :refer [update-existing]]))
+   [daisyproducer2.documents.utils :refer [with-tempdir]]))
 
 (defn continuation-line? [line]
   (cond
@@ -74,67 +72,6 @@
         (throw
          (ex-info (format "Audio encoding of %s failed" input) {:error-id ::audio-encoding-failed}))))))
 
-(def ^:private key-mapping
-  "Parameter name mapping between Clojure and the Pipeline1 scripts"
-  {:font-size :fontsize
-   :backup-font :backupFont
-   :backup-unicode-ranges :backupUnicodeRanges
-   :page-style :pageStyle
-   :stock-size :stocksize
-   :line-spacing :line_spacing
-   :left-margin :left_margin
-   :right-margin :right_margin
-   :top-margin :top_margin
-   :bottom-margin :bottom_margin
-   :replace-em-with-quote :replace_em_with_quote
-   :end-notes :endnotes
-   :image-visibility :image_visibility})
-
-(defn- to-pipeline1
-  "Convert parameter values from Clojure keywords to strings that the Pipeline1 script understands"
-  [opts]
-  (-> opts
-      ;; the font-size is expected to be a string in the form of '17pt'
-      (update-existing :font-size #(format "%spt" %))
-      (update-existing :font #(case % :tiresias "Tiresias LPfont" :roman "Latin Modern Roman"
-                                    :sans "Latin Modern Sans" :mono "Latin Modern Mono"))
-      (update-existing :page-style #(case % :plain "plain" :compact "compact" :with-page-nums "withPageNums"
-                                          :spacious "spacious" :scientific "scientific" ))
-      (update-existing :stock-size #(case % :a3paper "a3paper" :a4paper "a4paper"))
-      (update-existing :line-spacing #(case % :singlespacing "singlespacing" :onehalfspacing "onehalfspacing"
-                                            :doublespacing "doublespacing"))
-      (update-existing :paperwidth #(format "%smm" %))
-      (update-existing :paperheight #(format "%smm" %))
-      (update-existing :left-margin #(format "%smm" %))
-      (update-existing :right-margin #(format "%smm" %))
-      (update-existing :top-margin #(format "%smm" %))
-      (update-existing :bottom-margin #(format "%smm" %))
-      (update-existing :alignment #(case % :left "left" :justified "justified"))
-      (update-existing :end-notes #(case % :none "none" :document "document" :chapter "chapter"))
-      (update-existing :image-visibility #(case % :show "show" :ignore "ignore"))))
-
-(defn dtbook-to-latex
-  "Invoke the LaTeX conversion script. See the Pipeline documentation for all possible options."
-  [input output opts]
-  (let [args (-> opts
-                 ;; convert parameter values
-                 to-pipeline1
-                 ;; map the keys to the ones that the pipeline1 expects
-                 (set/rename-keys key-mapping)
-                 (merge {:input input :output output}))
-        script (str (fs/path (env :pipeline1-install-path)
-                             "scripts/create_distribute/latex/DTBookToLaTeX.taskScript"))]
-    (try
-      (apply process/shell
-             {:err :string
-              :out :string
-              :pre-start-fn #(log/info "Invoking" (:cmd %))}
-             "daisy-pipeline" script (map (fn [[k v]] (format "--%s=%s" (name k) v)) args))
-      (catch clojure.lang.ExceptionInfo e
-        (log/error e)
-        (throw
-         (ex-info (format "Conversion of %s failed" input) {:error-id ::latex-conversion-failed} e))))))
-
 (defn latex-to-pdf
   "Invoke `latexmk` on the given `input` file and store the resulting
   PDF in the given `output` file."
@@ -162,28 +99,3 @@
           (log/error (ex-message e))
           (throw
            (ex-info (format "Move of %s to %s failed" pdf-path output) {:error-id ::no-such-file} e)))))))
-
-(defn insert-volume-split-points
-  "Invoke the script to insert volume split points on the given `input`
-  file and store the resulting XML in the given `output` file. `opts`
-  may contain `:end-notes` which will be taken into consideration
-  when splitting."
-  [input output volumes opts]
-  (let [script (str (fs/path (env :pipeline1-install-path)
-                             "scripts/modify_improve/dtbook/DTBookVolumeSplit.taskScript"))
-        args (-> opts
-                 (select-keys [:end-notes])
-                 to-pipeline1
-                 (set/rename-keys key-mapping)
-                 (merge {:input input :output output :number_of_volumes volumes}))]
-    (try
-      (apply process/shell
-       {:err :string
-        :out :string
-        :pre-start-fn #(log/info "Invoking" (:cmd %))}
-       "daisy-pipeline" script (map (fn [[k v]] (format "--%s=%s" (name k) v)) args))
-      (catch clojure.lang.ExceptionInfo e
-        (log/error e)
-        (throw
-         (ex-info (format "Insertion of volume split points for %s failed" input)
-                  {:error-id ::volume-split-points-insertion-failed} e))))))

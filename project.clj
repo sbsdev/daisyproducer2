@@ -51,7 +51,6 @@
                  [mount "0.1.18"]
                  [mysql/mysql-connector-java "8.0.33"]
                  [nrepl "1.3.1"]
-                 [org.apache.pdfbox/pdfbox "3.0.3"] ;; to calculate the number of pages in a pdf
                  [org.clojars.pntblnk/clj-ldap "0.0.17"]
                  [org.clojure/clojure "1.11.3"]
                  [org.clojure/clojurescript "1.11.60" :scope "provided"]
