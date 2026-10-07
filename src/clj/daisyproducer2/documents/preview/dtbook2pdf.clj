@@ -11,12 +11,21 @@
 
 (defn- prepare-xml
   "Given an `xml` filter the braille contraction hints, drop the
-  implicit headings and add image references. Store the updated xml in
-  `target`."
+  implicit headings, add image references, move the list of contents
+  to the end of the front matter and add the imprint. Store the
+  updated xml in `target`.
+
+  The last two were done by the conversion itself as long as it was
+  the SBS variant of the dtbook2latex stylesheet, which was copied
+  over the common one when the Pipeline 1 was installed. The
+  conversion in the Pipeline 2 has no such hook and no SBS specific
+  code, so the document says what it needs before it is converted."
   [xml target]
   (let [xslt [(xslt/compile-xslt (io/resource "xslt/filterBrlContractionhints.xsl"))
               (xslt/compile-xslt (io/resource "xslt/filter_implicit_headings.xsl"))
-              (xslt/compile-xslt (io/resource "xslt/addImageRefs.xsl"))]]
+              (xslt/compile-xslt (io/resource "xslt/addImageRefs.xsl"))
+              (xslt/compile-xslt (io/resource "xslt/moveTocToEnd.xsl"))
+              (xslt/compile-xslt (io/resource "xslt/addImprint.xsl"))]]
     (xslt/transform-to-file xslt (fs/file xml) (fs/file target))))
 
 (defn- compact?
