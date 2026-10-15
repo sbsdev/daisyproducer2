@@ -1,0 +1,119 @@
+@startuml
+
+' avoid problems with angled crows feet
+skinparam linetype ortho
+hide circle
+
+entity "dictionary_globalword" {
+  *untranslated : varchar(100)
+  *type : smallint(6) unsigned
+  *homograph_disambiguation : varchar(100)
+  --
+  uncontracted : varchar(100)
+  contracted : varchar(100)
+}
+
+entity "dictionary_localword" {
+  *untranslated : varchar(100)
+  *type : smallint(6) unsigned
+  *homograph_disambiguation : varchar(100)
+  *document_id : int(11) <<FK>>
+  --
+  uncontracted : varchar(100)
+  contracted : varchar(100)
+  isLocal : tinyint(1)
+  isConfirmed : tinyint(1)
+}
+
+entity "dictionary_unknownword" {
+  untranslated : varchar(100)
+  type : smallint(5) unsigned
+  homograph_disambiguation : varchar(100)
+  isLocal : tinyint(1)
+  isIgnored : tinyint(1)
+  document_id : int(11) <<FK>>
+}
+
+entity "documents_document" {
+  *id : int(11)
+  --
+  title : varchar(255)
+  author : varchar(255)
+  subject : varchar(255)
+  description : longtext
+  publisher : varchar(255)
+  date : date
+  identifier : varchar(255)
+  source : varchar(20)
+  language : varchar(10)
+  rights : varchar(255)
+  source_date : date
+  source_edition : varchar(255)
+  source_publisher : varchar(255)
+  source_rights : varchar(255)
+  state_id : int(11) <<FK>>
+  created_at : timestamp
+  modified_at : datetime
+  production_series : varchar(25)
+  production_series_number : varchar(25)
+  production_source : varchar(25)
+}
+
+entity "documents_image" {
+  *id : int(11)
+  --
+  document_id : int(11) <<FK>>
+  content : varchar(100)
+}
+
+entity "documents_product" {
+  *id : int(11)
+  --
+  identifier : varchar(255)
+  type : smallint(5) unsigned
+  document_id : int(11) <<FK>>
+  is_unique : tinyint(1)
+}
+
+entity "documents_state" {
+  *id : int(11)
+  --
+  name : varchar(32)
+  sort_order : smallint(5) unsigned
+}
+
+entity "documents_version" {
+  *id : int(11)
+  --
+  comment : varchar(255)
+  document_id : int(11) <<FK>>
+  content : varchar(100)
+  created_by : varchar(32)
+  created_at : datetime
+}
+
+entity "hyphenation_words" {
+  word : varchar(255)
+  hyphenation : varchar(255)
+  spelling : tinyint(4)
+}
+
+entity "statistics_documentstatistic" {
+  *id : int(11)
+  --
+  date : datetime
+  document_id : int(11) <<FK>>
+  grade : smallint(5) unsigned
+  total : int(10) unsigned
+  unknown : int(10) unsigned
+}
+
+documents_document ||--o{ dictionary_localword
+documents_document ||--o{ dictionary_unknownword
+documents_document ||--o{ documents_image
+documents_document ||--o{ documents_product
+documents_document ||--o{ documents_version
+documents_document ||--o{ statistics_documentstatistic
+documents_state ||--o{ documents_document
+
+@enduml
