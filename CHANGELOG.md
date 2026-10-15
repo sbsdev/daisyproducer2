@@ -7,12 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Documentation of the database schema, generated from the live database
+
 ### Changed
 - Pass daisyproducer2 version to dtbook2sbsform
+- Store all document metadata, products, states and versions as utf8, so
+  that characters outside latin1 (dashes, typographic quotes, …) are no
+  longer replaced with `?`. Requires running the migrations (`migrate`)
+- Store and look up ISBNs in upper case, so that an ISBN-10 with a lower
+  case check digit `x` matches the same document as one with `X`
 
 ### Fixed
 - Pass the end notes setting to the volume splitter, so that volumes are split
   correctly for large print with end notes at the end of the document
+- Image names that differ only in umlauts or case (`kröte.jpeg` and
+  `krote.jpeg`) no longer overwrite each other in the database
 
 ## [0.9.37] - 2026-06-16
 
