@@ -68,7 +68,14 @@ Re-frame (event-driven state) + Reagent (React wrapper) + Bulma CSS.
 
 ### Database Migrations
 
-SQL migration files live in `resources/migrations/` and are applied via Luminus Migrations on startup.
+SQL migration files live in `resources/migrations/`. They are **not** applied on startup; run them explicitly (Luminus Migrations / migratus), which then exits:
+
+```bash
+lein run migrate                                                       # dev, against dev-config.edn
+java -Dconf=/etc/daisyproducer2/config.edn -jar daisyproducer2.jar migrate   # on a server
+```
+
+Applied migrations are recorded in the `schema_migrations` table. Separate statements in one migration file with `--;;`.
 
 ### Key External Integrations
 
