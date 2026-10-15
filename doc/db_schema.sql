@@ -38,46 +38,46 @@ CREATE TABLE `dictionary_unknownword` (
 
 CREATE TABLE `documents_document` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `author` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `subject` varchar(255) DEFAULT NULL,
-  `description` longtext,
-  `publisher` varchar(255) NOT NULL DEFAULT 'SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte',
+  `title` varchar(255) COLLATE utf8_bin NOT NULL,
+  `author` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `subject` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+  `description` longtext CHARACTER SET latin1,
+  `publisher` varchar(255) CHARACTER SET latin1 NOT NULL DEFAULT 'SBS Schweizerische Bibliothek für Blinde, Seh- und Lesebehinderte',
   `date` date NOT NULL,
-  `identifier` varchar(255) NOT NULL,
-  `source` varchar(20) DEFAULT NULL,
-  `language` varchar(10) NOT NULL,
-  `rights` varchar(255) DEFAULT NULL,
+  `identifier` varchar(255) CHARACTER SET latin1 NOT NULL,
+  `source` varchar(20) CHARACTER SET latin1 DEFAULT NULL,
+  `language` varchar(10) CHARACTER SET latin1 NOT NULL,
+  `rights` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
   `source_date` date DEFAULT NULL,
-  `source_edition` varchar(255) DEFAULT NULL,
-  `source_publisher` varchar(255) DEFAULT NULL,
-  `source_rights` varchar(255) DEFAULT NULL,
+  `source_edition` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+  `source_publisher` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+  `source_rights` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
   `state_id` int(11) NOT NULL DEFAULT '7',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `modified_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `production_series` varchar(25) DEFAULT NULL,
-  `production_series_number` varchar(25) DEFAULT NULL,
-  `production_source` varchar(25) DEFAULT NULL,
+  `production_series` varchar(25) CHARACTER SET latin1 DEFAULT NULL,
+  `production_series_number` varchar(25) CHARACTER SET latin1 DEFAULT NULL,
+  `production_source` varchar(25) CHARACTER SET latin1 DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `identifier` (`identifier`),
   UNIQUE KEY `document_source_unique` (`source`),
   KEY `documents_document_state_id` (`state_id`),
   CONSTRAINT `state_id_refs_id_1a873183ef7997da` FOREIGN KEY (`state_id`) REFERENCES `documents_state` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `documents_image` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `document_id` int(11) NOT NULL,
-  `content` varchar(100) COLLATE latin1_german1_ci NOT NULL,
+  `content` varchar(100) COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `documents_image_content_635708861a13c14f_uniq` (`content`,`document_id`),
   KEY `documents_image_f4226d13` (`document_id`),
   CONSTRAINT `fk_documents_image__documents_document` FOREIGN KEY (`document_id`) REFERENCES `documents_document` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_german1_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `documents_product` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(255) COLLATE latin1_german1_ci NOT NULL,
+  `identifier` varchar(255) CHARACTER SET latin1 COLLATE latin1_german1_ci NOT NULL,
   `type` smallint(5) unsigned NOT NULL,
   `document_id` int(11) NOT NULL,
   `is_unique` tinyint(1) AS (CASE WHEN type <> 0 THEN TRUE ELSE NULL END) PERSISTENT,
@@ -87,27 +87,27 @@ CREATE TABLE `documents_product` (
   UNIQUE KEY `product_document_id_type_partial_unique` (`is_unique`,`type`,`document_id`),
   KEY `documents_product_f4226d13` (`document_id`),
   CONSTRAINT `fk_documents_product__documents_document` FOREIGN KEY (`document_id`) REFERENCES `documents_document` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_german1_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `documents_state` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(32) NOT NULL,
+  `name` varchar(32) CHARACTER SET latin1 NOT NULL,
   `sort_order` smallint(5) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `documents_version` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `comment` varchar(255) NOT NULL,
+  `comment` varchar(255) CHARACTER SET latin1 NOT NULL,
   `document_id` int(11) NOT NULL,
-  `content` varchar(100) NOT NULL,
-  `created_by` varchar(32) NOT NULL,
+  `content` varchar(100) CHARACTER SET latin1 NOT NULL,
+  `created_by` varchar(32) CHARACTER SET latin1 NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `documents_version_document_id` (`document_id`),
   CONSTRAINT `fk_documents_version__documents_document` FOREIGN KEY (`document_id`) REFERENCES `documents_document` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`daisyproducer`@`w302.sbszh.ch` SQL SECURITY DEFINER VIEW `hyphenation_words` AS select `hyphenation`.`words`.`word` AS `word`,`hyphenation`.`words`.`hyphenation` AS `hyphenation`,`hyphenation`.`words`.`spelling` AS `spelling` from `hyphenation`.`words`;
 
@@ -128,4 +128,4 @@ CREATE TABLE `statistics_documentstatistic` (
   PRIMARY KEY (`id`),
   KEY `statistics_documentstatistic_f4226d13` (`document_id`),
   CONSTRAINT `document_id_refs_id_544d62dcd2388120` FOREIGN KEY (`document_id`) REFERENCES `documents_document` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_german1_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
