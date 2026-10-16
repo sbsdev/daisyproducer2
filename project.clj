@@ -92,6 +92,7 @@
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version"
                    "leiningen.release/bump-version" "release"]
+                  ["run" "-m" "clojure.main" "scripts/changelog_release.clj"]
                   ["vcs" "commit"]
                   ["vcs" "tag"]
                   #_["deploy"]
