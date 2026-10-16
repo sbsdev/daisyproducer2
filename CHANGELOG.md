@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation of the database schema, generated from the live database
 
 ### Changed
-- Pass daisyproducer2 version to dtbook2sbsform
 - Store all document metadata, products, states and versions as utf8, so
   that characters outside latin1 (dashes, typographic quotes, …) are no
   longer replaced with `?`. Requires running the migrations (`migrate`)
@@ -19,10 +18,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   case check digit `x` matches the same document as one with `X`
 
 ### Fixed
-- Pass the end notes setting to the volume splitter, so that volumes are split
-  correctly for large print with end notes at the end of the document
 - Image names that differ only in umlauts or case (`kröte.jpeg` and
   `krote.jpeg`) no longer overwrite each other in the database
+
+## [0.9.38] - 2026-09-08
+
+### Added
+- Pipeline 2 script to convert a DTBook to eBraille
+
+### Changed
+- Pass daisyproducer2 version to dtbook2sbsform
+
+### Fixed
+- Pass the end notes setting to the volume splitter, so that volumes are split
+  correctly for large print with end notes at the end of the document
 
 ## [0.9.37] - 2026-06-16
 
@@ -42,7 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Prevent updates to `production-series` and `production-series-number` if the ABACUS import is not for a PS product
 
-[Unreleased]: https://github.com/sbsdev/daisyproducer2/compare/0.9.37...HEAD
+[Unreleased]: https://github.com/sbsdev/daisyproducer2/compare/0.9.38...HEAD
+[0.9.38]: https://github.com/sbsdev/daisyproducer2/compare/0.9.37...0.9.38
 [0.9.37]: https://github.com/sbsdev/daisyproducer2/compare/0.9.36...0.9.37
 [0.9.36]: https://github.com/sbsdev/daisyproducer2/compare/0.9.35...0.9.36
 [0.9.35]: https://github.com/sbsdev/daisyproducer2/compare/0.9.34...0.9.35
