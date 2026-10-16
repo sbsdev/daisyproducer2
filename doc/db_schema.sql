@@ -6,8 +6,7 @@ CREATE TABLE `dictionary_globalword` (
   `contracted` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `type` smallint(6) unsigned NOT NULL DEFAULT '0',
   `homograph_disambiguation` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  UNIQUE KEY `dictionary_localword_uniq` (`untranslated`,`type`,`homograph_disambiguation`),
-  KEY `untranslated` (`untranslated`)
+  UNIQUE KEY `dictionary_globalword_unique` (`untranslated`,`type`,`homograph_disambiguation`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `dictionary_localword` (
@@ -19,9 +18,8 @@ CREATE TABLE `dictionary_localword` (
   `document_id` int(11) NOT NULL,
   `isLocal` tinyint(1) NOT NULL DEFAULT '0',
   `isConfirmed` tinyint(1) NOT NULL DEFAULT '0',
-  UNIQUE KEY `dictionary_localword_uniq` (`untranslated`,`type`,`homograph_disambiguation`,`document_id`),
-  KEY `untranslated` (`untranslated`),
-  KEY `document_id` (`document_id`),
+  UNIQUE KEY `dictionary_localword_unique` (`untranslated`,`type`,`homograph_disambiguation`,`document_id`),
+  KEY `dictionary_localword_document_id_index` (`document_id`),
   CONSTRAINT `fk_dictionary_localword__documents_document` FOREIGN KEY (`document_id`) REFERENCES `documents_document` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -59,10 +57,10 @@ CREATE TABLE `documents_document` (
   `production_series_number` varchar(25) COLLATE utf8_bin DEFAULT NULL,
   `production_source` varchar(25) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `identifier` (`identifier`),
-  UNIQUE KEY `document_source_unique` (`source`),
-  KEY `documents_document_state_id` (`state_id`),
-  CONSTRAINT `state_id_refs_id_1a873183ef7997da` FOREIGN KEY (`state_id`) REFERENCES `documents_state` (`id`)
+  UNIQUE KEY `documents_document_identifier_unique` (`identifier`),
+  UNIQUE KEY `documents_document_source_unique` (`source`),
+  KEY `documents_document_state_id_index` (`state_id`),
+  CONSTRAINT `fk_documents_document__documents_state` FOREIGN KEY (`state_id`) REFERENCES `documents_state` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `documents_image` (
@@ -70,8 +68,8 @@ CREATE TABLE `documents_image` (
   `document_id` int(11) NOT NULL,
   `content` varchar(100) COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `documents_image_content_635708861a13c14f_uniq` (`content`,`document_id`),
-  KEY `documents_image_f4226d13` (`document_id`),
+  UNIQUE KEY `documents_image_content_document_id_unique` (`content`,`document_id`),
+  KEY `documents_image_document_id_index` (`document_id`),
   CONSTRAINT `fk_documents_image__documents_document` FOREIGN KEY (`document_id`) REFERENCES `documents_document` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -82,9 +80,9 @@ CREATE TABLE `documents_product` (
   `document_id` int(11) NOT NULL,
   `is_unique` tinyint(1) AS (CASE WHEN type <> 0 THEN TRUE ELSE NULL END) PERSISTENT,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `product_identifier_unique` (`identifier`),
-  UNIQUE KEY `product_document_id_type_partial_unique` (`is_unique`,`type`,`document_id`),
-  KEY `documents_product_f4226d13` (`document_id`),
+  UNIQUE KEY `documents_product_identifier_unique` (`identifier`),
+  UNIQUE KEY `documents_product_document_id_type_partial_unique` (`is_unique`,`type`,`document_id`),
+  KEY `documents_product_document_id_index` (`document_id`),
   CONSTRAINT `fk_documents_product__documents_document` FOREIGN KEY (`document_id`) REFERENCES `documents_document` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -93,7 +91,7 @@ CREATE TABLE `documents_state` (
   `name` varchar(32) COLLATE utf8_bin NOT NULL,
   `sort_order` smallint(5) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
+  UNIQUE KEY `documents_state_name_unique` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `documents_version` (
@@ -104,7 +102,7 @@ CREATE TABLE `documents_version` (
   `created_by` varchar(32) COLLATE utf8_bin NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `documents_version_document_id` (`document_id`),
+  KEY `documents_version_document_id_index` (`document_id`),
   CONSTRAINT `fk_documents_version__documents_document` FOREIGN KEY (`document_id`) REFERENCES `documents_document` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -125,6 +123,6 @@ CREATE TABLE `statistics_documentstatistic` (
   `total` int(10) unsigned NOT NULL,
   `unknown` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `statistics_documentstatistic_f4226d13` (`document_id`),
-  CONSTRAINT `document_id_refs_id_544d62dcd2388120` FOREIGN KEY (`document_id`) REFERENCES `documents_document` (`id`)
+  KEY `statistics_documentstatistic_document_id_index` (`document_id`),
+  CONSTRAINT `fk_statistics_documentstatistic__documents_document` FOREIGN KEY (`document_id`) REFERENCES `documents_document` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
