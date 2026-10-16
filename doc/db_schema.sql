@@ -118,11 +118,11 @@ CREATE TABLE `schema_migrations` (
 CREATE TABLE `statistics_documentstatistic` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `date` datetime NOT NULL,
-  `document_id` int(11) NOT NULL,
+  `document_id` int(11) DEFAULT NULL,
   `grade` smallint(5) unsigned NOT NULL,
   `total` int(10) unsigned NOT NULL,
   `unknown` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `statistics_documentstatistic_document_id_index` (`document_id`),
-  CONSTRAINT `fk_statistics_documentstatistic__documents_document` FOREIGN KEY (`document_id`) REFERENCES `documents_document` (`id`)
+  CONSTRAINT `fk_statistics_documentstatistic__documents_document` FOREIGN KEY (`document_id`) REFERENCES `documents_document` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
