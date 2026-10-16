@@ -27,11 +27,12 @@ lein test :only daisyproducer2.test.words-test          # Single namespace
 lein test :only daisyproducer2.test.words-test/test-fn  # Single test function
 ```
 
-Tests marked `^:database` require a live MySQL test database (configured in `test-config.edn`).
+Tests marked `^:database` require a live MariaDB test database (configured in `test-config.edn`).
 
 ### Lint
 ```bash
-lein splint                     # Runs clj-kondo linting
+lein splint                     # Splint (idiom/style linter)
+lein clj-kondo --lint src       # clj-kondo
 ```
 
 ### Frontend
@@ -42,7 +43,7 @@ Shadow-CLJS handles ClojureScript compilation (`shadow-cljs.edn`) but requires n
 
 ## Architecture
 
-**Stack:** Clojure backend + ClojureScript/React frontend (SPA), MySQL, Luminus framework base.
+**Stack:** Clojure backend + ClojureScript/React frontend (SPA), MariaDB 10.1 (old: no `utf8mb4_0900_*` collations, 767 byte index key limit), Luminus framework base.
 
 ### Backend (`src/clj/daisyproducer2/`)
 
@@ -50,10 +51,13 @@ Shadow-CLJS handles ClojureScript compilation (`shadow-cljs.edn`) but requires n
 - **`handler.clj`** — Middleware stack and router assembly
 - **`routes/services.clj`** — All REST API endpoints (Reitit, fully Swagger-documented)
 - **`db/core.clj`** — Database layer via Conman; SQL lives in `resources/sql/`
-- **`documents/`** — Document lifecycle: create, update, version control, state transitions (open/closed)
+- **`documents/`** — Document lifecycle: create, update, versions, images, products, state transitions (open/closed), previews
+  - **`documents/abacus.clj`** — Imports document metadata from the Abacus ERP system
+  - **`documents/alfresco/`** — Synchronization with Alfresco
 - **`words/`** — Global and local braille/hyphenation word dictionaries; unknown word detection
-- **`pipeline1.clj`** — HTTP client integration with Daisy Pipeline 2 for format generation
-- **`abacus_import/`** — Imports document metadata from the Abacus ERP system
+- **`pipeline2/`** — HTTP client for the Daisy Pipeline 2 web service (`core.clj`) and its conversion scripts (`scripts.clj`)
+- **`pipeline1.clj`** — Wrapper around the command line scripts of the legacy Daisy Pipeline 1
+- **`louis.clj`**, **`hyphenate.clj`** — Braille translation (liblouis) and hyphenation
 - **`ldap.clj`** — LDAP/IPA authentication
 
 Roles: `admin`, `review`, `translator` — enforced via Buddy middleware.
