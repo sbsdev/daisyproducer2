@@ -60,10 +60,8 @@
 (s/def ::non-blank-string (s/and string? (complement str/blank?)))
 (s/def ::iso-date (s/and string? #(re-matches #"\d{4}-\d{2}-\d{2}.*" %)))
 (s/def ::language (s/and string? #(re-matches #"^(de|de-1901|de-CH|it|rm-sursilv|en)$" %)))
-;; varchar(20) in DB; must be a valid ISBN-13 (with dashes) or SBS catalogue number
-(s/def ::source (s/nilable (s/and string?
-                                  #(<= (count %) 20)
-                                  #(re-matches #"^(SBS[0-9]{6}|((?:978-|979-)?\d{1,5}-\d{1,7}-\d{1,6}-[0-9xX]))$" %))))
+;; varchar(20) in DB; same rules as the ABACUS import
+(s/def ::source (s/nilable (s/and ::abacus/source #(<= (count %) 20))))
 
 (def default-limit 100)
 

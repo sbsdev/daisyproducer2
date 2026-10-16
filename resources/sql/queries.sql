@@ -47,7 +47,7 @@ INSERT INTO documents_document (
 VALUES (
 --~ (when (:subject params) ":subject,")
 --~ (when (:description params) ":description,")
---~ (when (:source params) "UPPER(:source),")
+--~ (when (:source params) ":source,")
 --~ (when (:rights params) ":rights,")
 --~ (when (:source-date params) ":source-date,")
 --~ (when (:source-edition params) ":source-edition,")
@@ -73,7 +73,7 @@ SET title = :title,
     description = :description,
     rights = :rights,
     language = :language,
-    source = UPPER(:source),
+    source = :source,
     subject = :subject,
     source_date = :source-date,
     source_publisher = :source-publisher,
@@ -96,9 +96,9 @@ ON doc.id = prod.document_id
 WHERE prod.identifier = :product-number
 
 -- :name get-document-for-source :? :1
--- :doc retrieve the document for the given `source`. The source (ISBN) is compared case sensitively (utf8_bin), but the check digit X of an ISBN-10 is sometimes written as a lower case x. So the source is always stored in upper case (see `insert-document` and `update-document-meta-data`) and looked up in upper case here.
+-- :doc retrieve the document for the given `source`
 SELECT * FROM documents_document
-WHERE source = UPPER(:source)
+WHERE source = :source
 
 -- :name get-document-for-title-and-source-edition :? :1
 -- :doc retrieve the document for the given `title` and `source-edition`

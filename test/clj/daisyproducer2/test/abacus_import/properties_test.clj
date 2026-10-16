@@ -19,7 +19,7 @@
                      daisyproducer?])
 
 (def sbs-identifier (chuck-gen/string-from-regex #"SBS[0-9]{6}"))
-(def isbn (chuck-gen/string-from-regex #"(978-|979-)?[0-9]{1,5}-[0-9]{1,7}-[0-9]{1,6}-[0-9xX]"))
+(def isbn (chuck-gen/string-from-regex #"97[89]-[0-9]{1,5}-[0-9]{1,7}-[0-9]{1,6}-[0-9]|[0-9]{1,5}-[0-9]{1,7}-[0-9]{1,6}-[0-9X]"))
 (def sbs-isbn (gen/one-of [(gen/return "keine") sbs-identifier isbn]))
 (def product-number (chuck-gen/string-from-regex #"(PS|GD|EB|ET)[0-9]{4,7}"))
 (def language (gen/elements ["de" "de-CH" "it" "rm-sursilv"]))

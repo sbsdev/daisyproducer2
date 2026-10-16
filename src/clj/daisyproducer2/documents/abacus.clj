@@ -39,7 +39,8 @@
 (s/def ::publisher string?)
 (s/def ::date local-date?)
 (s/def ::identifier (s/and string? (complement str/blank?)))
-(s/def ::source (s/nilable (s/and string? (fn [s] (re-matches #"^SBS[0-9]{6}|(?:978-|979-)?\d{1,5}-\d{1,7}-\d{1,6}-[0-9xX]" s))))) ;; ISBN
+;; SBS catalogue number, ISBN-13 or ISBN-10. Only an ISBN-10 can have X as check digit
+(s/def ::source (s/nilable (s/and string? (fn [s] (re-matches #"SBS[0-9]{6}|97[89]-\d{1,5}-\d{1,7}-\d{1,6}-\d|\d{1,5}-\d{1,7}-\d{1,6}-[0-9X]" s)))))
 (s/def ::language (s/and string? #(re-matches #"^(de|de-1901|de-CH|it|rm-sursilv|en)$" %)))
 (s/def ::rights (s/nilable string?))
 (s/def ::source-date (s/nilable local-date?))

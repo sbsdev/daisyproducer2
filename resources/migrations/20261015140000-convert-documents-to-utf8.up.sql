@@ -1,5 +1,5 @@
--- ISBNs are compared exactly from now on, so store them consistently
--- with an upper case X, as the queries do
+-- ISBNs are compared exactly from now on, and the ISBN check only accepts
+-- an upper case X, so store the existing ones consistently
 
 UPDATE documents_document
 SET source = UPPER(source)

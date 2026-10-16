@@ -2,9 +2,18 @@
   (:require
    [clojure.data.xml :as xml]
    [clojure.java.io :as io]
+   [clojure.spec.alpha :as s]
    [clojure.test :refer :all]
    [daisyproducer2.documents.abacus :refer :all]
    [java-time.api :as time]))
+
+(deftest abacus-source
+  (testing "Valid sources"
+    (are [source] (s/valid? :daisyproducer2.documents.abacus/source source)
+      nil "SBS123456" "978-3-596-29181-6" "979-10-90636-07-1" "3-85580-169-X"))
+  (testing "Invalid sources"
+    (are [source] (not (s/valid? :daisyproducer2.documents.abacus/source source))
+      "978-3-596-29181-x" "978-3-596-29181-X" "3-85580-169-x" "SBS12345" "keine" "3-85580-169-Y" "SBS123456 ")))
 
 (defrecord Raw [product-number title creator language source date
                 source-publisher source-edition

@@ -14,8 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Store all document metadata, products, states and versions as utf8, so
   that characters outside latin1 (dashes, typographic quotes, …) are no
   longer replaced with `?`. Requires running the migrations (`migrate`)
-- Store and look up ISBNs in upper case, so that an ISBN-10 with a lower
-  case check digit `x` matches the same document as one with `X`
+- Stricter ISBN check in the ABACUS import and the REST API: only an
+  ISBN-10 may end with the check digit `X`, and only in upper case. The
+  migration upper cases the existing ISBNs
 
 ### Fixed
 - Image names that differ only in umlauts or case (`kröte.jpeg` and
