@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Image names that differ only in umlauts or case (`kröte.jpeg` and
   `krote.jpeg`) no longer overwrite each other in the database
+- Documents with statistics from the old system can be deleted again. The
+  statistics are kept, without the document
 
 ## [0.9.38] - 2026-09-08
 
