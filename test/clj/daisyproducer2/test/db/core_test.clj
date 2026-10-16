@@ -24,9 +24,14 @@
 (deftest ^:database test-confirmable
   (jdbc/with-transaction [t-conn *db* {:rollback-only true}]
     (let [confirmable (count (db/get-confirmable-words t-conn {:limit 10000 :offset 0} {}))
+          ;; create our own document, so that the test does not depend on the contents of the db
+          document-id (db/get-generated-key
+                       (db/insert-document t-conn {:title "Test" :author "Test" :publisher "Test"
+                                                   :date "2026-01-01" :identifier "test-confirmable"
+                                                   :language "de"}))
           word {:untranslated "hahaha2" :contracted "H+H+H+2" :uncontracted "HAHAHA2"
-                :type 0 :homograph-disambiguation "" :document-id 770 :islocal false}
+                :type 0 :homograph-disambiguation "" :document-id document-id :islocal false}
           _ (db/insert-local-word t-conn word)
-          ;; make sure the document is in state closed
-          _ (db/update-document-state t-conn {:id 770 :state "closed"})]
+          ;; only words of closed documents can be confirmed
+          _ (db/update-document-state t-conn {:id document-id :state "closed"})]
       (is (= (inc confirmable) (count (db/get-confirmable-words t-conn {:limit 10000 :offset 0} {})))))))
