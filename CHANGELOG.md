@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.39] - 2026-10-16
+
 ### Added
 - Documentation of the database schema, generated from the live database
 
@@ -54,7 +56,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Prevent updates to `production-series` and `production-series-number` if the ABACUS import is not for a PS product
 
-[Unreleased]: https://github.com/sbsdev/daisyproducer2/compare/0.9.38...HEAD
+[Unreleased]: https://github.com/sbsdev/daisyproducer2/compare/0.9.39...HEAD
+[0.9.39]: https://github.com/sbsdev/daisyproducer2/compare/0.9.38...0.9.39
 [0.9.38]: https://github.com/sbsdev/daisyproducer2/compare/0.9.37...0.9.38
 [0.9.37]: https://github.com/sbsdev/daisyproducer2/compare/0.9.36...0.9.37
 [0.9.36]: https://github.com/sbsdev/daisyproducer2/compare/0.9.35...0.9.36
