@@ -82,7 +82,6 @@ CREATE TABLE `documents_product` (
   `document_id` int(11) NOT NULL,
   `is_unique` tinyint(1) AS (CASE WHEN type <> 0 THEN TRUE ELSE NULL END) PERSISTENT,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `identifier` (`identifier`),
   UNIQUE KEY `product_identifier_unique` (`identifier`),
   UNIQUE KEY `product_document_id_type_partial_unique` (`is_unique`,`type`,`document_id`),
   KEY `documents_product_f4226d13` (`document_id`),
