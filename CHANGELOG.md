@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Record the number of words and of unknown words for both grades when
+  the first version of a document is uploaded, to see how well the
+  dictionaries cover new books over the years (#94)
+
+### Changed
+- Keep only the first statistics entry per document and grade of the
+  old system, which recorded one every time words were confirmed.
+  Back up `statistics_documentstatistic` before deploying, the deleted
+  entries cannot be restored
+
 ## [0.9.39] - 2026-10-16
 
 ### Added
