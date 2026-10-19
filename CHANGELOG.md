@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.40] - 2026-10-19
+
 ### Added
 - Record the number of words and of unknown words for both grades when
   the first version of a document is uploaded, to see how well the
@@ -67,7 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Prevent updates to `production-series` and `production-series-number` if the ABACUS import is not for a PS product
 
-[Unreleased]: https://github.com/sbsdev/daisyproducer2/compare/0.9.39...HEAD
+[Unreleased]: https://github.com/sbsdev/daisyproducer2/compare/0.9.40...HEAD
+[0.9.40]: https://github.com/sbsdev/daisyproducer2/compare/0.9.39...0.9.40
 [0.9.39]: https://github.com/sbsdev/daisyproducer2/compare/0.9.38...0.9.39
 [0.9.38]: https://github.com/sbsdev/daisyproducer2/compare/0.9.37...0.9.38
 [0.9.37]: https://github.com/sbsdev/daisyproducer2/compare/0.9.36...0.9.37
