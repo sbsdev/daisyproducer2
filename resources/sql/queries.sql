@@ -594,6 +594,20 @@ AND g.untranslated IS NULL
 AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.uncontracted IS NULL))
 )) AS INT) AS total
 
+----------------
+-- Statistics --
+----------------
+
+-- :name get-statistic :? :1
+-- :doc retrieve the statistic for the given `document-id` and `grade`
+SELECT * FROM statistics_documentstatistic
+WHERE document_id = :document-id AND grade = :grade
+
+-- :name insert-statistic :! :n
+-- :doc Insert the `total` number of words and the number of `unknown` words for the given `document-id` and `grade`, unless there is a statistic for them already (unique key). Only the first version of a document is recorded, as it shows how well the dictionaries cover a new book.
+INSERT IGNORE INTO statistics_documentstatistic (date, document_id, grade, total, unknown)
+VALUES (NOW(), :document-id, :grade, :total, :unknown)
+
 -----------------------
 -- Confirmable words --
 -----------------------

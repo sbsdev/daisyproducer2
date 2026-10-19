@@ -8,6 +8,7 @@
             [daisyproducer2.metrics :as metrics]
             [daisyproducer2.whitelists.async :as whitelists]
             [daisyproducer2.words :as words]
+            [daisyproducer2.words.statistics :as statistics]
             [iapetos.collector.fn :as prometheus]
             [sigel.xpath.core :as xpath]
             [sigel.xslt.core :as xslt]))
@@ -142,15 +143,23 @@
                    (get-plain xml document-id))]
     (if (empty? new-words)
       [] ; if there are no new words there are no unknown words
-      (conman/with-transaction [db/*db*]
-        (db/delete-unknown-words {:document-id document-id})
-        (db/insert-unknown-words {:words new-words})
-        (let [deleted (db/delete-non-existing-unknown-words-from-local-words
-                         {:document-id document-id})]
-            (log/infof "Deleted %s local words that were not in unknown words for book %s"
-                       deleted document-id)
-            (when (pos? deleted)
-              (whitelists/export-local-tables document-id)))))))
+      (let [result
+            (conman/with-transaction [db/*db*]
+              (db/delete-unknown-words {:document-id document-id})
+              (db/insert-unknown-words {:words new-words})
+              (let [deleted (db/delete-non-existing-unknown-words-from-local-words
+                             {:document-id document-id})]
+                (log/infof "Deleted %s local words that were not in unknown words for book %s"
+                           deleted document-id)
+                (when (pos? deleted)
+                  (whitelists/export-local-tables document-id))))]
+        ;; the version is stored already, so a failure to record the
+        ;; statistics should not fail the upload
+        (try
+          (statistics/put-statistics document-id (count new-words))
+          (catch Exception e
+            (log/errorf e "Could not record the statistics for book %s" document-id)))
+        result))))
 
 (defn get-words
   "Retrieve all unknown words for given document-id `id` and `grade`.
