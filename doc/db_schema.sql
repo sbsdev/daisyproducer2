@@ -123,6 +123,6 @@ CREATE TABLE `statistics_documentstatistic` (
   `total` int(10) unsigned NOT NULL,
   `unknown` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `statistics_documentstatistic_document_id_index` (`document_id`),
+  UNIQUE KEY `statistics_documentstatistic_document_id_grade_unique` (`document_id`,`grade`),
   CONSTRAINT `fk_statistics_documentstatistic__documents_document` FOREIGN KEY (`document_id`) REFERENCES `documents_document` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
