@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- REST endpoint `GET /api/statistics` to read the statistics about
+  unknown words, as JSON or with `format=csv` as a file for Excel (#94)
+
 ## [0.9.40] - 2026-10-19
 
 ### Added
