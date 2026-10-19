@@ -24,6 +24,7 @@
    [daisyproducer2.words.confirm :as confirm]
    [daisyproducer2.words.global :as global]
    [daisyproducer2.words.local :as local]
+   [daisyproducer2.words.statistics :as statistics]
    [daisyproducer2.words.unknown :as unknown]
    [failjure.core :as f]
    [reitit.coercion.spec :as spec-coercion]
@@ -39,6 +40,7 @@
 (s/def ::grade (s/and int? #(<= 0 % 2)))
 (s/def ::type (s/and int? #(<= 0 % 5)))
 (s/def ::spelling (s/and int? #{0 1}))
+(s/def ::statistics-format #{"json" "csv"})
 (s/def ::braille (s/and string? validation/braille-valid?))
 (s/def ::hyphenation (s/and string? validation/hyphenation-valid?))
 (s/def ::state #{"open" "closed"})
@@ -831,4 +833,16 @@
                           (catch java.nio.file.FileSystemException e
                             (log/error (str e))
                             (internal-server-error {:status-text (str e)}))))}}]]
+
+   ["/statistics"
+    {:swagger {:tags ["Statistics"]}
+     :get {:summary "Get the number of words and of unknown words per grade of the first version of all documents. With `format=csv` they are returned as a CSV file for Excel."
+           :parameters {:query {(spec/opt :format) ::statistics-format}}
+           :handler (fn [{{{:keys [format]} :query} :parameters}]
+                      (let [statistics (statistics/get-statistics)]
+                        (if (= format "csv")
+                          (-> (ok (statistics/statistics->csv statistics))
+                              (content-type "text/csv; charset=utf-8")
+                              (header "Content-Disposition" "attachment; filename=\"statistics.csv\""))
+                          (ok statistics))))}}]
    ])

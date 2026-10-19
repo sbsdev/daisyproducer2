@@ -57,6 +57,7 @@
                  [org.clojure/clojurescript "1.11.60" :scope "provided"]
                  [org.clojure/core.async "1.6.681"]
                  [org.clojure/data.codec "0.2.0"] ; to talk to the DAISY Pipeline2
+                 [org.clojure/data.csv "1.1.1"] ; to export the statistics
                  [org.clojure/data.zip "1.1.0"] ; to talk to the DAISY Pipeline2
                  [org.clojure/tools.cli "1.1.230"]
                  [org.clojure/tools.logging "1.3.0"]

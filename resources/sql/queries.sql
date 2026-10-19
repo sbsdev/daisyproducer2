@@ -598,6 +598,13 @@ AND (((:grade IN (0,2)) AND l.contracted IS NULL) OR ((:grade IN (0,1)) AND l.un
 -- Statistics --
 ----------------
 
+-- :name get-statistics :? :*
+-- :doc retrieve all statistics together with the document they belong to. Statistics of deleted documents have no document data.
+SELECT s.date, s.document_id, d.title, d.author, d.source, d.language, s.grade, s.total, s.unknown
+FROM statistics_documentstatistic s
+LEFT JOIN documents_document d ON d.id = s.document_id
+ORDER BY s.date, s.document_id, s.grade
+
 -- :name get-statistic :? :1
 -- :doc retrieve the statistic for the given `document-id` and `grade`
 SELECT * FROM statistics_documentstatistic
