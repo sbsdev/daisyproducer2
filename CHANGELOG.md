@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.41] - 2026-10-19
+
 ### Added
 - REST endpoint `GET /api/statistics` to read the statistics about
   unknown words, as JSON or with `format=csv` as a file for Excel (#94)
@@ -73,7 +75,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Prevent updates to `production-series` and `production-series-number` if the ABACUS import is not for a PS product
 
-[Unreleased]: https://github.com/sbsdev/daisyproducer2/compare/0.9.40...HEAD
+[Unreleased]: https://github.com/sbsdev/daisyproducer2/compare/0.9.41...HEAD
+[0.9.41]: https://github.com/sbsdev/daisyproducer2/compare/0.9.40...0.9.41
 [0.9.40]: https://github.com/sbsdev/daisyproducer2/compare/0.9.39...0.9.40
 [0.9.39]: https://github.com/sbsdev/daisyproducer2/compare/0.9.38...0.9.39
 [0.9.38]: https://github.com/sbsdev/daisyproducer2/compare/0.9.37...0.9.38
