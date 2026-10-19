@@ -35,6 +35,14 @@ lein splint                     # Splint (idiom/style linter)
 lein clj-kondo --lint src       # clj-kondo
 ```
 
+### Release
+```bash
+lein release                    # Bump the version, turn [Unreleased] in CHANGELOG.md into a section
+                                # for the new version, commit, tag, bump to the next SNAPSHOT and push
+git push origin <version>       # If pushing the tag failed: GitHub builds the release jar only for a pushed tag
+```
+The steps are defined in `:release-tasks` in `project.clj` (`lein help release` only shows the defaults). The changelog step (`scripts/changelog_release.clj`) stops the release if `[Unreleased]` is empty. Deployment is done separately with the Ansible playbook in the `sbs-infrastructure` repository, which also runs the database migrations.
+
 ### Frontend
 ```bash
 npm install                     # Install JS dependencies (react, react-dom, xregexp)
