@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   accessing the database of the retired hyphen-keeper through a view.
   The test server no longer shares, and changes, the hyphenations of
   production. Requires running the migrations (`migrate`)
+- Deleting a global word also deletes its hyphenations, unless another
+  word still uses them
 
 ### Fixed
 - Deleting a local word or a hyphenation no longer deletes the
