@@ -93,9 +93,10 @@ entity "documents_version" {
 }
 
 entity "hyphenation_words" {
-  word : varchar(255)
+  *word : varchar(255)
+  *spelling : tinyint(4)
+  --
   hyphenation : varchar(255)
-  spelling : tinyint(4)
 }
 
 entity "statistics_documentstatistic" {

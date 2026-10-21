@@ -106,7 +106,13 @@ CREATE TABLE `documents_version` (
   CONSTRAINT `fk_documents_version__documents_document` FOREIGN KEY (`document_id`) REFERENCES `documents_document` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`daisyproducer`@`w302.sbszh.ch` SQL SECURITY DEFINER VIEW `hyphenation_words` AS select `hyphenation`.`words`.`word` AS `word`,`hyphenation`.`words`.`hyphenation` AS `hyphenation`,`hyphenation`.`words`.`spelling` AS `spelling` from `hyphenation`.`words`;
+CREATE TABLE `hyphenation_words` (
+  `word` varchar(255) COLLATE utf8_bin NOT NULL,
+  `hyphenation` varchar(255) COLLATE utf8_bin NOT NULL,
+  `spelling` tinyint(4) NOT NULL,
+  PRIMARY KEY (`word`,`spelling`),
+  KEY `hyphenation_words_spelling_index` (`spelling`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `schema_migrations` (
   `id` bigint(20) NOT NULL,
