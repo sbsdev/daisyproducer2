@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Keep the hyphenations in the daisyproducer2 database instead of
+  accessing the database of the retired hyphen-keeper through a view.
+  The test server no longer shares, and changes, the hyphenations of
+  production. Requires running the migrations (`migrate`)
+
+### Fixed
+- Deleting a local word or a hyphenation no longer deletes the
+  hyphenation while a global word or a local word of another document
+  still uses it (#153)
+
 ## [0.9.41] - 2026-10-19
 
 ### Added
