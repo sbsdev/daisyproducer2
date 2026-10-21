@@ -352,7 +352,7 @@ AND homograph_disambiguation = :homograph-disambiguation
 AND document_id = :document-id
 
 -- :name insert-local-word :! :n
--- :doc Insert or update a word in the local dictionary. Optionally specify `isconfirmed`.
+-- :doc Insert or update a word in the local dictionary. Optionally specify `isconfirmed`. Only local words stay confirmed: a word that is not local unconfirms it, so that it has to be confirmed again before it goes to the global words.
 INSERT INTO dictionary_localword (
        untranslated,
 --~ (when (:contracted params) "contracted,")
@@ -375,7 +375,7 @@ VALUES (
 ON DUPLICATE KEY UPDATE
 --~ (when (:contracted params) "contracted = VALUES(contracted),")
 --~ (when (:uncontracted params) "uncontracted = VALUES(uncontracted),")
---~ (when (:isconfirmed params) "isConfirmed = VALUES(isConfirmed),")
+--~ (if (:isconfirmed params) "isConfirmed = VALUES(isConfirmed)," "isConfirmed = IF(VALUES(isLocal), isConfirmed, FALSE),")
 isLocal = VALUES(isLocal)
 
 -- :name delete-local-word-partial :! :n

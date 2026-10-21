@@ -102,3 +102,21 @@
             (db/insert-global-word word)
             (global/delete-word word)
             (is (= 0 (hyphenations)))))))))
+
+(deftest ^:database test-unconfirm-non-local-word
+  (jdbc/with-transaction [t-conn *db* {:rollback-only true}]
+    (let [document-id (db/get-generated-key
+                       (db/insert-document t-conn {:title "Test" :author "Test" :publisher "Test"
+                                                   :date "2026-01-01" :identifier "test-unconfirm-non-local-word"
+                                                   :language "de"}))
+          word {:untranslated "xqzzyvorbelpf" :uncontracted "XQZZYVORBELPF" :contracted "XQZZYVORBELPF"
+                :type 0 :homograph-disambiguation "" :document-id document-id}
+          confirmed? #(:isConfirmed (jdbc/execute-one! t-conn ["SELECT isConfirmed FROM dictionary_localword WHERE untranslated = ? AND document_id = ?" (:untranslated word) document-id]
+                                                       {:builder-fn next.jdbc.result-set/as-unqualified-maps}))]
+      (db/insert-local-word t-conn (assoc word :islocal true :isconfirmed true))
+      (testing "a local word stays confirmed when it is saved again"
+        (db/insert-local-word t-conn (assoc word :islocal true))
+        (is (true? (confirmed?))))
+      (testing "a word that is saved as not local has to be confirmed again"
+        (db/insert-local-word t-conn (assoc word :islocal false))
+        (is (false? (confirmed?)))))))
