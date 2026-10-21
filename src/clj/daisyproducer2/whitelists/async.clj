@@ -33,9 +33,10 @@
                  (when-let [document-id (<! write-ch)]
                    (try
                      (tables/export-local-tables document-id)
+                     ;; an exception would end the loop and thus all
+                     ;; further exports, so just log it
                      (catch Exception e
-                       (log/error "Exception when exporting: " (.getMessage e))
-                       (throw e))) ; bubble the exception up
+                       (log/errorf e "Exception when exporting the local tables of %s" document-id)))
                    (recur))))
 
            (go-loop [document-ids #{}]

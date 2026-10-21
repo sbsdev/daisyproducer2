@@ -119,9 +119,10 @@
       (when-let [_ (async/<! debounce-chan)]
         (try
           (export*)
+          ;; an exception would end the go-loop and thus all further
+          ;; exports, so just log it
           (catch Exception e
-            (log/error "Exception when exporting: " (.getMessage e))
-            (throw e))) ; bubble the exception up
+            (log/error e "Exception when exporting")))
         (recur)))
     debounce-chan))
 
