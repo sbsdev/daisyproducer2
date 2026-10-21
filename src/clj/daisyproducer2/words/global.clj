@@ -28,10 +28,11 @@
   (let [deletions
         (db/delete-global-word
          (words/to-db word [:untranslated :type :homograph-disambiguation] words/dictionary-mapping))]
-
-    (when (:hyphenated word)
-      (db/insert-hyphenation
-       (words/to-db word words/hyphenation-keys words/hyphenation-mapping))
+    ;; a global word applies to both spellings. The db only deletes a
+    ;; hyphenation if no other word refers to it any more
+    (when (and (pos? deletions)
+               (pos? (+ (db/delete-hyphenation {:word (:untranslated word) :spelling 0})
+                        (db/delete-hyphenation {:word (:untranslated word) :spelling 1}))))
       (hyphenations/export))
     deletions))
 

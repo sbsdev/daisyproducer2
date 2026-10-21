@@ -5,6 +5,8 @@
    [clojure.test :refer :all]
    [next.jdbc :as jdbc]
    [daisyproducer2.config :refer [env]]
+   [daisyproducer2.whitelists.hyphenation :as hyphenations]
+   [daisyproducer2.words.global :as global]
    [daisyproducer2.words.statistics :as statistics]
    [mount.core :as mount]))
 
@@ -76,3 +78,27 @@
         (db/delete-local-word t-conn (assoc word :document-id other-document-id)))
       (testing "the hyphenation is deleted once no word refers to it any more"
         (is (= 1 (delete)))))))
+
+(deftest ^:database test-delete-global-word
+  (jdbc/with-transaction [t-conn *db* {:rollback-only true}]
+    (let [word {:untranslated "xqzzyvorbelpf" :uncontracted "XQZZYVORBELPF" :contracted "XQZZYVORBELPF"
+                :type 0 :homograph-disambiguation ""}
+          hyphenations #(:n (jdbc/execute-one! t-conn ["SELECT COUNT(*) AS n FROM hyphenation_words WHERE word = ?" (:untranslated word)]))]
+      (with-redefs [hyphenations/export (constantly nil)]
+        (binding [*db* t-conn]
+          (doseq [spelling [0 1]]
+            (db/insert-hyphenation {:word (:untranslated word) :hyphenation "xqzzy-vor-belpf" :spelling spelling}))
+          (testing "the hyphenations are kept while a local word refers to them"
+            (let [document-id (db/get-generated-key
+                               (db/insert-document {:title "Test" :author "Test" :publisher "Test"
+                                                    :date "2026-01-01" :identifier "test-delete-global-word"
+                                                    :language "de"}))]
+              (db/insert-local-word (assoc word :document-id document-id :islocal false))
+              (db/insert-global-word word)
+              (global/delete-word word)
+              (is (= 2 (hyphenations)))
+              (db/delete-local-word (assoc word :document-id document-id))))
+          (testing "the hyphenations of both spellings are deleted with the last word"
+            (db/insert-global-word word)
+            (global/delete-word word)
+            (is (= 0 (hyphenations)))))))))
