@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deleting a local word or a hyphenation no longer deletes the
   hyphenation while a global word or a local word of another document
   still uses it (#153)
+- After a failed export the hyphenation tables and the local tables are
+  exported again on the next change, instead of only after a restart
 
 ## [0.9.41] - 2026-10-19
 
