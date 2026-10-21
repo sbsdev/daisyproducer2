@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   still uses it (#153)
 - After a failed export the hyphenation tables and the local tables are
   exported again on the next change, instead of only after a restart
+- A confirmed local word that is changed to not local has to be
+  confirmed again, instead of staying in the local words for good. The
+  words that got stuck that way show up for confirmation again (#154)
 
 ## [0.9.41] - 2026-10-19
 
