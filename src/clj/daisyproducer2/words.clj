@@ -90,11 +90,7 @@
   {1 :uncontracted
    2 :contracted})
 
-(def hyphenation-keys [:untranslated :hyphenated :spelling
-                       ;; when deleting a hyphenation we also need the
-                       ;; document-id to be able to check for
-                       ;; references in the local words
-                       :document-id])
+(def hyphenation-keys [:untranslated :hyphenated :spelling])
 
 (def hyphenation-mapping {:untranslated :word
                           :hyphenated :hyphenation})

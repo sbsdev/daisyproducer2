@@ -656,19 +656,15 @@ ON DUPLICATE KEY UPDATE
 hyphenation = VALUES(hyphenation)
 
 -- :name delete-hyphenation :! :n
--- :doc Delete a hyphenation word `:word` and `:spelling` if there are no more references to it from either the local words, if `:document-id` is given, or the global words otherwise.
+-- :doc Delete a hyphenation word `:word` and `:spelling` if there are no more references to it. The hyphenations are shared by the global words and the local words of all documents, so all of them are checked.
 DELETE FROM hyphenation_words
 WHERE word = :word
 AND spelling = :spelling
-/*~ (if (:document-id params) */
 AND NOT EXISTS (
     SELECT * FROM dictionary_localword
     WHERE untranslated = :word
-    AND document_id = :document-id
 )
-/*~*/
 AND NOT EXISTS (
     SELECT * FROM dictionary_globalword
     WHERE untranslated = :word
 )
-/*~ ) ~*/

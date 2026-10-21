@@ -54,3 +54,25 @@
         (binding [*db* t-conn]
           (is (= 0 (statistics/put-statistics document-id 42))))
         (is (= 2 (count (rows))))))))
+
+(deftest ^:database test-delete-hyphenation
+  (jdbc/with-transaction [t-conn *db* {:rollback-only true}]
+    (let [other-document-id (db/get-generated-key
+                             (db/insert-document t-conn {:title "Test" :author "Test" :publisher "Test"
+                                                         :date "2026-01-01" :identifier "test-delete-hyphenation"
+                                                         :language "de"}))
+          hyphenation {:word "xqzzyvorbelpf" :hyphenation "xqzzy-vor-belpf" :spelling 1}
+          word {:untranslated "xqzzyvorbelpf" :uncontracted "XQZZYVORBELPF" :contracted "XQZZYVORBELPF"
+                :type 0 :homograph-disambiguation ""}
+          delete #(db/delete-hyphenation t-conn (dissoc hyphenation :hyphenation))]
+      (db/insert-hyphenation t-conn hyphenation)
+      (testing "the hyphenation is kept while a global word refers to it"
+        (db/insert-global-word t-conn word)
+        (is (= 0 (delete)))
+        (db/delete-global-word t-conn word))
+      (testing "the hyphenation is kept while a local word of another document refers to it"
+        (db/insert-local-word t-conn (assoc word :document-id other-document-id :islocal false))
+        (is (= 0 (delete)))
+        (db/delete-local-word t-conn (assoc word :document-id other-document-id)))
+      (testing "the hyphenation is deleted once no word refers to it any more"
+        (is (= 1 (delete)))))))
